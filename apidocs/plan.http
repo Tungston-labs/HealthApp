@@ -1,0 +1,43 @@
+@base_url = http://127.0.0.1:8000/api/plan/
+
+### Create plan
+POST {{base_url}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNDAzNjQyLCJpYXQiOjE3NjMzNjA0NDIsImp0aSI6ImU2MjYwNWE0Y2U1MjQ2ZGQ4Mjc1YTkzNjNjMjgxODkxIiwidXNlcl9pZCI6IjEifQ.KGmR_YxZG0t5szyU1LHuj-HOs_fNhyXgIxRDgd53sTI
+Content-Type: application/json
+
+{
+"plan_name":"",
+"plan_type":"",
+"single_price":"",
+"couple_price":"",
+"group_price":"",
+"description":"",
+"upload_file":""
+}
+
+### List all plan
+GET {{base_url}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNDAzNjQyLCJpYXQiOjE3NjMzNjA0NDIsImp0aSI6ImU2MjYwNWE0Y2U1MjQ2ZGQ4Mjc1YTkzNjNjMjgxODkxIiwidXNlcl9pZCI6IjEifQ.KGmR_YxZG0t5szyU1LHuj-HOs_fNhyXgIxRDgd53sTI
+
+### detail view by id
+GET {{base_url}}1/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNDAzNjQyLCJpYXQiOjE3NjMzNjA0NDIsImp0aSI6ImU2MjYwNWE0Y2U1MjQ2ZGQ4Mjc1YTkzNjNjMjgxODkxIiwidXNlcl9pZCI6IjEifQ.KGmR_YxZG0t5szyU1LHuj-HOs_fNhyXgIxRDgd53sTI
+
+### delete single plan
+DELETE {{base_url}}1/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNDAzNjQyLCJpYXQiOjE3NjMzNjA0NDIsImp0aSI6ImU2MjYwNWE0Y2U1MjQ2ZGQ4Mjc1YTkzNjNjMjgxODkxIiwidXNlcl9pZCI6IjEifQ.KGmR_YxZG0t5szyU1LHuj-HOs_fNhyXgIxRDgd53sTI
+
+### edit single plan
+PUT {{base_url}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNDAzNjQyLCJpYXQiOjE3NjMzNjA0NDIsImp0aSI6ImU2MjYwNWE0Y2U1MjQ2ZGQ4Mjc1YTkzNjNjMjgxODkxIiwidXNlcl9pZCI6IjEifQ.KGmR_YxZG0t5szyU1LHuj-HOs_fNhyXgIxRDgd53sTI
+Content-Type: application/json
+
+{
+"plan_name":"",
+"plan_type":"",
+"single_price":"",
+"couple_price":"",
+"group_price":"",
+"description":"",
+"upload_file":""
+}

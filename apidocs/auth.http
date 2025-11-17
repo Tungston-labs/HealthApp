@@ -1,0 +1,69 @@
+
+@base_url = http://127.0.0.1:8000/api/auth
+
+
+###----------------------login/get access token and refresh token
+POST {{base_url}}/login/
+Content-Type: application/json
+
+{
+  "email_or_phno": "admin@gmail.com",
+  "password": "Password@123"
+}
+
+###--------------------------logout
+POST {{base_url}}/logout/
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzMTAzMzc5LCJpYXQiOjE3NjMxMDMwNzksImp0aSI6ImQ4NGIyN2U1MTBhODRlMTE4OGNlZjY5ZGI3NTk2YWU4IiwidXNlcl9pZCI6IjEifQ.Wom21AN9otQAL_DmcRwjNx3LRI8ZDkmyWpLUlqTpY-E
+
+{
+  "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2MzE4OTQ3OSwiaWF0IjoxNzYzMTAzMDc5LCJqdGkiOiJlMGY0ODkxZmFjNjY0ZjUyYWY4NzAzMjBmMzZlNjFhMiIsInVzZXJfaWQiOiIxIn0.j-qCuZms0VRKIwecOgucJzKa9IHpndF_JVRpTw1jImw"
+}
+
+
+###----------------------------------forgot password
+
+POST {{base_url}}/forgot-password/step1/
+Content-Type: application/json
+
+{
+  "email": "admin@gmail.com"
+
+}
+
+###--------------------------verify otp----
+POST {{base_url}}/forgot-password/verify-otp/
+Content-Type: application/json
+
+{
+  "email": "admin@gmail.com",
+  "otp": "807543"
+}
+
+###--------------------------------reset password
+POST {{base_url}}/forgot-password/reset/
+Content-Type: application/json
+
+{
+  "email": "admin@gmail.com",
+  "password": "Password@123",
+  "confirm_password": "Password@123"
+}
+###--------------------change password
+POST {{base_url}}/change-password/
+Content-Type: application/json
+Authorization: Bearer <access_token>
+
+{
+  "old_password": "123456",
+  "new_password": "newpass123",
+  "confirm_new_password": "newpass123"
+}
+
+###--------------------------get access token using refresh token
+POST {{base_url}}/token/refresh/
+Content-Type: application/json
+
+{
+  "refresh": "<refresh_token>"
+}

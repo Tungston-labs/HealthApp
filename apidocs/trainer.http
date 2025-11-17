@@ -1,0 +1,84 @@
+@base_url = http://127.0.0.1:8000/api/trainer/
+
+###----------------------login/get access token and refresh token
+POST http://127.0.0.1:8000/api/auth/login/
+Content-Type: application/json
+
+{
+  "email_or_phno": "7011126542",
+  "password": "Password@1234"
+}
+
+### Trainer Registration
+POST {{base_url}}
+Content-Type: application/json
+
+{
+  "name": "NISNA",
+  "phno": "7025220037",
+  "email": "niss@yahoo.com",
+  "dob": "1994-05-16",
+  "training_field": "Yoga Trainer",
+  "section_timing": "30",
+  "gender": "female",
+  "location": "Mumbai",
+  "expecting_salary": "25000.00",
+  "no_of_section": 3,
+  "adar_number": "989822320000",
+  "adar_image": "http://127.0.0.1:8000/media/certificates/IDCARD.webp",
+  "password": "Password@1234",
+  "certificates": [
+    "http://127.0.0.1:8000/media/certificates/IDCARD.webp","http://127.0.0.1:8000/media/certificates/IDCARD.webp"
+  ]
+}
+
+
+
+### Trainer List (Admin Only)
+GET {{base_url}}list/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNDAzNjQyLCJpYXQiOjE3NjMzNjA0NDIsImp0aSI6ImU2MjYwNWE0Y2U1MjQ2ZGQ4Mjc1YTkzNjNjMjgxODkxIiwidXNlcl9pZCI6IjEifQ.KGmR_YxZG0t5szyU1LHuj-HOs_fNhyXgIxRDgd53sTI
+
+
+### Trainer Detail (Retrieve)
+GET {{base_url}}9/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzMzUyMzQxLCJpYXQiOjE3NjMzNTIwNDEsImp0aSI6IjFjN2YxNGVjZjUwOTRiZDE4ZjA3M2FjOTNmY2EwNjQ2IiwidXNlcl9pZCI6IjEifQ.ACij0LlKUKok5njkbs2jj9aAV386lW3jurneqK9ir5w
+
+
+
+
+### Trainer Partial Update (PATCH)
+PATCH {{base_url}}14/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzMzk2Mjk1LCJpYXQiOjE3NjMzNTMwOTUsImp0aSI6IjM5ZTBhNzI3N2Y4YTRlMWVhZTc1NDllOGJiZjQ1ZTQ4IiwidXNlcl9pZCI6IjEifQ.ASwRrBlpQE4VSoVu4Ybz8Va3caOvvSGf7tCcLPF2JEw
+Content-Type: application/json
+
+{
+  "status": "approved"
+}
+
+
+
+
+### Trainer Delete (Admin)
+DELETE {{base_url}}1/
+Authorization: Bearer <access_token>
+
+# =================================================MOBILE APP==================================================
+
+### Get Trainer Profile
+GET {{base_url}}profile/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNDA4NDYwLCJpYXQiOjE3NjMzNjUyNjAsImp0aSI6Ijk3NjkyMDM4YjU5NTQ4NjliMjFiYmZkODE4ZWM5MTgyIiwidXNlcl9pZCI6IjQifQ.koPBJ1LU560FFaPOMZAUE7p1HJr7uQBUd8oR6NN8yI4
+Content-Type: application/json
+
+### Edit Trainer Profile
+PATCH {{base_url}}profile/edit/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNDA4NDYwLCJpYXQiOjE3NjMzNjUyNjAsImp0aSI6Ijk3NjkyMDM4YjU5NTQ4NjliMjFiYmZkODE4ZWM5MTgyIiwidXNlcl9pZCI6IjQifQ.koPBJ1LU560FFaPOMZAUE7p1HJr7uQBUd8oR6NN8yI4
+Content-Type: application/json
+
+{
+  "name": "jesna jamal"
+
+}
+
+### List Pending Trainers
+GET {{base_url}}trainers/pending/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNDA5ODUxLCJpYXQiOjE3NjMzNjY2NTEsImp0aSI6IjhkNDBmNWY3MDc3ZDRhMDA5ZjIwYzVlYTMwYTNmYjc4IiwidXNlcl9pZCI6IjEifQ.vQkS6wLWkCnBhsY3t91sTv6YiJeAytmQZ1mE-oOtH9A
