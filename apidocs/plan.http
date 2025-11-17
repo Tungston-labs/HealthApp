@@ -41,3 +41,16 @@ Content-Type: application/json
 "description":"",
 "upload_file":""
 }
+
+
+# ---------------------------------------MOBILE APPLICATON----------------------------------------------
+
+
+
+### List plans by clients
+GET {{base_url}}clientlist/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNDIzODUyLCJpYXQiOjE3NjMzODA2NTIsImp0aSI6IjdhYzk0NTFmMGI1YzRmMjU4YTU3NTEyYjFhZGQ0MmVjIiwidXNlcl9pZCI6IjUifQ.qz6bPLLMhsRXTSv4egb4loALVGuibSKC4z0jSd5SZo4
+
+### detail plan view for client
+GET {{base_url}}clientview/1/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNDIzODUyLCJpYXQiOjE3NjMzODA2NTIsImp0aSI6IjdhYzk0NTFmMGI1YzRmMjU4YTU3NTEyYjFhZGQ0MmVjIiwidXNlcl9pZCI6IjUifQ.qz6bPLLMhsRXTSv4egb4loALVGuibSKC4z0jSd5SZo4

@@ -2,7 +2,7 @@
 from rest_framework import generics
 from .models import Plan
 from .serializers import PlanSerializer
-from accounts.permissions import IsAdmin
+from accounts.permissions import IsAdmin,IsUser
 
 class PlanListCreateView(generics.ListCreateAPIView):
     queryset = Plan.objects.all().order_by('-created_at')
@@ -13,3 +13,13 @@ class PlanRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Plan.objects.all()
     serializer_class = PlanSerializer
     permission_classes = [IsAdmin]
+
+class PlanListView(generics.ListAPIView):
+    queryset = Plan.objects.all()
+    serializer_class = PlanSerializer
+    permission_classes = [IsUser]
+
+class PlanDetailView(generics.RetrieveAPIView):
+    queryset = Plan.objects.all()
+    serializer_class = PlanSerializer
+    permission_classes = [IsUser]

@@ -1,6 +1,9 @@
 from rest_framework import generics, permissions
 from .models import Client
 from .serializers import ClientSerializer
+from plan.models import Plan
+from plan.serializers import PlanSerializer
+from accounts.permissions import IsUser
 
 class ClientCreateView(generics.CreateAPIView):
     queryset = Client.objects.all()
