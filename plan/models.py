@@ -12,7 +12,7 @@ class Plan(models.Model):
     couple_price = models.DecimalField(max_digits=10, decimal_places=2)
     group_price = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField()
-    upload_file = models.FileField(upload_to="plans/files/", null=True, blank=True)  
+    upload_file = models.ImageField(upload_to="plans/images/", null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

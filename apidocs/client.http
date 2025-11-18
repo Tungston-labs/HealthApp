@@ -5,7 +5,7 @@ POST http://127.0.0.1:8000/api/auth/login/
 Content-Type: application/json
 
 {
-  "email_or_phno": "9876543210",
+  "email_or_phno": "987657012210",
   "password": "Password@123"
 }
 ### Client Registration
@@ -13,14 +13,14 @@ POST {{base_url}}register/
 Content-Type: application/json
 
 {
-  "name": "John Doe",
-  "phno": "9876543210",
-  "email": "john@example.com",
-  "dob": "1990-01-15",
-  "gender": "male",
+  "name": "Jesna",
+  "phno": "987657012210",
+  "email": "jeznajamal@example.com",
+  "dob": "2003-01-15",
+  "gender": "female",
   "blood_group": "O+",
-  "weight": "70.5",
-  "height": "175.0",
+  "weight": "50.5",
+  "height": "140.0",
   "wellness_goal": "weight loss",
   "address": "123 Street, City",
   "health_issues": "no",

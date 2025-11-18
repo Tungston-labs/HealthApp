@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import TrainerCreateView, TrainerListView, TrainerDetailView,LocalImageUploadAPIView,TrainerProfileView,TrainerProfileEditView,PendingTrainerListView
+from .views import TrainerCreateView, TrainerListView, TrainerDetailView,LocalImageUploadAPIView,TrainerProfileView,TrainerProfileEditView,PendingTrainerListView,FilterTrainersView,BookTrainerView
 
 urlpatterns = [
     path('', TrainerCreateView.as_view(), name='trainer-create'),
@@ -9,9 +9,14 @@ urlpatterns = [
     path('trainers/pending/', PendingTrainerListView.as_view(), name='pending-trainers'),
 
 
-# ------MOBILE APP
+# ------MOBILE APP-trainer
 
     path('profile/', TrainerProfileView.as_view(), name='trainer-profile'),
     path('profile/edit/', TrainerProfileEditView.as_view(), name='trainer-profile-edit'),
+
+# ------MOBILE APP-user
+
+    path("available-trainers/", FilterTrainersView.as_view(), name="available-trainers"),
+    path("book-trainer/", BookTrainerView.as_view(), name="book-trainer"),
 
 ]

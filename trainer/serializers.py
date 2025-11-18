@@ -1,5 +1,11 @@
 from rest_framework import serializers
-from .models import Trainer, TrainerCertificate
+from .models import Trainer, TrainerCertificate,TrainerAvailability
+
+class TrainerAvailabilitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TrainerAvailability
+        fields = "__all__"
+
 
 class TrainerCertificateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -7,6 +13,8 @@ class TrainerCertificateSerializer(serializers.ModelSerializer):
         fields = ['id', 'image_url']
 
 class TrainerSerializer(serializers.ModelSerializer):
+    availability = TrainerAvailabilitySerializer(source='traineravailability', read_only=True)
+
     certificates = serializers.ListField(
         child=serializers.URLField(),
         write_only=True,
@@ -19,7 +27,7 @@ class TrainerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Trainer
         fields = '__all__'
-        read_only_fields = ['user', 'certificates_read', 'status']  # status controlled separately
+        read_only_fields = ['user', 'certificates_read']  # status controlled separately
 
     def create(self, validated_data):
         cert_urls = validated_data.pop('certificates', [])
@@ -64,3 +72,7 @@ class TrainerSerializer(serializers.ModelSerializer):
             user.save()
 
         return instance
+
+
+
+

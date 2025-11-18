@@ -1,5 +1,8 @@
 from django.db import models
+from plan.models import Plan
 from django.contrib.auth import get_user_model
+from datetime import time
+from client.models import Client
 
 User = get_user_model()
 
@@ -29,7 +32,13 @@ class Trainer(models.Model):
     phno = models.CharField(max_length=15, unique=True)
     email = models.EmailField(unique=True)
     dob = models.DateField()
-    training_field = models.CharField(max_length=100)
+    training_field = models.ForeignKey(
+            Plan,
+            on_delete=models.SET_NULL,
+            null=True,
+            blank=True,
+            related_name="trainers"
+        )    
     section_timing = models.CharField(max_length=5, choices=SECTION_CHOICES)
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
     location = models.CharField(max_length=200)
@@ -47,3 +56,33 @@ class Trainer(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+class TrainerAvailability(models.Model):
+    trainer = models.OneToOneField("trainer.Trainer", on_delete=models.CASCADE)
+
+    mon = models.BooleanField(default=True)
+    tue = models.BooleanField(default=True)
+    wed = models.BooleanField(default=True)
+    thu = models.BooleanField(default=True)
+    fri = models.BooleanField(default=True)
+    sat = models.BooleanField(default=True)
+    sun = models.BooleanField(default=False)
+
+    start_time = models.TimeField(default=time(9, 0))
+    end_time = models.TimeField(default=time(18, 0))
+
+    def __str__(self):
+        return f"{self.trainer.name} availability"
+
+
+class SlotBooking(models.Model):
+    trainer = models.ForeignKey("trainer.Trainer", on_delete=models.CASCADE)
+    client = models.ForeignKey(Client, on_delete=models.CASCADE)
+    plan = models.ForeignKey(Plan, on_delete=models.CASCADE)
+    date = models.DateField()
+    time = models.TimeField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.trainer.name} - {self.date} {self.time}"

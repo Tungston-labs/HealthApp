@@ -14,17 +14,17 @@ POST {{base_url}}
 Content-Type: application/json
 
 {
-  "name": "NISNA",
-  "phno": "7025220037",
-  "email": "niss@yahoo.com",
+  "name": "ajay",
+  "phno": "7944440837",
+  "email": "ajay@gmail.com",
   "dob": "1994-05-16",
-  "training_field": "Yoga Trainer",
+  "training_field": "4",
   "section_timing": "30",
-  "gender": "female",
-  "location": "Mumbai",
+  "gender": "male",
+  "location": "Kerala",
   "expecting_salary": "25000.00",
   "no_of_section": 3,
-  "adar_number": "989822320000",
+  "adar_number": "999882320000",
   "adar_image": "http://127.0.0.1:8000/media/certificates/IDCARD.webp",
   "password": "Password@1234",
   "certificates": [
@@ -47,8 +47,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 
 ### Trainer Partial Update (PATCH)
-PATCH {{base_url}}14/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzMzk2Mjk1LCJpYXQiOjE3NjMzNTMwOTUsImp0aSI6IjM5ZTBhNzI3N2Y4YTRlMWVhZTc1NDllOGJiZjQ1ZTQ4IiwidXNlcl9pZCI6IjEifQ.ASwRrBlpQE4VSoVu4Ybz8Va3caOvvSGf7tCcLPF2JEw
+PATCH {{base_url}}19/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNDk0OTkyLCJpYXQiOjE3NjM0NTE3OTIsImp0aSI6IjJlNWFiY2Q3ZmVmZTRmOTI4NzI4MDg1MDgwZmRmN2QzIiwidXNlcl9pZCI6IjEifQ.UaQ36OF1dAbclFNbiLCLvsIt44vuy2rCUKKNJG66WRI
 Content-Type: application/json
 
 {
@@ -82,3 +82,28 @@ Content-Type: application/json
 ### List Pending Trainers
 GET {{base_url}}trainers/pending/
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNDA5ODUxLCJpYXQiOjE3NjMzNjY2NTEsImp0aSI6IjhkNDBmNWY3MDc3ZDRhMDA5ZjIwYzVlYTMwYTNmYjc4IiwidXNlcl9pZCI6IjEifQ.vQkS6wLWkCnBhsY3t91sTv6YiJeAytmQZ1mE-oOtH9A
+
+### filter trainer by slot,time,date
+POST {{base_url}}available-trainers/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNTAyNTI3LCJpYXQiOjE3NjM0NTkzMjcsImp0aSI6ImVkN2Y4Njc3NWMzODRmNGFhMjI2YTNlYjU4YmRjMTBmIiwidXNlcl9pZCI6IjEwIn0.TfhfvlPmLkbg2E8k4EpsobEnUoQYDkIQq3Y4kWC23Lk
+Content-Type: application/json
+
+{
+  "plan_id": 5,
+  "slot_days": ["mon", "wed", "fri"],
+  "time": "12:00",
+  "start_date": "2025-11-21"
+}
+
+### filter trainer by slot,time,date
+POST {{base_url}}book-trainer/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNTAyMjAzLCJpYXQiOjE3NjM0NTkwMDMsImp0aSI6ImE4YjA0ZTBmNmExMTQ1NGRiM2U5MzExMTBjOTkyODExIiwidXNlcl9pZCI6IjUifQ.k1NeXgCZSXIswz8Qvnj83vmZVdo6kxcWObPBRGQJ7FM
+Content-Type: application/json
+
+{
+  "trainer_id": 16,
+  "plan_id": 5,
+  "start_date": "2025-11-19",
+  "time": "10:00",
+  "slot_days": ["mon", "wed", "fri"]  
+}
