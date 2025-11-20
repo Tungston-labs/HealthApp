@@ -36,7 +36,7 @@ Content-Type: application/json
 
 ### Trainer List (Admin Only)
 GET {{base_url}}list/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNDAzNjQyLCJpYXQiOjE3NjMzNjA0NDIsImp0aSI6ImU2MjYwNWE0Y2U1MjQ2ZGQ4Mjc1YTkzNjNjMjgxODkxIiwidXNlcl9pZCI6IjEifQ.KGmR_YxZG0t5szyU1LHuj-HOs_fNhyXgIxRDgd53sTI
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNTgxNDI4LCJpYXQiOjE3NjM1MzgyMjgsImp0aSI6ImYwZjZhZTM1ZDJlMjQ0NjM5OGFlZGEzNWM0YTBiMzgwIiwidXNlcl9pZCI6IjEifQ.bcBCxHK8dn-3XgabaUqM_IaBc9wWDigI36hmFNcML3Y
 
 
 ### Trainer Detail (Retrieve)
@@ -85,19 +85,19 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 ### filter trainer by slot,time,date
 POST {{base_url}}available-trainers/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNTAyNTI3LCJpYXQiOjE3NjM0NTkzMjcsImp0aSI6ImVkN2Y4Njc3NWMzODRmNGFhMjI2YTNlYjU4YmRjMTBmIiwidXNlcl9pZCI6IjEwIn0.TfhfvlPmLkbg2E8k4EpsobEnUoQYDkIQq3Y4kWC23Lk
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNTgyNTQ3LCJpYXQiOjE3NjM1MzkzNDcsImp0aSI6IjhhN2Y2ODkwYTE3NzQxMDdhYTRlNzgxMzVhYjQ2MWRlIiwidXNlcl9pZCI6IjEwIn0.8F-JVCdr7X-mx7deL_Py6HCBLkeGqNn_Sia0PKFxFYQ
 Content-Type: application/json
 
 {
   "plan_id": 5,
   "slot_days": ["mon", "wed", "fri"],
-  "time": "12:00",
-  "start_date": "2025-11-21"
+  "time": "11:00",
+  "start_date": "2025-11-19"
 }
 
 ### filter trainer by slot,time,date
 POST {{base_url}}book-trainer/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNTAyMjAzLCJpYXQiOjE3NjM0NTkwMDMsImp0aSI6ImE4YjA0ZTBmNmExMTQ1NGRiM2U5MzExMTBjOTkyODExIiwidXNlcl9pZCI6IjUifQ.k1NeXgCZSXIswz8Qvnj83vmZVdo6kxcWObPBRGQJ7FM
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNTgyNTQ3LCJpYXQiOjE3NjM1MzkzNDcsImp0aSI6IjhhN2Y2ODkwYTE3NzQxMDdhYTRlNzgxMzVhYjQ2MWRlIiwidXNlcl9pZCI6IjEwIn0.8F-JVCdr7X-mx7deL_Py6HCBLkeGqNn_Sia0PKFxFYQ
 Content-Type: application/json
 
 {

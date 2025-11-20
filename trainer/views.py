@@ -5,10 +5,15 @@ from django.core.files.storage import default_storage
 from django.conf import settings
 import os
 from .serializers import TrainerSerializer
-from rest_framework.response import Response
-from .models import Trainer
 from accounts.models import User  # your custom User model
 from accounts.permissions import IsAdmin,IsTrainer,IsAdminOrTrainer,IsUser
+from rest_framework.response import Response
+from datetime import datetime, timedelta
+from django.db.models import Q
+
+from .models import Trainer, TrainerAvailability, SlotBooking
+from plan.models import Plan
+from client.models import Client
 
 
 class LocalImageUploadAPIView(APIView):
@@ -111,15 +116,7 @@ class TrainerProfileEditView(generics.UpdateAPIView):
     def get_object(self):
         return Trainer.objects.get(user=self.request.user)
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from datetime import datetime, timedelta
-from django.db.models import Q
 
-from .models import Trainer, TrainerAvailability, SlotBooking
-from .serializers import TrainerSerializer
-from plan.models import Plan
-from client.models import Client
 
 class FilterTrainersView(APIView):
     permission_classes = [IsUser]
@@ -127,56 +124,33 @@ class FilterTrainersView(APIView):
     def post(self, request):
 
         plan_id = request.data.get("plan_id")
-        slot_days = request.data.get("slot_days")      # ["mon", "wed"]
-        time_slot = request.data.get("time")           # "10:00"
-        start_date = request.data.get("start_date")    # "2025-02-01"
+        slot_days = request.data.get("slot_days")
+        time_slot = request.data.get("time")
+        start_date = request.data.get("start_date")
 
-        # Validate input
         if not (plan_id and slot_days and time_slot and start_date):
             return Response({"error": "Missing fields"}, 400)
 
-        # Get Client
-        try:
-            client = Client.objects.get(user=request.user)
-        except:
-            return Response({"error": "Client not found"}, 400)
-
+        # get client
+        client = Client.objects.get(user=request.user)
         client_gender = client.gender.lower()
 
-        # Convert time/date
+        # parse inputs
         time_slot_obj = datetime.strptime(time_slot, "%H:%M").time()
         start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
 
-        # ------------------------------
-        # PLAN DURATION FIX
-        # ------------------------------
+        # plan mapping
         plan = Plan.objects.get(id=plan_id)
-
-        if plan.plan_type == "3_days":
-            duration = 3
-        elif plan.plan_type == "6_days":
-            duration = 6
-        else:
-            duration = 30  # fallback
-
+        plan_type_map = {"3_days": 3, "6_days": 6}
+        duration = plan_type_map.get(plan.plan_type, 30)
         end_date = start_date_obj + timedelta(days=duration)
 
-        # Weekday mapping
-        weekday_map = {"mon":0,"tue":1,"wed":2,"thu":3,"fri":4,"sat":5,"sun":6}
+        # weekday mapping
+        weekday_map = {"mon":0,"tue":1,"wed":2,"thu":3,"fri":4,"sat":5}
         slot_days = [d.lower() for d in slot_days]
         wanted_weekdays = [weekday_map[d] for d in slot_days]
 
-        # Generate session dates
-        session_dates = []
-        d = start_date_obj
-        while d <= end_date:
-            if d.weekday() in wanted_weekdays:
-                session_dates.append(d)
-            d += timedelta(days=1)
-
-        # ------------------------------
-        # TRAINER FILTER - FIXED
-        # ------------------------------
+        # filter trainers
         trainers = Trainer.objects.filter(
             training_field_id=plan_id,
             status__iexact="approved",
@@ -187,21 +161,38 @@ class FilterTrainersView(APIView):
 
         for tr in trainers:
 
-            # Availability check
+            # availability
             try:
                 avl = tr.traineravailability
-            except TrainerAvailability.DoesNotExist:
+            except:
                 continue
 
-            # Day check
+            # weekly day check
             if not all(getattr(avl, day) for day in slot_days):
                 continue
 
-            # Time check
+            # time check
             if not (avl.start_time <= time_slot_obj <= avl.end_time):
                 continue
 
-            # Booking conflict check
+            # ----------------------------------------------------
+            # NEW SESSION DATES: fill only up to tr.no_of_section
+            # ----------------------------------------------------
+            max_sessions = tr.no_of_section
+            session_dates = []
+
+            d = start_date_obj
+            filled = 0
+
+            while filled < max_sessions:
+                if d.weekday() in wanted_weekdays:
+                    session_dates.append(d)
+                    filled += 1
+                    if filled >= max_sessions:
+                        break
+                d += timedelta(days=1)
+
+            # booking conflict
             conflict = SlotBooking.objects.filter(
                 trainer=tr,
                 date__in=session_dates,
@@ -214,29 +205,31 @@ class FilterTrainersView(APIView):
             available.append(tr)
 
         return Response({
-            "plan_id": plan_id,
+            "plan": {
+                "id": plan.id,
+                "name": plan.plan_name,
+                "plan_type": plan.plan_type,
+                "single_price": plan.single_price,
+                "couple_price": plan.couple_price,
+                "group_price": plan.group_price,
+            },
+            "client_address": client.address,   # 👈 NEW — logged-in user address
             "total_available": len(available),
             "available_trainers": TrainerSerializer(available, many=True).data
         })
 
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from datetime import datetime, timedelta
-from .models import Trainer, TrainerAvailability, SlotBooking
-from plan.models import Plan
-from client.models import Client
+
 
 class BookTrainerView(APIView):
     permission_classes = [IsUser]
-
 
     def post(self, request):
         trainer_id = request.data.get("trainer_id")
         plan_id = request.data.get("plan_id")
         start_date = request.data.get("start_date")
-        time_slot = request.data.get("time")  # "10:00"
-        slot_days = request.data.get("slot_days")  # optional for non-gym
+        time_slot = request.data.get("time")
+        slot_days = request.data.get("slot_days")
 
         if not (trainer_id and plan_id and start_date and time_slot):
             return Response({"error": "Missing required fields"}, status=400)
@@ -247,76 +240,95 @@ class BookTrainerView(APIView):
         except Client.DoesNotExist:
             return Response({"error": "Client profile not found"}, status=400)
 
-        # Convert inputs
+        # Convert
         time_slot_obj = datetime.strptime(time_slot, "%H:%M").time()
         start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
+
         trainer = Trainer.objects.get(id=trainer_id, status="approved")
         plan = Plan.objects.get(id=plan_id)
 
-        # Duration = 30 days
-        duration = 30
+        # -----------------------------------------
+        # PLAN → DURATION
+        # -----------------------------------------
+        if plan.plan_type == "3_days":
+            duration = 3
+        elif plan.plan_type == "6_days":
+            duration = 6
+        else:
+            duration = 30
+
         end_date = start_date_obj + timedelta(days=duration)
 
-        # Determine weekdays
-        weekday_map = {
-            "mon": 0, "tue": 1, "wed": 2,
-            "thu": 3, "fri": 4, "sat": 5
-        }
+        # -----------------------------------------
+        # DAY PATTERN FOR 6-DAY GYM PLAN
+        # -----------------------------------------
+        weekday_map = {"mon":0,"tue":1,"wed":2,"thu":3,"fri":4,"sat":5,"sun":6}
 
-        # If Gym plan, ignore frontend days → use Mon-Sat automatically
         if plan.plan_type == "6_days":
             slot_days = ["mon","tue","wed","thu","fri","sat"]
 
+        slot_days = [d.lower() for d in slot_days]
         selected_weekdays = [weekday_map[d] for d in slot_days]
 
-        # Generate all session dates
+        # -----------------------------------------
+        # NEW SESSION GENERATION USING no_of_section
+        # -----------------------------------------
+        max_sessions = trainer.no_of_section  # e.g 10 or 14
         session_dates = []
-        current = start_date_obj
-        while current <= end_date:
-            if current.weekday() in selected_weekdays:
-                session_dates.append(current)
-            current += timedelta(days=1)
 
-        # Check trainer availability
+        d = start_date_obj
+        filled = 0
+
+        while filled < max_sessions:
+            if d.weekday() in selected_weekdays:
+                session_dates.append(d)
+                filled += 1
+                if filled >= max_sessions:
+                    break
+            d += timedelta(days=1)
+
+        # -----------------------------------------
+        # AVAILABILITY CHECK
+        # -----------------------------------------
         availability = TrainerAvailability.objects.filter(trainer=trainer).first()
         if not availability:
-            return Response({"error": "Trainer availability not found"}, status=400)
+            return Response({"error": "Trainer availability not found"}, 400)
 
-        # Weekly check
         for day in slot_days:
             if not getattr(availability, day):
-                return Response({"error": f"Trainer not available on {day}"}, status=400)
+                return Response({"error": f"Trainer not available on {day}"}, 400)
 
-        # Time check
         if not (availability.start_time <= time_slot_obj <= availability.end_time):
-            return Response({"error": "Trainer not available at selected time"}, status=400)
+            return Response({"error": "Trainer not available at that time"}, 400)
 
-        # Check conflicts
-        conflicts = SlotBooking.objects.filter(
+        # -----------------------------------------
+        # CONFLICT CHECK
+        # -----------------------------------------
+        conflict = SlotBooking.objects.filter(
             trainer=trainer,
             date__in=session_dates,
             time=time_slot_obj
         ).exists()
 
-        if conflicts:
-            return Response({"error": "Trainer already booked for some of the selected dates"}, status=400)
+        if conflict:
+            return Response({"error": "Trainer already booked on some session dates"}, 400)
 
-        # ✅ All good → create SlotBooking for all dates
-        bookings = []
+        # -----------------------------------------
+        # CREATE BOOKINGS
+        # -----------------------------------------
         for date in session_dates:
-            booking = SlotBooking.objects.create(
+            SlotBooking.objects.create(
                 trainer=trainer,
                 client=client,
                 plan=plan,
                 date=date,
                 time=time_slot_obj
             )
-            bookings.append(booking)
 
         return Response({
             "message": "Trainer booked successfully",
-            "total_sessions": len(bookings),
-            "start_date": start_date,
-            "end_date": end_date,
-            "trainer_id": trainer.id
+            "total_sessions": len(session_dates),
+            "trainer_id": trainer.id,
+            "start_date": str(start_date_obj),
+            "end_date": str(end_date)
         })
