@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from django.core.files.storage import default_storage
 from django.conf import settings
 import os
-from .serializers import TrainerSerializer
+from .serializers import TrainerSerializer,TrainerMiniSerializer
 from accounts.models import User  # your custom User model
 from accounts.permissions import IsAdmin,IsTrainer,IsAdminOrTrainer,IsUser
 from rest_framework.response import Response
@@ -122,7 +122,7 @@ class FilterTrainersView(APIView):
     permission_classes = [IsUser]
 
     def post(self, request):
-
+ 
         plan_id = request.data.get("plan_id")
         slot_days = request.data.get("slot_days")
         time_slot = request.data.get("time")
@@ -215,8 +215,32 @@ class FilterTrainersView(APIView):
             },
             "client_address": client.address,   # 👈 NEW — logged-in user address
             "total_available": len(available),
-            "available_trainers": TrainerSerializer(available, many=True).data
+            "available_trainers": TrainerMiniSerializer(
+                available,
+                many=True,
+                context={"plan": plan,"request":request}
+            ).data
         })
+# for client to view trainer details in modal includig reviews
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from trainer.models import Trainer
+from .serializers import TrainerDetailSerializer
+
+class TrainerDetailPageView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, trainer_id):
+        try:
+            trainer = Trainer.objects.get(id=trainer_id)
+        except Trainer.DoesNotExist:
+            return Response({"error": "Trainer not found"}, status=404)
+
+        serializer = TrainerDetailSerializer(
+            trainer,
+            context={"request": request}  # ★ IMPORTANT FIX
+        )
+        return Response(serializer.data)
 
 
 
@@ -332,3 +356,97 @@ class BookTrainerView(APIView):
             "start_date": str(start_date_obj),
             "end_date": str(end_date)
         })
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from datetime import datetime, timedelta
+from client.models import Client
+from trainer.models import Trainer, SlotBooking
+from plan.models import Plan
+from .serializers import ChangeTrainerSerializer
+
+class ChangeTrainerView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        current_trainer_id = request.data.get("current_trainer_id")
+        plan_id = request.data.get("plan_id")
+        slot_days = request.data.get("slot_days")
+        time_slot = request.data.get("time")
+        start_date = request.data.get("start_date")
+
+        if not (current_trainer_id and plan_id and slot_days and time_slot and start_date):
+            return Response({"error": "Missing fields"}, 400)
+
+        client = Client.objects.get(user=request.user)
+        client_gender = client.gender.lower()
+
+        time_slot_obj = datetime.strptime(time_slot, "%H:%M").time()
+        start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
+
+        plan = Plan.objects.get(id=plan_id)
+        duration_map = {"3_days": 3, "6_days": 6}
+        duration = duration_map.get(plan.plan_type, 30)
+        end_date = start_date_obj + timedelta(days=duration)
+
+        weekday_map = {"mon":0,"tue":1,"wed":2,"thu":3,"fri":4,"sat":5,"sun":6}
+        slot_days = [d.lower() for d in slot_days]
+        wanted_weekdays = [weekday_map[d] for d in slot_days]
+
+        # current trainer salary
+        try:
+            current_trainer = Trainer.objects.get(id=current_trainer_id)
+            min_salary = current_trainer.expecting_salary
+        except Trainer.DoesNotExist:
+            return Response({"error": "Current trainer not found"}, 404)
+
+        trainers = Trainer.objects.filter(
+            training_field_id=plan_id,
+            status__iexact="approved",
+            gender__iexact=client_gender,
+            expecting_salary__gte=min_salary
+        )
+
+        available = []
+
+        for tr in trainers:
+            if tr.id == current_trainer.id:
+                continue
+
+            try:
+                avl = tr.traineravailability
+            except:
+                continue
+
+            if not all(getattr(avl, day) for day in slot_days):
+                continue
+
+            if not (avl.start_time <= time_slot_obj <= avl.end_time):
+                continue
+
+            # session dates
+            max_sessions = tr.no_of_section
+            session_dates = []
+            d = start_date_obj
+            filled = 0
+            while filled < max_sessions:
+                if d.weekday() in wanted_weekdays:
+                    session_dates.append(d)
+                    filled += 1
+                    if filled >= max_sessions:
+                        break
+                d += timedelta(days=1)
+
+            conflict = SlotBooking.objects.filter(
+                trainer=tr,
+                date__in=session_dates,
+                time=time_slot_obj
+            ).exists()
+            if conflict:
+                continue
+
+            available.append(tr)
+
+        serializer = ChangeTrainerSerializer(available, many=True, context={"request": request})
+        return Response({"total_available": len(available), "available_trainers": serializer.data})

@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'trainer',
     'plan',
     'client',
+    'review',
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist'
 

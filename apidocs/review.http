@@ -1,0 +1,19 @@
+
+POST http://127.0.0.1:8000/api/auth/login/
+Content-Type: application/json
+
+{
+  "email_or_phno": "9976543210",
+  "password": "Password@123"
+}
+
+###add review for a rainer
+POST http://127.0.0.1:8000/api/review/trainer-review/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MDEzNzQyLCJpYXQiOjE3NjM5NzA1NDIsImp0aSI6IjFkMDFmZjI1YWJkZDRmM2RiODFmNTMyMGJmNWZjOGQ1IiwidXNlcl9pZCI6IjMifQ.teqC_VwdPO74agcDfZf2WKeAZGfGwMJXBE-YAEwN8Sk
+Content-Type: application/json
+
+{
+  "trainer": 2,
+  "rating": 5,
+  "review": "Excellent trainer! Very motivating."
+}

@@ -47,8 +47,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 
 ### Trainer Partial Update (PATCH)
-PATCH {{base_url}}19/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNDk0OTkyLCJpYXQiOjE3NjM0NTE3OTIsImp0aSI6IjJlNWFiY2Q3ZmVmZTRmOTI4NzI4MDg1MDgwZmRmN2QzIiwidXNlcl9pZCI6IjEifQ.UaQ36OF1dAbclFNbiLCLvsIt44vuy2rCUKKNJG66WRI
+PATCH {{base_url}}2/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MDA3Nzg3LCJpYXQiOjE3NjM5NjQ1ODcsImp0aSI6Ijg0ZGQ2NzEyMWM3YTQ2ZDM4NDNlNjNkZWZiZmY3Y2ExIiwidXNlcl9pZCI6IjEifQ.ELZck_Nj_WwnehWGF5QqDcM0Y9t92SOINys7TMS_J3A
 Content-Type: application/json
 
 {
@@ -85,17 +85,25 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 ### filter trainer by slot,time,date
 POST {{base_url}}available-trainers/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNTgyNTQ3LCJpYXQiOjE3NjM1MzkzNDcsImp0aSI6IjhhN2Y2ODkwYTE3NzQxMDdhYTRlNzgxMzVhYjQ2MWRlIiwidXNlcl9pZCI6IjEwIn0.8F-JVCdr7X-mx7deL_Py6HCBLkeGqNn_Sia0PKFxFYQ
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MDA3NjI4LCJpYXQiOjE3NjM5NjQ0MjgsImp0aSI6IjM5OGViOTg1YmJlYzQwNmU5YWFlZWFlZWNjYTMxZGY2IiwidXNlcl9pZCI6IjMifQ.sZjx-nFFBRvt8_N1ZKetNvB6UCfIJeof4OwFQOD66qA
 Content-Type: application/json
 
 {
-  "plan_id": 5,
+  "plan_id": 2,
   "slot_days": ["mon", "wed", "fri"],
   "time": "11:00",
-  "start_date": "2025-11-19"
+  "start_date": "2025-11-26"
 }
 
-### filter trainer by slot,time,date
+### trainer detail view for modal in mobile app
+GET {{base_url}}detail/2/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MDE5MjQwLCJpYXQiOjE3NjM5NzYwNDAsImp0aSI6ImQ5NmJhNTQzMmQ5ZTRmY2M5OTkzNTJjY2M2NTBmM2Y4IiwidXNlcl9pZCI6IjMifQ.WoRDCLO_Ngqvqr5WgHcM57eBMa9x7cGG-wu7lfuzZzs
+
+
+
+
+
+### book filtered trainer
 POST {{base_url}}book-trainer/
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNTgyNTQ3LCJpYXQiOjE3NjM1MzkzNDcsImp0aSI6IjhhN2Y2ODkwYTE3NzQxMDdhYTRlNzgxMzVhYjQ2MWRlIiwidXNlcl9pZCI6IjEwIn0.8F-JVCdr7X-mx7deL_Py6HCBLkeGqNn_Sia0PKFxFYQ
 Content-Type: application/json
@@ -107,3 +115,9 @@ Content-Type: application/json
   "time": "10:00",
   "slot_days": ["mon", "wed", "fri"]  
 }
+
+### change trainer by user
+GET {{base_url}}change/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MDI5NTcxLCJpYXQiOjE3NjM5ODYzNzEsImp0aSI6IjIyMjQ4NWQwMDg2NTRkYTFiZmNkZDE3M2I2MDFlZDVhIiwidXNlcl9pZCI6IjMifQ.HtH72-e7aySTESW93kpArl7KfA7yIORlRH4Ds0FHpWg
+
+

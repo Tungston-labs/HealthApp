@@ -49,6 +49,7 @@ class Trainer(models.Model):
     adar_number = models.CharField(max_length=20)
     adar_image = models.URLField(max_length=500)
     profile_pic = models.ImageField(upload_to='trainer_profile/', null=True, blank=True)
+    experience = models.IntegerField(null=True,blank=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     password = models.CharField(max_length=128,null=True,blank=True)  # store trainer-set password temporarily
 

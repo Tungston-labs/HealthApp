@@ -1,6 +1,6 @@
 from rest_framework import generics, permissions
 from .models import Client
-from .serializers import ClientSerializer
+from .serializers import ClientSerializer,ClientProfileSerializer
 from plan.models import Plan
 from plan.serializers import PlanSerializer
 from accounts.permissions import IsUser
@@ -24,5 +24,16 @@ class ClientRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     # Optional: restrict access to only the logged-in user
+    def get_object(self):
+        return Client.objects.get(user=self.request.user)
+    
+
+
+
+
+class ClientProfileView(generics.RetrieveAPIView):
+    serializer_class = ClientProfileSerializer
+    permission_classes = [IsUser]
+
     def get_object(self):
         return Client.objects.get(user=self.request.user)
