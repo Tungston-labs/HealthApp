@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Trainer, TrainerCertificate,TrainerAvailability
+from .models import Trainer, TrainerCertificate,TrainerAvailability,SlotBooking
 from rest_framework import serializers
 from client.models import Client
 from review.models import TrainerReview
@@ -15,73 +15,40 @@ class TrainerCertificateSerializer(serializers.ModelSerializer):
         model = TrainerCertificate
         fields = ['id', 'image_url']
 
+from rest_framework import serializers
+from .models import Trainer, TrainerCertificate
+from plan.models import Plan
+
 class TrainerSerializer(serializers.ModelSerializer):
     certificates = serializers.ListField(
         child=serializers.CharField(),
         write_only=True,
         required=False
     )
-    adar_image = serializers.CharField(required=False)
-
     certificates_read = serializers.SerializerMethodField()
-    password = serializers.CharField(write_only=True, required=False)
     profile_pic = serializers.SerializerMethodField()
+    password = serializers.CharField(write_only=True, required=False)
+
+    plan_id = serializers.IntegerField(source='training_field.id', read_only=True)
+    plan_name = serializers.CharField(source='training_field.plan_name', read_only=True)
 
     class Meta:
         model = Trainer
         fields = '__all__'
         read_only_fields = ['user']
 
-    # -------- FULL URL FOR TRAINER PROFILE PIC ----------
     def get_profile_pic(self, obj):
         request = self.context.get("request")
         if obj.profile_pic:
             return request.build_absolute_uri(obj.profile_pic.url)
         return None
 
-    # -------- FULL URL FOR CERTIFICATES ----------
     def get_certificates_read(self, obj):
         request = self.context.get("request")
-        return [
-            request.build_absolute_uri(c.image_url)
-            for c in obj.certificates.all()
-        ]
+        return [request.build_absolute_uri(c.image_url) for c in obj.certificates.all()]
 
-    # ---------------- CREATE ----------------
-    def create(self, validated_data):
-        cert_urls = validated_data.pop('certificates', [])
-        trainer = Trainer.objects.create(**validated_data)
 
-        for url in cert_urls:
-            cert_obj = TrainerCertificate.objects.create(image_url=url)
-            trainer.certificates.add(cert_obj)
 
-        return trainer
-
-    # ---------------- UPDATE ----------------
-    def update(self, instance, validated_data):
-        cert_urls = validated_data.pop('certificates', [])
-        password = validated_data.pop('password', None)
-
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
-
-        if cert_urls:
-            instance.certificates.all().delete()
-            for url in cert_urls:
-                cert_obj = TrainerCertificate.objects.create(image_url=url)
-                instance.certificates.add(cert_obj)
-
-        if instance.user:
-            user = instance.user
-            user.name = instance.name
-            user.email = instance.email
-            if password:
-                user.set_password(password)
-            user.save()
-
-        return instance
 class TrainerMiniSerializer(serializers.ModelSerializer):
     star_rating = serializers.SerializerMethodField()
     experience = serializers.SerializerMethodField()
@@ -104,33 +71,36 @@ class TrainerMiniSerializer(serializers.ModelSerializer):
             "group_price",
         ]
 
-    # ---- FULL URL FOR PROFILE PIC ----
     def get_profile_pic(self, obj):
         request = self.context.get("request")
         if obj.profile_pic:
             return request.build_absolute_uri(obj.profile_pic.url)
         return None
 
-    # ---- Ratings ----
     def get_star_rating(self, obj):
-        reviews = obj.reviews.all()
-        if not reviews.exists():
+        reviews = getattr(obj, "reviews", None)
+        if not reviews:
             return 0
-        return round(sum(r.rating for r in reviews) / reviews.count(), 1)
+        review_list = reviews.all()  # ← convert RelatedManager to queryset
+        if not review_list.exists():
+            return 0
+        return round(sum(r.rating for r in review_list) / review_list.count(), 1)
 
-    # ---- Experience ----
     def get_experience(self, obj):
-        return obj.experience if hasattr(obj, "experience") else None
+        return getattr(obj, "experience", None)
 
-    # ---- Prices from Plan in context ----
     def get_single_price(self, obj):
-        return self.context.get("plan").single_price
+        plan = self.context.get("plan")
+        return getattr(plan, "single_price", None)
 
     def get_couple_price(self, obj):
-        return self.context.get("plan").couple_price
+        plan = self.context.get("plan")
+        return getattr(plan, "couple_price", None)
 
     def get_group_price(self, obj):
-        return self.context.get("plan").group_price
+        plan = self.context.get("plan")
+        return getattr(plan, "group_price", None)
+
   
 
 # serializer for getting trainer details in mobile app
@@ -234,3 +204,38 @@ class ChangeTrainerSerializer(serializers.ModelSerializer):
         if not reviews or not reviews.exists():
             return 0
         return round(sum(r.rating for r in reviews.all()) / reviews.count(), 1)
+
+class TrainerInfoSerializer(serializers.ModelSerializer):
+    profile_pic = serializers.SerializerMethodField()
+    average_rating = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Trainer
+        fields = [
+            "id",
+            "name",
+            "location",
+            "experience",
+            "profile_pic",
+            "average_rating",
+        ]
+
+    def get_profile_pic(self, obj):
+        request = self.context.get("request")
+        if obj.profile_pic:
+            return request.build_absolute_uri(obj.profile_pic.url)
+        return None
+
+    def get_average_rating(self, obj):
+        from django.db.models import Avg
+        avg = TrainerReview.objects.filter(trainer=obj).aggregate(avg=Avg("rating"))["avg"]
+        return round(avg, 1) if avg else 0
+
+
+
+
+
+class SlotBookingNoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SlotBooking
+        fields = ["id", "notes"]  # Assuming you add a `note` field to SlotBooking

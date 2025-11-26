@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from django.core.files.storage import default_storage
 from django.conf import settings
 import os
-from .serializers import TrainerSerializer,TrainerMiniSerializer
+from .serializers import TrainerSerializer,TrainerMiniSerializer,ChangeTrainerSerializer,SlotBookingNoteSerializer
 from accounts.models import User  # your custom User model
 from accounts.permissions import IsAdmin,IsTrainer,IsAdminOrTrainer,IsUser
 from rest_framework.response import Response
@@ -39,16 +39,34 @@ class TrainerCreateView(generics.CreateAPIView):
     permission_classes = [permissions.AllowAny]
 
 
+from rest_framework import generics, permissions, filters
+from django_filters.rest_framework import DjangoFilterBackend
+
+
 class TrainerListView(generics.ListAPIView):
     queryset = Trainer.objects.all()
     serializer_class = TrainerSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ['name']  # search by trainer name
+    filterset_fields = ['training_field']  # filter by plan id
 
 
 class TrainerDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Trainer.objects.all()
     serializer_class = TrainerSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def destroy(self, request, *args, **kwargs):
+        trainer = self.get_object()
+
+        # Delete linked user (if exists)
+        if trainer.user:
+            trainer.user.delete()
+
+        trainer.delete()
+        return Response({"detail": "Trainer and related user deleted"}, status=200)
 
     def patch(self, request, *args, **kwargs):
         trainer = self.get_object()
@@ -59,6 +77,8 @@ class TrainerDetailView(generics.RetrieveUpdateDestroyAPIView):
 
         # Pending -> Rejected
         if old_status == 'pending' and new_status == 'rejected':
+            if trainer.user:  # safety
+                trainer.user.delete()
             trainer.delete()
             return Response({"detail": "Trainer rejected and deleted"}, status=200)
 
@@ -72,7 +92,7 @@ class TrainerDetailView(generics.RetrieveUpdateDestroyAPIView):
         # Update trainer normally
         serializer.save()
 
-        # Pending -> Approved or any -> Approved
+        # Pending -> Approved OR (any -> approved)
         if new_status == 'approved' and trainer.user is None:
             user = User.objects.create_user(
                 email=trainer.email,
@@ -85,6 +105,7 @@ class TrainerDetailView(generics.RetrieveUpdateDestroyAPIView):
             trainer.save()
 
         return Response(serializer.data)
+
 
 
 class PendingTrainerListView(generics.ListAPIView):
@@ -357,96 +378,143 @@ class BookTrainerView(APIView):
             "end_date": str(end_date)
         })
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from datetime import datetime, timedelta
-from client.models import Client
-from trainer.models import Trainer, SlotBooking
-from plan.models import Plan
-from .serializers import ChangeTrainerSerializer
-
 class ChangeTrainerView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def post(self, request):
-        current_trainer_id = request.data.get("current_trainer_id")
-        plan_id = request.data.get("plan_id")
-        slot_days = request.data.get("slot_days")
-        time_slot = request.data.get("time")
-        start_date = request.data.get("start_date")
+    def get(self, request):
+        # 1. Get client
+        try:
+            client = Client.objects.get(user=request.user)
+        except Client.DoesNotExist:
+            return Response({"error": "Client profile not found"}, 404)
 
-        if not (current_trainer_id and plan_id and slot_days and time_slot and start_date):
-            return Response({"error": "Missing fields"}, 400)
+        # 2. Find latest booking (current trainer info)
+        latest_booking = SlotBooking.objects.filter(client=client).order_by('-date').first()
+        if not latest_booking:
+            return Response({"error": "No active bookings found"}, 400)
 
-        client = Client.objects.get(user=request.user)
-        client_gender = client.gender.lower()
+        current_trainer = latest_booking.trainer
+        plan = latest_booking.plan
+        time_slot_obj = latest_booking.time
+        start_date_obj = latest_booking.date
 
-        time_slot_obj = datetime.strptime(time_slot, "%H:%M").time()
-        start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
-
-        plan = Plan.objects.get(id=plan_id)
+        # 3. Calculate plan duration
         duration_map = {"3_days": 3, "6_days": 6}
         duration = duration_map.get(plan.plan_type, 30)
         end_date = start_date_obj + timedelta(days=duration)
 
-        weekday_map = {"mon":0,"tue":1,"wed":2,"thu":3,"fri":4,"sat":5,"sun":6}
-        slot_days = [d.lower() for d in slot_days]
-        wanted_weekdays = [weekday_map[d] for d in slot_days]
+        # 4. Extract slot days from bookings
+        weekday_map_reverse = {0:"mon",1:"tue",2:"wed",3:"thu",4:"fri",5:"sat",6:"sun"}
 
-        # current trainer salary
-        try:
-            current_trainer = Trainer.objects.get(id=current_trainer_id)
-            min_salary = current_trainer.expecting_salary
-        except Trainer.DoesNotExist:
-            return Response({"error": "Current trainer not found"}, 404)
-
-        trainers = Trainer.objects.filter(
-            training_field_id=plan_id,
-            status__iexact="approved",
-            gender__iexact=client_gender,
-            expecting_salary__gte=min_salary
+        all_client_bookings = SlotBooking.objects.filter(
+            client=client,
+            trainer=current_trainer,
+            plan=plan
         )
+
+        slot_days = list({weekday_map_reverse[b.date.weekday()] for b in all_client_bookings})
+        wanted_weekdays = [b.date.weekday() for b in all_client_bookings]
+
+        # 5. Get salary threshold
+        min_salary = current_trainer.expecting_salary
+
+        # 6. Filter trainers
+        trainers = Trainer.objects.filter(
+            training_field_id=plan.id,
+            status="approved",
+            gender=client.gender.lower(),
+            expecting_salary__gte=min_salary
+        ).exclude(id=current_trainer.id)
 
         available = []
 
         for tr in trainers:
-            if tr.id == current_trainer.id:
-                continue
-
             try:
                 avl = tr.traineravailability
             except:
                 continue
 
-            if not all(getattr(avl, day) for day in slot_days):
+            # check days
+            if not all(getattr(avl, d) for d in slot_days):
                 continue
 
+            # check time
             if not (avl.start_time <= time_slot_obj <= avl.end_time):
                 continue
 
-            # session dates
+            # build session dates
             max_sessions = tr.no_of_section
-            session_dates = []
             d = start_date_obj
+            session_dates = []
             filled = 0
+
             while filled < max_sessions:
                 if d.weekday() in wanted_weekdays:
                     session_dates.append(d)
                     filled += 1
-                    if filled >= max_sessions:
-                        break
                 d += timedelta(days=1)
 
-            conflict = SlotBooking.objects.filter(
-                trainer=tr,
-                date__in=session_dates,
-                time=time_slot_obj
-            ).exists()
-            if conflict:
+            # conflict check
+            if SlotBooking.objects.filter(trainer=tr, date__in=session_dates, time=time_slot_obj).exists():
                 continue
 
             available.append(tr)
 
         serializer = ChangeTrainerSerializer(available, many=True, context={"request": request})
-        return Response({"total_available": len(available), "available_trainers": serializer.data})
+
+        return Response({
+            "total_available": len(available),
+            "available_trainers": serializer.data
+        })
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from trainer.models import Trainer
+from client.models import Client
+from .serializers import TrainerInfoSerializer
+
+class TrainerDetailSimpleView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, trainer_id):
+        # trainer
+        try:
+            trainer = Trainer.objects.get(id=trainer_id)
+        except Trainer.DoesNotExist:
+            return Response({"error": "Trainer not found"}, status=404)
+
+        # authenticated user client details
+        try:
+            client = Client.objects.get(user=request.user)
+        except Client.DoesNotExist:
+            return Response({"error": "Client not found"}, status=404)
+
+        serializer = TrainerInfoSerializer(
+            trainer,
+            context={"request": request}
+        )
+
+        return Response({
+            "trainer": serializer.data,
+            "client_address": client.address
+        })
+
+
+class AddSlotBookingNoteView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, booking_id):
+        try:
+            booking = SlotBooking.objects.get(id=booking_id, trainer__user=request.user)
+        except SlotBooking.DoesNotExist:
+            return Response({"error": "Booking not found or not authorized"}, status=404)
+
+        note = request.data.get("note")
+        if not note:
+            return Response({"error": "Note is required"}, status=400)
+
+        booking.notes = note
+        booking.save()
+
+        serializer = SlotBookingNoteSerializer(booking)
+        return Response({"message": "Note added successfully", "booking": serializer.data})

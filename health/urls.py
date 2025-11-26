@@ -10,7 +10,9 @@ urlpatterns = [
     path('api/plan/', include('plan.urls')),
     path('api/client/', include('client.urls')),
     path('api/review/',include('review.urls')),
-
-
+    path('api/section/',include('section.urls')),
+    path('api/refund/',include('refund.urls')),
+    path('api/nutrition/',include('nutrition.urls')),
+    path('api/tickets/',include('tickets.urls')),
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

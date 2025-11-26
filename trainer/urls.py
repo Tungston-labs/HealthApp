@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import TrainerCreateView, TrainerListView, TrainerDetailView,LocalImageUploadAPIView,TrainerProfileView,TrainerProfileEditView,PendingTrainerListView,FilterTrainersView,BookTrainerView,TrainerDetailPageView,ChangeTrainerView
+from .views import TrainerCreateView, TrainerListView, TrainerDetailView,LocalImageUploadAPIView,TrainerProfileView,TrainerProfileEditView,PendingTrainerListView,FilterTrainersView,BookTrainerView,TrainerDetailPageView,ChangeTrainerView,TrainerDetailSimpleView,AddSlotBookingNoteView
 
 urlpatterns = [
     path('', TrainerCreateView.as_view(), name='trainer-create'),
@@ -20,5 +20,8 @@ urlpatterns = [
     path("detail/<int:trainer_id>/", TrainerDetailPageView.as_view()),
     path("book-trainer/", BookTrainerView.as_view(), name="book-trainer"),
     path('change/', ChangeTrainerView.as_view(), name='change-trainer'),
+    path('info/<int:trainer_id>/', TrainerDetailSimpleView.as_view(), name='trainer-detail-simple'),
+    path('booking/<int:booking_id>/add-note/', AddSlotBookingNoteView.as_view(), name='add-slot-note'),
+
 
 ]

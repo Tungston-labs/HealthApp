@@ -82,6 +82,20 @@ class SlotBooking(models.Model):
     plan = models.ForeignKey(Plan, on_delete=models.CASCADE)
     date = models.DateField()
     time = models.TimeField()
+    session_end_date = models.DateField(null=True, blank=True)  # when timer finishes
+    session_end_time = models.TimeField(null=True, blank=True)
+    status = models.CharField(
+        max_length=20,
+        choices=(
+            ('upcoming', 'Upcoming'),
+            ('ongoing', 'Ongoing'),
+            ('completed', 'Completed'),
+            ('missed', 'Missed'),
+            ('cancelled', 'Cancelled')
+        ),
+        default='upcoming'
+    )
+    notes = models.TextField(null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 

@@ -49,3 +49,11 @@ Authorization: Bearer <access_token>
 ###profile for mobile 
 GET {{base_url}}profile/
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MDI3MDUwLCJpYXQiOjE3NjM5ODM4NTAsImp0aSI6IjIzMWU4Y2U5ZTM4MDRmOTlhOWYyN2E2NDAzNmVkNjU4IiwidXNlcl9pZCI6IjMifQ.TJax_-AIY0NJyG_FPL43A5xzsxXsCqmjvnM9RBtF_5s
+
+
+###dashboard for web
+GET {{base_url}}dashboard/counts/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MTg3OTgxLCJpYXQiOjE3NjQxNDQ3ODEsImp0aSI6IjVmOWVmYThiMjRmYzQwZDU4OWVjMzBmOGJiZmM4NWVkIiwidXNlcl9pZCI6IjEifQ.smxC3rDXWy8la4feEHKSsIvudOkWa_EHeqbHzCRA4nQ
+
+
+

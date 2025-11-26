@@ -1,0 +1,38 @@
+### -------------------------------
+### CLIENT: Create Nutrition Request
+### -------------------------------
+POST http://127.0.0.1:8000/api/nutrition/request/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MTc4NjcyLCJpYXQiOjE3NjQxMzU0NzIsImp0aSI6Ijg0MGY4ZWY2MTllNzRlMzFhYWFkYjQ4YzFhYWI1MWEwIiwidXNlcl9pZCI6IjMifQ.9edSzTDOUVlqJO-hpn1Wxv-lttdk1zTzwL1iSA4OAmk
+Content-Type: application/json
+
+{
+"consultation_type":"call",
+"note":"I want a diet plan for weight loss."
+}
+
+
+### -------------------------------
+### ADMIN: List All Pending Requests
+### -------------------------------
+GET http://127.0.0.1:8000/api/nutrition/admin/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MTc5MTE3LCJpYXQiOjE3NjQxMzU5MTcsImp0aSI6ImFlMDEwMWI4MTk4ODQxYjk5YjE0NjgzNGM2ZDcxOWZmIiwidXNlcl9pZCI6IjEifQ.KFoXyzoJFt0eS7oPuzDDqk1YpHA0v8R1Us_C4OlUhq4
+
+
+### -------------------------------
+### ADMIN: Get Nutrition Request Details
+### -------------------------------
+GET http://127.0.0.1:8000/api/nutrition/admin/3/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MTc5MTE3LCJpYXQiOjE3NjQxMzU5MTcsImp0aSI6ImFlMDEwMWI4MTk4ODQxYjk5YjE0NjgzNGM2ZDcxOWZmIiwidXNlcl9pZCI6IjEifQ.KFoXyzoJFt0eS7oPuzDDqk1YpHA0v8R1Us_C4OlUhq4
+
+
+### -------------------------------
+### ADMIN: Reply to Nutrition Request
+### -------------------------------
+POST http://127.0.0.1:8000/api/nutrition/admin/3/reply/
+Authorization: Bearer {{admin_token}}
+Content-Type: multipart/form-data
+
+subject=Your Nutrition Consultation Update
+message=We have reviewed your request. Please see the attached plan.
+files=@/Users/mac/Desktop/dietplan.pdf
+files=@/Users/mac/Desktop/nutrition-guide.jpg

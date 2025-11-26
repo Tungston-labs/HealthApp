@@ -1,0 +1,22 @@
+### CLIENT: Create Ticket (Complaint)
+POST http://127.0.0.1:8000/api/tickets/create/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MTc4NjcyLCJpYXQiOjE3NjQxMzU0NzIsImp0aSI6Ijg0MGY4ZWY2MTllNzRlMzFhYWFkYjQ4YzFhYWI1MWEwIiwidXNlcl9pZCI6IjMifQ.9edSzTDOUVlqJO-hpn1Wxv-lttdk1zTzwL1iSA4OAmk
+Content-Type: application/json
+
+{
+  "complaint": "Trainer is not responding properly during sessions."
+}
+### ADMIN: List Tickets
+GET http://127.0.0.1:8000/api/tickets/admin/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MTc5MTE3LCJpYXQiOjE3NjQxMzU5MTcsImp0aSI6ImFlMDEwMWI4MTk4ODQxYjk5YjE0NjgzNGM2ZDcxOWZmIiwidXNlcl9pZCI6IjEifQ.KFoXyzoJFt0eS7oPuzDDqk1YpHA0v8R1Us_C4OlUhq4
+### ADMIN: Ticket Detail View
+GET http://127.0.0.1:8000/api/tickets/admin/1/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MTc5MTE3LCJpYXQiOjE3NjQxMzU5MTcsImp0aSI6ImFlMDEwMWI4MTk4ODQxYjk5YjE0NjgzNGM2ZDcxOWZmIiwidXNlcl9pZCI6IjEifQ.KFoXyzoJFt0eS7oPuzDDqk1YpHA0v8R1Us_C4OlUhq4
+### ADMIN: Update Ticket Status
+PATCH http://127.0.0.1:8000/api/tickets/admin/1/status/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MTc5MTE3LCJpYXQiOjE3NjQxMzU5MTcsImp0aSI6ImFlMDEwMWI4MTk4ODQxYjk5YjE0NjgzNGM2ZDcxOWZmIiwidXNlcl9pZCI6IjEifQ.KFoXyzoJFt0eS7oPuzDDqk1YpHA0v8R1Us_C4OlUhq4
+Content-Type: application/json
+
+{
+  "status": "closed"
+}

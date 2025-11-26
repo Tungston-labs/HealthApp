@@ -1,0 +1,37 @@
+
+@base_url = http://127.0.0.1:8000/api/refund/
+###login for client
+POST http://127.0.0.1:8000/api/auth/login/
+Content-Type: application/json
+
+{
+  "email_or_phno": "9976543210",
+  "password": "Password@123"
+}
+
+###request for cancel training by client
+POST {{base_url}}training/cancel/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MTA5Mzk2LCJpYXQiOjE3NjQwNjYxOTYsImp0aSI6ImU0MDMxMmZjZDUwMjQ4MjQ5NjRjZjU3NDhkMGMxYmU4IiwidXNlcl9pZCI6IjMifQ.83_GnIQ6eIFOklCsT301UNeGspwK74FXzBYbY5MyaPQ
+### for client
+
+GET {{base_url}}training/cancel/history/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MTA5Mzk2LCJpYXQiOjE3NjQwNjYxOTYsImp0aSI6ImU0MDMxMmZjZDUwMjQ4MjQ5NjRjZjU3NDhkMGMxYmU4IiwidXNlcl9pZCI6IjMifQ.83_GnIQ6eIFOklCsT301UNeGspwK74FXzBYbY5MyaPQ
+
+### for admin to list cancel request
+
+GET {{base_url}}cancel-requests/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MTExODg5LCJpYXQiOjE3NjQwNjg2ODksImp0aSI6IjU5NGRlODU1ODQxYjQyYjk4MmMzNTQ3MTdkMDdlNzVlIiwidXNlcl9pZCI6IjEifQ.whsHF2U4InU9HMhWvQMpkLdbrui8jqiNszzelZpPiso
+
+### for admin to detail view  cancel request
+
+GET {{base_url}}cancel-requests/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MTExODg5LCJpYXQiOjE3NjQwNjg2ODksImp0aSI6IjU5NGRlODU1ODQxYjQyYjk4MmMzNTQ3MTdkMDdlNzVlIiwidXNlcl9pZCI6IjEifQ.whsHF2U4InU9HMhWvQMpkLdbrui8jqiNszzelZpPiso
+
+### update status 
+PATCH {{base_url}}cancel-requests/1/status/
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MTExODg5LCJpYXQiOjE3NjQwNjg2ODksImp0aSI6IjU5NGRlODU1ODQxYjQyYjk4MmMzNTQ3MTdkMDdlNzVlIiwidXNlcl9pZCI6IjEifQ.whsHF2U4InU9HMhWvQMpkLdbrui8jqiNszzelZpPiso
+
+{
+  "status": "in_progress"
+}

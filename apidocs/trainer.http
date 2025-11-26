@@ -5,7 +5,7 @@ POST http://127.0.0.1:8000/api/auth/login/
 Content-Type: application/json
 
 {
-  "email_or_phno": "7011126542",
+  "email_or_phno": "7025220037",
   "password": "Password@1234"
 }
 
@@ -14,17 +14,17 @@ POST {{base_url}}
 Content-Type: application/json
 
 {
-  "name": "ajay",
-  "phno": "7944440837",
-  "email": "ajay@gmail.com",
+  "name": "ramya",
+  "phno": "7900440837",
+  "email": "ramya@gmail.com",
   "dob": "1994-05-16",
-  "training_field": "4",
+  "training_field": "2",
   "section_timing": "30",
-  "gender": "male",
+  "gender": "female",
   "location": "Kerala",
   "expecting_salary": "25000.00",
   "no_of_section": 3,
-  "adar_number": "999882320000",
+  "adar_number": "999882110000",
   "adar_image": "http://127.0.0.1:8000/media/certificates/IDCARD.webp",
   "password": "Password@1234",
   "certificates": [
@@ -36,19 +36,19 @@ Content-Type: application/json
 
 ### Trainer List (Admin Only)
 GET {{base_url}}list/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNTgxNDI4LCJpYXQiOjE3NjM1MzgyMjgsImp0aSI6ImYwZjZhZTM1ZDJlMjQ0NjM5OGFlZGEzNWM0YTBiMzgwIiwidXNlcl9pZCI6IjEifQ.bcBCxHK8dn-3XgabaUqM_IaBc9wWDigI36hmFNcML3Y
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MTg0MzgzLCJpYXQiOjE3NjQxNDExODMsImp0aSI6IjBjMTNlNmNiMDRjZTQ5M2E4MDA3NDJjNmFhYjliNDI4IiwidXNlcl9pZCI6IjEifQ.4IeyO4KMyk-rXf8aTMil-XZxTnWmHIKS6mK91hhDzSM
 
 
 ### Trainer Detail (Retrieve)
-GET {{base_url}}9/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzMzUyMzQxLCJpYXQiOjE3NjMzNTIwNDEsImp0aSI6IjFjN2YxNGVjZjUwOTRiZDE4ZjA3M2FjOTNmY2EwNjQ2IiwidXNlcl9pZCI6IjEifQ.ACij0LlKUKok5njkbs2jj9aAV386lW3jurneqK9ir5w
+GET {{base_url}}2/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MTg0MzgzLCJpYXQiOjE3NjQxNDExODMsImp0aSI6IjBjMTNlNmNiMDRjZTQ5M2E4MDA3NDJjNmFhYjliNDI4IiwidXNlcl9pZCI6IjEifQ.4IeyO4KMyk-rXf8aTMil-XZxTnWmHIKS6mK91hhDzSM
 
 
 
 
 ### Trainer Partial Update (PATCH)
-PATCH {{base_url}}2/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MDA3Nzg3LCJpYXQiOjE3NjM5NjQ1ODcsImp0aSI6Ijg0ZGQ2NzEyMWM3YTQ2ZDM4NDNlNjNkZWZiZmY3Y2ExIiwidXNlcl9pZCI6IjEifQ.ELZck_Nj_WwnehWGF5QqDcM0Y9t92SOINys7TMS_J3A
+PATCH {{base_url}}4/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MDg2MTYyLCJpYXQiOjE3NjQwNDI5NjIsImp0aSI6ImVjZDM5MjRmOGU4YjQxOTQ5Y2QxZDkyYTJjZDdlMmU5IiwidXNlcl9pZCI6IjEifQ.ObwW1SjIStJH0T4UQhJnKoDCuS4gF1lbjEgAX6X2eNA
 Content-Type: application/json
 
 {
@@ -66,7 +66,7 @@ Authorization: Bearer <access_token>
 
 ### Get Trainer Profile
 GET {{base_url}}profile/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNDA4NDYwLCJpYXQiOjE3NjMzNjUyNjAsImp0aSI6Ijk3NjkyMDM4YjU5NTQ4NjliMjFiYmZkODE4ZWM5MTgyIiwidXNlcl9pZCI6IjQifQ.koPBJ1LU560FFaPOMZAUE7p1HJr7uQBUd8oR6NN8yI4
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MDg5ODA0LCJpYXQiOjE3NjQwNDY2MDQsImp0aSI6ImU3YTcwY2MyMDQ4NzQxYzA4NGMwYzQ3ODg5NWI1NDE3IiwidXNlcl9pZCI6IjUifQ.kGN2O8J-CCUwhk1jLNcqKHgnX59dhUGyltgrgO2jflo
 Content-Type: application/json
 
 ### Edit Trainer Profile
@@ -85,7 +85,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 ### filter trainer by slot,time,date
 POST {{base_url}}available-trainers/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MDA3NjI4LCJpYXQiOjE3NjM5NjQ0MjgsImp0aSI6IjM5OGViOTg1YmJlYzQwNmU5YWFlZWFlZWNjYTMxZGY2IiwidXNlcl9pZCI6IjMifQ.sZjx-nFFBRvt8_N1ZKetNvB6UCfIJeof4OwFQOD66qA
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MDg1OTAyLCJpYXQiOjE3NjQwNDI3MDIsImp0aSI6IjYxYTZhMThlN2MxNDQ3NjE5N2E5ZGMyYjJlNzFkNTc3IiwidXNlcl9pZCI6IjMifQ.hb6GFjue_iPMinaQFs9EsaVsAI8sZRtYlwDbvJAL0p8
 Content-Type: application/json
 
 {
@@ -96,8 +96,8 @@ Content-Type: application/json
 }
 
 ### trainer detail view for modal in mobile app
-GET {{base_url}}detail/2/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MDE5MjQwLCJpYXQiOjE3NjM5NzYwNDAsImp0aSI6ImQ5NmJhNTQzMmQ5ZTRmY2M5OTkzNTJjY2M2NTBmM2Y4IiwidXNlcl9pZCI6IjMifQ.WoRDCLO_Ngqvqr5WgHcM57eBMa9x7cGG-wu7lfuzZzs
+GET {{base_url}}detail/4/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MDg1OTAyLCJpYXQiOjE3NjQwNDI3MDIsImp0aSI6IjYxYTZhMThlN2MxNDQ3NjE5N2E5ZGMyYjJlNzFkNTc3IiwidXNlcl9pZCI6IjMifQ.hb6GFjue_iPMinaQFs9EsaVsAI8sZRtYlwDbvJAL0p8
 
 
 
@@ -105,19 +105,31 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 ### book filtered trainer
 POST {{base_url}}book-trainer/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNTgyNTQ3LCJpYXQiOjE3NjM1MzkzNDcsImp0aSI6IjhhN2Y2ODkwYTE3NzQxMDdhYTRlNzgxMzVhYjQ2MWRlIiwidXNlcl9pZCI6IjEwIn0.8F-JVCdr7X-mx7deL_Py6HCBLkeGqNn_Sia0PKFxFYQ
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MDg1OTAyLCJpYXQiOjE3NjQwNDI3MDIsImp0aSI6IjYxYTZhMThlN2MxNDQ3NjE5N2E5ZGMyYjJlNzFkNTc3IiwidXNlcl9pZCI6IjMifQ.hb6GFjue_iPMinaQFs9EsaVsAI8sZRtYlwDbvJAL0p8
 Content-Type: application/json
 
 {
-  "trainer_id": 16,
-  "plan_id": 5,
-  "start_date": "2025-11-19",
+  "trainer_id": 2,
+  "plan_id": 2,
+  "start_date": "2025-11-27",
   "time": "10:00",
   "slot_days": ["mon", "wed", "fri"]  
 }
 
 ### change trainer by user
 GET {{base_url}}change/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MDI5NTcxLCJpYXQiOjE3NjM5ODYzNzEsImp0aSI6IjIyMjQ4NWQwMDg2NTRkYTFiZmNkZDE3M2I2MDFlZDVhIiwidXNlcl9pZCI6IjMifQ.HtH72-e7aySTESW93kpArl7KfA7yIORlRH4Ds0FHpWg
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MDg1OTAyLCJpYXQiOjE3NjQwNDI3MDIsImp0aSI6IjYxYTZhMThlN2MxNDQ3NjE5N2E5ZGMyYjJlNzFkNTc3IiwidXNlcl9pZCI6IjMifQ.hb6GFjue_iPMinaQFs9EsaVsAI8sZRtYlwDbvJAL0p8
 
 
+### get single trainer details using id
+GET {{base_url}}info/4/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MDg1OTAyLCJpYXQiOjE3NjQwNDI3MDIsImp0aSI6IjYxYTZhMThlN2MxNDQ3NjE5N2E5ZGMyYjJlNzFkNTc3IiwidXNlcl9pZCI6IjMifQ.hb6GFjue_iPMinaQFs9EsaVsAI8sZRtYlwDbvJAL0p8
+
+### add notes on sessions by trainer
+POST {{base_url}}booking/1/add-note/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MTAxMTc2LCJpYXQiOjE3NjQwNTc5NzYsImp0aSI6IjM4YzFiYjVlZTA3NjQxZGJhZjM5Mzg3NDg2MmRiNmJlIiwidXNlcl9pZCI6IjQifQ.3O8V_ekbc7fHlGF4MVRpemyK0L46Qp7hAJTgbY1Om4U
+Content-Type: application/json
+
+{
+    "note": "Client did well in today’s session."
+}
