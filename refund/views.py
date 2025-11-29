@@ -3,6 +3,16 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from .models import TrainingCancelRequest
 from trainer.models import SlotBooking
+from rest_framework.generics import ListAPIView
+from .serializers import TrainingCancelRequestSerializer
+from rest_framework import status
+from rest_framework.permissions import IsAdminUser
+from .models import TrainingCancelRequest
+from .serializers import (
+    TrainingCancelListSerializer,
+    TrainingCancelDetailSerializer,
+    TrainingCancelStatusUpdateSerializer
+)
 
 class RequestTrainingCancelView(APIView):
     permission_classes = [IsAuthenticated]
@@ -10,36 +20,46 @@ class RequestTrainingCancelView(APIView):
     def post(self, request):
         client = request.user.client
 
-        # 1. Fetch latest active (upcoming/ongoing) session
-        slot = SlotBooking.objects.filter(
-            client=client,
-            status__in=["upcoming", "ongoing"]
-        ).order_by("date", "time").first()
+        # 1. Get latest active slot
+        slot = (
+            SlotBooking.objects.filter(
+                client=client,
+                status__in=["upcoming", "ongoing"]
+            )
+            .order_by("date", "time")
+            .first()
+        )
 
         if not slot:
-            return Response({"error": "No active session available to cancel"}, status=404)
+            return Response(
+                {"error": "No active session available to cancel"},
+                status=status.HTTP_404_NOT_FOUND
+            )
 
-        # 2. Prevent duplicate cancellation request
+        # 2. Prevent duplicate requests
         if TrainingCancelRequest.objects.filter(slot=slot, status="open").exists():
-            return Response({"error": "Cancellation already requested"}, status=400)
+            return Response(
+                {"error": "Cancellation already requested"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-        # 3. Create cancellation request
+        # 3. Create request
         cancel_req = TrainingCancelRequest.objects.create(
             client=client,
             trainer=slot.trainer,
             plan=slot.plan,
             slot=slot,
-            amount=slot.plan.single_price  # choose appropriate price logic
+            amount=slot.plan.single_price
         )
 
-        return Response({
-            "message": "Cancellation request submitted",
-            "request_id": cancel_req.id
-        }, status=201)
-from rest_framework.generics import ListAPIView
-from rest_framework.permissions import IsAuthenticated
-from .models import TrainingCancelRequest
-from .serializers import TrainingCancelRequestSerializer
+        return Response(
+            {
+                "message": "Cancellation request submitted",
+                "request_id": cancel_req.id
+            },
+            status=status.HTTP_201_CREATED
+        )
+
 
 class ClientCancelRequestListView(ListAPIView):
     serializer_class = TrainingCancelRequestSerializer
@@ -48,19 +68,7 @@ class ClientCancelRequestListView(ListAPIView):
     def get_queryset(self):
         client = self.request.user.client
         return TrainingCancelRequest.objects.filter(client=client).order_by("-request_date")
-# views.py
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.permissions import IsAdminUser
-
-from .models import TrainingCancelRequest
-from .serializers import (
-    TrainingCancelListSerializer,
-    TrainingCancelDetailSerializer,
-    TrainingCancelStatusUpdateSerializer
-)
 
 class TrainingCancelListView(APIView):
     permission_classes = [IsAdminUser]

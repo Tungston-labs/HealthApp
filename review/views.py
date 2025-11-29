@@ -1,8 +1,11 @@
-from rest_framework import generics, permissions, serializers
+from rest_framework import generics, permissions, serializers, status
+from rest_framework.response import Response
+
 from .models import TrainerReview
 from .serializers import TrainerReviewSerializer
 from client.models import Client
 from accounts.permissions import IsUser
+
 
 class TrainerReviewCreateView(generics.CreateAPIView):
     serializer_class = TrainerReviewSerializer
@@ -10,10 +13,17 @@ class TrainerReviewCreateView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         user = self.request.user
-        client = Client.objects.get(user=user)
-        trainer_id = self.request.data.get('trainer')
+        
+        try:
+            client = Client.objects.get(user=user)
+        except Client.DoesNotExist:
+            raise serializers.ValidationError("Client profile not found.")
 
-        # Prevent multiple reviews for the same trainer
+        trainer_id = self.request.data.get('trainer')
+        if not trainer_id:
+            raise serializers.ValidationError("Trainer ID is required.")
+
+        # Prevent duplicate review
         if TrainerReview.objects.filter(client=client, trainer_id=trainer_id).exists():
             raise serializers.ValidationError("You have already reviewed this trainer.")
 

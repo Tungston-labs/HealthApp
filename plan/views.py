@@ -3,6 +3,7 @@ from rest_framework import generics
 from .models import Plan
 from .serializers import PlanSerializer
 from accounts.permissions import IsAdmin,IsUser
+from django.shortcuts import get_object_or_404
 
 class PlanListCreateView(generics.ListCreateAPIView):
     queryset = Plan.objects.all().order_by('-created_at')
@@ -10,9 +11,12 @@ class PlanListCreateView(generics.ListCreateAPIView):
     permission_classes = [IsAdmin]
     
 class PlanRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Plan.objects.all()
     serializer_class = PlanSerializer
     permission_classes = [IsAdmin]
+
+    def get_object(self):
+        return get_object_or_404(Plan, id=self.kwargs["pk"])
+
 
 class PlanListView(generics.ListAPIView):
     queryset = Plan.objects.all()
@@ -20,9 +24,12 @@ class PlanListView(generics.ListAPIView):
     permission_classes = [IsUser]
 
 class PlanDetailView(generics.RetrieveAPIView):
-    queryset = Plan.objects.all()
     serializer_class = PlanSerializer
     permission_classes = [IsUser]
+
+    def get_object(self):
+        return get_object_or_404(Plan, id=self.kwargs["pk"])
+
 
 
 # getting plan list with pending trainer counts

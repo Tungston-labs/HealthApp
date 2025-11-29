@@ -1,12 +1,20 @@
 from django.shortcuts import render
-from datetime import date
-from trainer.models import SlotBooking,Trainer
 from client.models import Client
 from .serializers import TodaySessionSerializer,ClientDetailSerializer,HistoryBookingSerializer,AllBookingSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 import datetime
+from datetime import datetime, date
+from trainer.models import Trainer, SlotBooking
+from .serializers import AllBookingSerializer
+from rest_framework.views import APIView
+from datetime import datetime, time
+from trainer.models import Trainer, SlotBooking
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from trainer.models import SlotBooking
+from trainer.serializers import TrainerMiniSerializer
 
 
 class TrainerTodaySessionsView(APIView):
@@ -38,12 +46,6 @@ class ClientDetailView(APIView):
         return Response(serializer.data)
 
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from datetime import datetime, date
-from trainer.models import Trainer, SlotBooking
-from .serializers import AllBookingSerializer
 
 class TrainerAllBookingsView(APIView):
     permission_classes = [IsAuthenticated]
@@ -102,11 +104,7 @@ class TrainerHistorySessionsView(APIView):
         })
 
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from datetime import datetime, time
-from trainer.models import Trainer, SlotBooking
+
 
 class StartTrainingView(APIView):
     permission_classes = [IsAuthenticated]
@@ -168,13 +166,7 @@ class EndTrainingView(APIView):
 
 # for getting all sessions for client
 
-# views.py
-from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from datetime import date
-from trainer.models import SlotBooking
-from trainer.serializers import TrainerMiniSerializer
+
 
 class ClientCompletedSessionsView(APIView):
     permission_classes = [IsAuthenticated]
