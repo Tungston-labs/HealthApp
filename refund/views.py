@@ -13,7 +13,7 @@ from .serializers import (
     TrainingCancelDetailSerializer,
     TrainingCancelStatusUpdateSerializer
 )
-
+from accounts.paginations import CustomPagination
 class RequestTrainingCancelView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -64,6 +64,7 @@ class RequestTrainingCancelView(APIView):
 class ClientCancelRequestListView(ListAPIView):
     serializer_class = TrainingCancelRequestSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = CustomPagination
 
     def get_queryset(self):
         client = self.request.user.client
@@ -72,6 +73,8 @@ class ClientCancelRequestListView(ListAPIView):
 
 class TrainingCancelListView(APIView):
     permission_classes = [IsAdminUser]
+    pagination_class = CustomPagination
+
 
     def get(self, request):
         requests = TrainingCancelRequest.objects.select_related(

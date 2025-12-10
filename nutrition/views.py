@@ -12,6 +12,7 @@ from .serializers import (
 from .models import NutritionRequest
 from django.core.mail import EmailMessage
 from rest_framework import status
+from accounts.paginations import CustomPagination
 
 
 # add request for nutrition
@@ -25,6 +26,7 @@ class AdminNutritionRequestListView(ListAPIView):
     queryset = NutritionRequest.objects.filter(status="pending").order_by("-date")
     serializer_class = NutritionRequestListSerializer
     permission_classes = [IsAdmin]
+    pagination_class = CustomPagination
 
 # details for admin
 

@@ -6,6 +6,7 @@ from .serializers import (
     TicketDetailSerializer, TicketStatusUpdateSerializer
 )
 from accounts.permissions import IsAdmin, IsUser
+from accounts.paginations import CustomPagination
 
 class TicketCreateView(CreateAPIView):
     serializer_class = TicketCreateSerializer
@@ -15,6 +16,8 @@ class AdminTicketListView(ListAPIView):
     queryset = Ticket.objects.all().order_by("-date")
     serializer_class = TicketListSerializer
     permission_classes = [IsAdmin]
+    pagination_class = CustomPagination
+
 
 class AdminTicketDetailView(RetrieveAPIView):
     queryset = Ticket.objects.all()

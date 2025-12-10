@@ -13,6 +13,7 @@ from client.models import Client
 from nutrition.models import NutritionRequest
 from tickets.models import Ticket
 from refund.models import TrainingCancelRequest
+from accounts.paginations import CustomPagination
 
 class ClientCreateView(generics.CreateAPIView):
     queryset = Client.objects.all()
@@ -25,6 +26,7 @@ class ClientListView(generics.ListAPIView):
     queryset = Client.objects.all()
     serializer_class = ClientSerializer
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = CustomPagination
 
 # Retrieve, Update, Delete client profile (authenticated only)
 class ClientRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):

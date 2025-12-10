@@ -27,8 +27,8 @@ Content-Type: application/json
   "password":"Password@123"
 }
 ### List Clients
-GET {{base_url}}client/
-Authorization: Bearer <access_token>
+GET {{base_url}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1NDA2MTg5LCJpYXQiOjE3NjUzNjI5ODksImp0aSI6IjA4MWZlZmYwOTg1MzQ1MDZiYjYyZTE4MDA1MjIyZmM3IiwidXNlcl9pZCI6IjEifQ.FVBrXp8rnv8ZMizZJ_0UyXmVx0C68C81ezpDUXZo9AQ
 ### Retrieve Client Profile
 GET {{base_url}}client/1/
 Authorization: Bearer <access_token>

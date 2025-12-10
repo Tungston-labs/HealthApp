@@ -4,11 +4,13 @@ from .models import Plan
 from .serializers import PlanSerializer
 from accounts.permissions import IsAdmin,IsUser
 from django.shortcuts import get_object_or_404
+from accounts.paginations import CustomPagination
 
 class PlanListCreateView(generics.ListCreateAPIView):
     queryset = Plan.objects.all().order_by('-created_at')
     serializer_class = PlanSerializer
     permission_classes = [IsAdmin]
+    pagination_class=CustomPagination
     
 class PlanRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = PlanSerializer
