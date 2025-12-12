@@ -1,5 +1,5 @@
-# @base_url = http://127.0.0.1:8000/api/trainer/
-@base_url = http://178.248.112.16:9001/api/trainer/
+@base_url = http://127.0.0.1:8000/api/trainer/
+# @base_url = http://178.248.112.16:9001/api/trainer/
 
 ###----------------------login/get access token and refresh token
 POST http://178.248.112.16:9001/api/auth/login/
@@ -16,8 +16,8 @@ Content-Type: application/json
 
 {
   "name": "user",
-  "phno": "5287870831",
-  "email": "user3@gmail.com",
+  "phno": "7000220037",
+  "email": "user9@gmail.com",
   "dob": "2001-05-16",
   "training_field": 2,
   "section_timing": "30",
@@ -36,7 +36,7 @@ Content-Type: application/json
 
 
 ### Trainer List (Admin Only)
-GET {{base_url}}list/?search='user'&training_field=2
+GET {{base_url}}list/
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1NTYyMjA2LCJpYXQiOjE3NjU1MTkwMDYsImp0aSI6ImQ1NTM1YmQ0MDQ0MDRkMzFiOTc4YTBjOWY1M2RiMDYzIiwidXNlcl9pZCI6IjEifQ.2PEg1HBz1x3Ddq4waALkIp2r6uGXk2aV-VWfllbjUkQ
 
 

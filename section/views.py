@@ -181,6 +181,9 @@ class StartTrainingView(APIView):
             "booking_id": booking.id,
             "status": booking.status
         })
+    
+from django.utils import timezone
+from zoneinfo import ZoneInfo    
 class EndTrainingView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -199,9 +202,12 @@ class EndTrainingView(APIView):
         if booking.status != "ongoing":
             return Response({"error": f"Cannot end session with status {booking.status}"}, status=400)
 
+        # Convert current time to IST
+        ist_now = timezone.now().astimezone(ZoneInfo("Asia/Kolkata"))
+
         booking.status = "completed"
-        booking.session_end_date = datetime.today().date()
-        booking.session_end_time = datetime.now().time()
+        booking.session_end_date = ist_now.date()
+        booking.session_end_time = ist_now.time()
         booking.save()
 
         return Response({
@@ -266,3 +272,72 @@ class ClientSessionDetailView(APIView):
         }
 
         return Response(data)
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from datetime import datetime, timedelta
+from django.utils import timezone
+from zoneinfo import ZoneInfo
+
+from trainer.models import SlotBooking
+
+
+from datetime import datetime
+from zoneinfo import ZoneInfo
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from trainer.models import SlotBooking
+
+class ClientWeeklyHoursAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, client_id):
+
+        # Get completed sessions ordered by date
+        sessions = SlotBooking.objects.filter(
+            client_id=client_id,
+            status="completed"
+        ).order_by("date")
+
+        if not sessions.exists():
+            return Response({
+                "client_id": client_id,
+                "weeks": {}
+            })
+
+        # First session date = start of week1
+        first_session_date = sessions.first().date
+
+        weekly_hours = {}
+
+        for session in sessions:
+
+            if not session.date or not session.time or not session.session_end_date or not session.session_end_time:
+                continue
+
+            # Convert datetimes to IST
+            start_dt = datetime.combine(session.date, session.time).replace(
+                tzinfo=ZoneInfo("Asia/Kolkata")
+            )
+            end_dt = datetime.combine(session.session_end_date, session.session_end_time).replace(
+                tzinfo=ZoneInfo("Asia/Kolkata")
+            )
+
+            # Duration in hours
+            duration_hours = (end_dt - start_dt).total_seconds() / 3600
+
+            # Calculate week index from first session
+            days_diff = (session.date - first_session_date).days
+            week_number = (days_diff // 7) + 1
+
+            week_label = f"Week {week_number}"
+
+            # Add to weekly total
+            weekly_hours[week_label] = weekly_hours.get(week_label, 0) + round(duration_hours, 2)
+
+        return Response({
+            "client_id": client_id,
+            "weeks": weekly_hours
+        })
+

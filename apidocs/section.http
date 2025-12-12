@@ -1,4 +1,4 @@
-@base_url = http://127.0.0.1:8000/api/section/client/2/sessions/
+@base_url = http://127.0.0.1:8000/api/section/
 
 
 
@@ -14,8 +14,10 @@ Content-Type: application/json
 
 ### session history by client id
 GET {{base_url}}client/2/sessions/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1NDk2ODg4LCJpYXQiOjE3NjU0NTM2ODgsImp0aSI6IjI5NmE0YjcyYWZiODRiYTY4MzJlMmUwYTZlNjMzMjBhIiwidXNlcl9pZCI6IjEifQ._7uK7sp6kDNHbl2EmFWM-WrnBHi_WNlTOtWQin142rU
-
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1NTc4NjE5LCJpYXQiOjE3NjU1MzU0MjAsImp0aSI6IjczMTI3NTNiZWI3YTQ4M2E4OGRiNGVjOTY5NjE1NDA0IiwidXNlcl9pZCI6IjEifQ.kwJW1GEtGN25RU5CU5vvv80BVn1_I4bKhWoLXAdVGM4
+### session history by client id
+GET {{base_url}}client/2/weekly-hours/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1NTc4NjE5LCJpYXQiOjE3NjU1MzU0MjAsImp0aSI6IjczMTI3NTNiZWI3YTQ4M2E4OGRiNGVjOTY5NjE1NDA0IiwidXNlcl9pZCI6IjEifQ.kwJW1GEtGN25RU5CU5vvv80BVn1_I4bKhWoLXAdVGM4
 ### todays sessions by trainer
 GET {{base_url}}today-sessions/
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MDkyNzczLCJpYXQiOjE3NjQwNDk1NzMsImp0aSI6IjQwNjc0NjkwMDBiMTQxMzNhMGQzYTE2ZWRjMTU1NDJjIiwidXNlcl9pZCI6IjQifQ.BCRwi1iQuXKstkSdWS2C8m7XDtOSo7K6-TsUFQc29MI
@@ -36,20 +38,20 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 ### Start Training
 POST {{base_url}}start-training/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MDk1MTYzLCJpYXQiOjE3NjQwNTE5NjMsImp0aSI6ImJmOGE4ODJhMzBiMjRlY2FiZTVmZDE2MjY1ZGEwYTdiIiwidXNlcl9pZCI6IjQifQ.gzgAge--adSOOosRNODG4VO7wscJiwHnPys0C5AcD7o
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1NTgwMjM4LCJpYXQiOjE3NjU1MzcwMzgsImp0aSI6IjUyZTEzMzRlMzRlYzRmMzliMjg5Mzk5NWFmZjkwZjM4IiwidXNlcl9pZCI6IjQifQ.60dyCE0U-KV7d9gCpXLGFLtiEKCIQdlBS0o2H1Ausro
 Content-Type: application/json
 
 {
-    "booking_id": 1
+    "booking_id": 5
 }
 
 ### End Training
 POST {{base_url}}end-training/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MDk1MTYzLCJpYXQiOjE3NjQwNTE5NjMsImp0aSI6ImJmOGE4ODJhMzBiMjRlY2FiZTVmZDE2MjY1ZGEwYTdiIiwidXNlcl9pZCI6IjQifQ.gzgAge--adSOOosRNODG4VO7wscJiwHnPys0C5AcD7o
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1NTgwMjM4LCJpYXQiOjE3NjU1MzcwMzgsImp0aSI6IjUyZTEzMzRlMzRlYzRmMzliMjg5Mzk5NWFmZjkwZjM4IiwidXNlcl9pZCI6IjQifQ.60dyCE0U-KV7d9gCpXLGFLtiEKCIQdlBS0o2H1Ausro
 Content-Type: application/json
 
 {
-    "booking_id": 1
+    "booking_id": 5
 }
 
 

@@ -18,10 +18,6 @@ class TrainerCertificateSerializer(serializers.ModelSerializer):
 from rest_framework import serializers
 from .models import Trainer, TrainerCertificate
 from plan.models import Plan
-
-from django.contrib.auth.hashers import make_password
-from django.conf import settings
-
 class TrainerSerializer(serializers.ModelSerializer):
     certificates = serializers.ListField(
         child=serializers.CharField(),
@@ -29,14 +25,38 @@ class TrainerSerializer(serializers.ModelSerializer):
         required=False
     )
     certificates_read = serializers.SerializerMethodField()
-    profile_pic = serializers.SerializerMethodField()
     password = serializers.CharField(write_only=True, required=False)
+    profile_pic = serializers.SerializerMethodField()
+    plan_id = serializers.IntegerField(source='training_field.id', read_only=True)
+    plan_name = serializers.CharField(source='training_field.plan_name', read_only=True)
+
 
     class Meta:
         model = Trainer
         fields = '__all__'
         read_only_fields = ['user']
 
+    def create(self, validated_data):
+        certificate_urls = validated_data.pop('certificates', [])
+        password = validated_data.pop('password', None)
+
+        # Create trainer
+        trainer = Trainer.objects.create(**validated_data)
+
+        # Save certificates one by one
+        for url in certificate_urls:
+            TrainerCertificate.objects.create(
+                trainer=trainer,
+                image_url=url
+            )
+
+        # Save password
+        if password:
+            trainer.set_password(password)
+            trainer.save()
+
+        return trainer
+    
     def get_profile_pic(self, obj):
         request = self.context.get("request")
         if obj.profile_pic:
@@ -45,26 +65,10 @@ class TrainerSerializer(serializers.ModelSerializer):
 
     def get_certificates_read(self, obj):
         request = self.context.get("request")
-        return [request.build_absolute_uri(c.image_url) for c in obj.certificates.all()]
-
-    def create(self, validated_data):
-        certificates = validated_data.pop("certificates", [])
-        password = validated_data.pop("password", None)
-
-        # Create trainer
-        trainer = Trainer.objects.create(**validated_data)
-
-        # Hash the password (Trainer is not a User model)
-        if password:
-            trainer.password = make_password(password)
-            trainer.save()
-
-        # Create TrainerCertificate objects
-        for url in certificates:
-            cert = TrainerCertificate.objects.create(image_url=url)
-            trainer.certificates.add(cert)
-
-        return trainer
+        return [
+            request.build_absolute_uri(c.image_url)
+            for c in obj.certificates.all()
+        ]
 
 
 
