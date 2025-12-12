@@ -15,9 +15,9 @@ POST {{base_url}}
 Content-Type: application/json
 
 {
-  "name": "jesna",
-  "phno": "7987870837",
-  "email": "jesnaa@gmail.com",
+  "name": "user",
+  "phno": "1287870837",
+  "email": "user1@gmail.com",
   "dob": "2001-05-16",
   "training_field": 2,
   "section_timing": "30",
@@ -25,7 +25,7 @@ Content-Type: application/json
   "location": "Kerala",
   "expecting_salary": "25000.00",
   "no_of_section": 3,
-  "adar_number": "991882110000",
+  "adar_number": "991882111100",
   "adar_image": "http://178.248.112.16:9001/media/certificates/97.jpg.webp",
   "password": "Password@1234",
   "certificates": [
