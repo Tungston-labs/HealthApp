@@ -14,6 +14,7 @@ from django.db.models import Q
 from .models import Trainer, TrainerAvailability, SlotBooking
 from plan.models import Plan
 from client.models import Client
+from accounts.paginations import CustomPagination
 
 
 class LocalImageUploadAPIView(APIView):
@@ -44,13 +45,16 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 
 class TrainerListView(generics.ListAPIView):
-    queryset = Trainer.objects.all()
     serializer_class = TrainerSerializer
     permission_classes = [permissions.IsAuthenticated]
-
+    pagination_class = CustomPagination
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
-    search_fields = ['name']  # search by trainer name
-    filterset_fields = ['training_field']  # filter by plan id
+    search_fields = ['name']
+    filterset_fields = ['training_field']
+
+    def get_queryset(self):
+        return Trainer.objects.filter(status='approved')
+
 
 
 class TrainerDetailView(generics.RetrieveUpdateDestroyAPIView):

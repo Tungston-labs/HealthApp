@@ -1,11 +1,12 @@
-@base_url = http://127.0.0.1:8000/api/trainer/
+# @base_url = http://127.0.0.1:8000/api/trainer/
+@base_url = http://178.248.112.16:9001/api/trainer/
 
 ###----------------------login/get access token and refresh token
-POST http://127.0.0.1:8000/api/auth/login/
+POST http://178.248.112.16:9001/api/auth/login/
 Content-Type: application/json
 
 {
-  "email_or_phno": "7025220037",
+  "email_or_phno": "7900000837",
   "password": "Password@1234"
 }
 
@@ -14,21 +15,21 @@ POST {{base_url}}
 Content-Type: application/json
 
 {
-  "name": "ramya",
-  "phno": "7900440837",
-  "email": "ramya@gmail.com",
-  "dob": "1994-05-16",
-  "training_field": "2",
+  "name": "jesna",
+  "phno": "7987870837",
+  "email": "jesnaa@gmail.com",
+  "dob": "2001-05-16",
+  "training_field": 2,
   "section_timing": "30",
   "gender": "female",
   "location": "Kerala",
   "expecting_salary": "25000.00",
   "no_of_section": 3,
-  "adar_number": "999882110000",
-  "adar_image": "http://127.0.0.1:8000/media/certificates/IDCARD.webp",
+  "adar_number": "991882110000",
+  "adar_image": "http://178.248.112.16:9001/media/certificates/97.jpg.webp",
   "password": "Password@1234",
   "certificates": [
-    "http://127.0.0.1:8000/media/certificates/IDCARD.webp","http://127.0.0.1:8000/media/certificates/IDCARD.webp"
+    "http://178.248.112.16:9001/media/certificates/97.jpg.webp","http://178.248.112.16:9001/media/certificates/97.jpg.webp"
   ]
 }
 
@@ -36,7 +37,7 @@ Content-Type: application/json
 
 ### Trainer List (Admin Only)
 GET {{base_url}}list/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MTg0MzgzLCJpYXQiOjE3NjQxNDExODMsImp0aSI6IjBjMTNlNmNiMDRjZTQ5M2E4MDA3NDJjNmFhYjliNDI4IiwidXNlcl9pZCI6IjEifQ.4IeyO4KMyk-rXf8aTMil-XZxTnWmHIKS6mK91hhDzSM
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1NTYyMjA2LCJpYXQiOjE3NjU1MTkwMDYsImp0aSI6ImQ1NTM1YmQ0MDQ0MDRkMzFiOTc4YTBjOWY1M2RiMDYzIiwidXNlcl9pZCI6IjEifQ.2PEg1HBz1x3Ddq4waALkIp2r6uGXk2aV-VWfllbjUkQ
 
 
 ### Trainer Detail (Retrieve)
@@ -47,8 +48,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 
 ### Trainer Partial Update (PATCH)
-PATCH {{base_url}}4/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MDg2MTYyLCJpYXQiOjE3NjQwNDI5NjIsImp0aSI6ImVjZDM5MjRmOGU4YjQxOTQ5Y2QxZDkyYTJjZDdlMmU5IiwidXNlcl9pZCI6IjEifQ.ObwW1SjIStJH0T4UQhJnKoDCuS4gF1lbjEgAX6X2eNA
+PATCH {{base_url}}2/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1NTYyMjA2LCJpYXQiOjE3NjU1MTkwMDYsImp0aSI6ImQ1NTM1YmQ0MDQ0MDRkMzFiOTc4YTBjOWY1M2RiMDYzIiwidXNlcl9pZCI6IjEifQ.2PEg1HBz1x3Ddq4waALkIp2r6uGXk2aV-VWfllbjUkQ
 Content-Type: application/json
 
 {
