@@ -26,40 +26,26 @@ class TrainerSerializer(serializers.ModelSerializer):
         required=False
     )
     certificates_read = serializers.SerializerMethodField()
+    profile_pic = serializers.SerializerMethodField()
     password = serializers.CharField(write_only=True, required=False)
+
+    plan_id = serializers.IntegerField(source='training_field.id', read_only=True)
+    plan_name = serializers.CharField(source='training_field.plan_name', read_only=True)
 
     class Meta:
         model = Trainer
         fields = '__all__'
         read_only_fields = ['user']
 
-    def create(self, validated_data):
-        certificate_urls = validated_data.pop('certificates', [])
-        password = validated_data.pop('password', None)
-
-        # Create trainer
-        trainer = Trainer.objects.create(**validated_data)
-
-        # Save certificates one by one
-        for url in certificate_urls:
-            TrainerCertificate.objects.create(
-                trainer=trainer,
-                image_url=url
-            )
-
-        # Save password
-        if password:
-            trainer.set_password(password)
-            trainer.save()
-
-        return trainer
+    def get_profile_pic(self, obj):
+        request = self.context.get("request")
+        if obj.profile_pic:
+            return request.build_absolute_uri(obj.profile_pic.url)
+        return None
 
     def get_certificates_read(self, obj):
         request = self.context.get("request")
-        return [
-            request.build_absolute_uri(c.image_url)
-            for c in obj.certificates.all()
-        ]
+        return [request.build_absolute_uri(c.image_url) for c in obj.certificates.all()]
 
 
 
