@@ -1,7 +1,7 @@
 # plans/views.py
 from rest_framework import generics
 from .models import Plan
-from .serializers import PlanSerializer
+from .serializers import PlanSerializer,PlanMiniSerializer
 from accounts.permissions import IsAdmin,IsUser
 from django.shortcuts import get_object_or_404
 from accounts.paginations import CustomPagination
@@ -18,7 +18,11 @@ class PlanRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_object(self):
         return get_object_or_404(Plan, id=self.kwargs["pk"])
-
+    
+class PlanMiniListView(generics.ListAPIView):
+    queryset = Plan.objects.all()
+    serializer_class = PlanMiniSerializer
+    permission_classes = [IsAdmin]
 
 class PlanListView(generics.ListAPIView):
     queryset = Plan.objects.all()

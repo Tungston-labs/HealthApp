@@ -1,4 +1,4 @@
-@base_url = http://127.0.0.1:8000/api/section/
+@base_url = http://127.0.0.1:8000/api/section/client/2/sessions/
 
 
 
@@ -12,6 +12,9 @@ Content-Type: application/json
 }
 
 
+### session history by client id
+GET {{base_url}}client/2/sessions/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1NDk2ODg4LCJpYXQiOjE3NjU0NTM2ODgsImp0aSI6IjI5NmE0YjcyYWZiODRiYTY4MzJlMmUwYTZlNjMzMjBhIiwidXNlcl9pZCI6IjEifQ._7uK7sp6kDNHbl2EmFWM-WrnBHi_WNlTOtWQin142rU
 
 ### todays sessions by trainer
 GET {{base_url}}today-sessions/
@@ -21,7 +24,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 ### client details by trainer
 GET {{base_url}}client/2/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MDkyNjM3LCJpYXQiOjE3NjQwNDk0MzcsImp0aSI6IjgwNmY2YjMxZDQxNTRlYWRhNjllYmJjNWFjYTA5YjkxIiwidXNlcl9pZCI6IjUifQ.P6nwXri5EhoDwtXLj5bMKiFLb-hlR5vpX8NiYgYb1pY
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1NDg5ODY4LCJpYXQiOjE3NjU0NDY2NjgsImp0aSI6ImMwNDMyYzAzODE1OTRmNzY5YmUxOWNlMWE5NGQ1MWExIiwidXNlcl9pZCI6IjEifQ.FlJe7yr_BFi_haGdDSFig047SGIo0IAQtaop_PN3pH0
 
 ### get all session details for trainer
 GET {{base_url}}trainer/bookings/?date=2025-12-05

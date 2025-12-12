@@ -22,27 +22,48 @@ class ClientCreateView(generics.CreateAPIView):
 
 
 # List clients (authenticated only)
+from django.db.models import Q
+
 class ClientListView(generics.ListAPIView):
-    queryset = Client.objects.all()
     serializer_class = ClientSerializer
     permission_classes = [permissions.IsAuthenticated]
     pagination_class = CustomPagination
 
+    def get_queryset(self):
+        queryset = Client.objects.all()
+
+        search = self.request.query_params.get("search")  # 🔍 name search
+        plan = self.request.query_params.get("plan")      # plan name
+        plan_id = self.request.query_params.get("plan_id")  # plan id
+
+        # 🔍 SEARCH BY NAME
+        if search:
+            queryset = queryset.filter(name__icontains=search)
+
+        # 🔥 FILTER BY PLAN NAME
+        if plan:
+            queryset = queryset.filter(
+                slotbooking__plan__plan_name__icontains=plan
+            ).distinct()
+
+        # 🔥 FILTER BY PLAN ID
+        if plan_id:
+            queryset = queryset.filter(
+                slotbooking__plan__id=plan_id
+            ).distinct()
+
+        return queryset
+
+
+
 # Retrieve, Update, Delete client profile (authenticated only)
+from django.shortcuts import get_object_or_404
+
 class ClientRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Client.objects.all()
     serializer_class = ClientSerializer
     permission_classes = [permissions.IsAuthenticated]
-
-    def get_object(self):
-        try:
-            return Client.objects.get(user=self.request.user)
-        except Client.DoesNotExist:
-            return Response(
-                {"error": "Client profile not found."},
-                status=status.HTTP_404_NOT_FOUND
-            )
-
-    
+    lookup_field = "pk"
 
 
 

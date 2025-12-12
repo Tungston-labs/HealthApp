@@ -15,7 +15,56 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from trainer.models import SlotBooking
 from trainer.serializers import TrainerMiniSerializer
+from rest_framework import generics, permissions
+from trainer.models import SlotBooking
+from .serializers import ClientSessionHistorySerializer
 
+from django.db.models import Min, Max
+from rest_framework import generics
+from rest_framework.response import Response
+
+class ClientPlanSummaryAPIView(generics.GenericAPIView):
+    def get(self, request, client_id):
+        bookings = SlotBooking.objects.filter(client_id=client_id)
+
+        if not bookings.exists():
+            return Response([])
+
+        grouped = {}
+
+        for book in bookings:
+            key = f"{book.trainer_id}-{book.plan_id}"
+
+            if key not in grouped:
+                grouped[key] = {
+                    "trainer_name": book.trainer.name,
+                    "plan_type": book.plan.plan_type,
+                    "start_date": book.date,
+                    "end_date": book.date,
+                    "amount": float(book.plan.single_price),
+                }
+            else:
+                # update earliest start and latest end
+                if book.date < grouped[key]["start_date"]:
+                    grouped[key]["start_date"] = book.date
+                if book.date > grouped[key]["end_date"]:
+                    grouped[key]["end_date"] = book.date
+
+        # Convert to list and calculate session period
+        output = []
+        for item in grouped.values():
+            start = item["start_date"]
+            end = item["end_date"]
+
+            weeks = ((end - start).days + 1) // 7
+            if weeks == 0:
+                weeks = 1
+
+            item["session_period"] = f"{weeks} Weeks"
+
+            output.append(item)
+
+        return Response(output)
 
 class TrainerTodaySessionsView(APIView):
     permission_classes = [IsAuthenticated]

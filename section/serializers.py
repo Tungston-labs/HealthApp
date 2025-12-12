@@ -144,3 +144,42 @@ class HistoryBookingSerializer(serializers.ModelSerializer):
         if obj.client.profile_pic and request:
             return request.build_absolute_uri(obj.client.profile_pic.url)
         return None
+
+
+
+class ClientSessionHistorySerializer(serializers.ModelSerializer):
+    trainer_name = serializers.CharField(source="trainer.name", read_only=True)
+    start_date = serializers.DateField(source="date", read_only=True)
+
+    session_period = serializers.SerializerMethodField()
+    end_date = serializers.SerializerMethodField()
+    amount = serializers.SerializerMethodField()
+
+    class Meta:
+        model = SlotBooking
+        fields = [
+            "trainer_name",
+            "session_period",
+            "start_date",
+            "end_date",
+            "amount",
+        ]
+
+    def get_session_period(self, obj):
+        plan_type = obj.plan.plan_type
+        if plan_type == "3_days":
+            return "3 Days"
+        if plan_type == "6_days":
+            return "6 Days"
+        return "Unknown"
+
+    def get_end_date(self, obj):
+        return obj.session_end_date or obj.date
+
+    def get_amount(self, obj):
+        plan = obj.plan
+        if plan.plan_type == "3_days":
+            return plan.single_price
+        if plan.plan_type == "6_days":
+            return plan.couple_price
+        return plan.single_price

@@ -11,3 +11,10 @@ class PlanPendingCountSimpleSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     plan_name = serializers.CharField()
     pending_count = serializers.IntegerField()
+
+
+class PlanMiniSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Plan
+        fields = ['id','plan_name']    
