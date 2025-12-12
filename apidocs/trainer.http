@@ -16,8 +16,8 @@ Content-Type: application/json
 
 {
   "name": "user",
-  "phno": "1287870831",
-  "email": "user2@gmail.com",
+  "phno": "5287870831",
+  "email": "user3@gmail.com",
   "dob": "2001-05-16",
   "training_field": 2,
   "section_timing": "30",
@@ -36,7 +36,7 @@ Content-Type: application/json
 
 
 ### Trainer List (Admin Only)
-GET {{base_url}}list/
+GET {{base_url}}list/?search='user'&training_field=2
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1NTYyMjA2LCJpYXQiOjE3NjU1MTkwMDYsImp0aSI6ImQ1NTM1YmQ0MDQ0MDRkMzFiOTc4YTBjOWY1M2RiMDYzIiwidXNlcl9pZCI6IjEifQ.2PEg1HBz1x3Ddq4waALkIp2r6uGXk2aV-VWfllbjUkQ
 
 

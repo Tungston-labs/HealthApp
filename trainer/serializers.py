@@ -19,6 +19,9 @@ from rest_framework import serializers
 from .models import Trainer, TrainerCertificate
 from plan.models import Plan
 
+from django.contrib.auth.hashers import make_password
+from django.conf import settings
+
 class TrainerSerializer(serializers.ModelSerializer):
     certificates = serializers.ListField(
         child=serializers.CharField(),
@@ -28,9 +31,6 @@ class TrainerSerializer(serializers.ModelSerializer):
     certificates_read = serializers.SerializerMethodField()
     profile_pic = serializers.SerializerMethodField()
     password = serializers.CharField(write_only=True, required=False)
-
-    plan_id = serializers.IntegerField(source='training_field.id', read_only=True)
-    plan_name = serializers.CharField(source='training_field.plan_name', read_only=True)
 
     class Meta:
         model = Trainer
@@ -46,6 +46,26 @@ class TrainerSerializer(serializers.ModelSerializer):
     def get_certificates_read(self, obj):
         request = self.context.get("request")
         return [request.build_absolute_uri(c.image_url) for c in obj.certificates.all()]
+
+    def create(self, validated_data):
+        certificates = validated_data.pop("certificates", [])
+        password = validated_data.pop("password", None)
+
+        # Create trainer
+        trainer = Trainer.objects.create(**validated_data)
+
+        # Hash the password (Trainer is not a User model)
+        if password:
+            trainer.password = make_password(password)
+            trainer.save()
+
+        # Create TrainerCertificate objects
+        for url in certificates:
+            cert = TrainerCertificate.objects.create(image_url=url)
+            trainer.certificates.add(cert)
+
+        return trainer
+
 
 
 
