@@ -16,8 +16,8 @@ Content-Type: application/json
 
 {
   "name": "user",
-  "phno": "7000220037",
-  "email": "user9@gmail.com",
+  "phno": "9900278037",
+  "email": "userS@gmail.com",
   "dob": "2001-05-16",
   "training_field": 2,
   "section_timing": "30",

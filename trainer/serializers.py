@@ -40,22 +40,20 @@ class TrainerSerializer(serializers.ModelSerializer):
         certificate_urls = validated_data.pop('certificates', [])
         password = validated_data.pop('password', None)
 
-        # Create trainer
-        trainer = Trainer.objects.create(**validated_data)
+        # Create trainer (store raw password temporarily)
+        trainer = Trainer.objects.create(
+            **validated_data,
+            password=password
+        )
 
-        # Save certificates one by one
         for url in certificate_urls:
             TrainerCertificate.objects.create(
                 trainer=trainer,
                 image_url=url
             )
 
-        # Save password
-        if password:
-            trainer.set_password(password)
-            trainer.save()
-
         return trainer
+
     
     def get_profile_pic(self, obj):
         request = self.context.get("request")
