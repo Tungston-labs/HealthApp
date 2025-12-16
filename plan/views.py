@@ -5,12 +5,20 @@ from .serializers import PlanSerializer,PlanMiniSerializer
 from accounts.permissions import IsAdmin,IsUser
 from django.shortcuts import get_object_or_404
 from accounts.paginations import CustomPagination
+from django.db.models import Count, Q
 
 class PlanListCreateView(generics.ListCreateAPIView):
-    queryset = Plan.objects.all().order_by('-created_at')
+    queryset = Plan.objects.annotate(
+        approved_trainers_count=Count(
+            "trainers",
+            filter=Q(trainers__status="approved")
+        )
+    ).order_by("-created_at")
+
     serializer_class = PlanSerializer
     permission_classes = [IsAdmin]
-    pagination_class=CustomPagination
+    pagination_class = CustomPagination
+
     
 class PlanRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = PlanSerializer
