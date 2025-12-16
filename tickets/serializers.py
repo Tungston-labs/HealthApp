@@ -31,7 +31,7 @@ class TicketCreateSerializer(serializers.ModelSerializer):
 class TicketListSerializer(serializers.ModelSerializer):
     client_name = serializers.CharField(source="client.name", read_only=True)
     client_email = serializers.EmailField(source="client.email", read_only=True)
-    client_phone = serializers.CharField(source="client.phone", read_only=True)
+    client_phone = serializers.CharField(source="client.phno", read_only=True)
     client_profile_pic = serializers.ImageField(source="client.profile_pic", read_only=True)
 
     plan_name = serializers.CharField(source="plan.plan_name", read_only=True)
