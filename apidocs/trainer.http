@@ -1,5 +1,5 @@
-@base_url = http://127.0.0.1:8000/api/trainer/
-# @base_url = http://178.248.112.16:9001/api/trainer/
+# @base_url = http://127.0.0.1:8000/api/trainer/
+ @base_url = http://178.248.112.16:9001/api/trainer/
 
 ###----------------------login/get access token and refresh token
 POST http://178.248.112.16:9001/api/auth/login/
@@ -48,8 +48,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 
 ### Trainer Partial Update (PATCH)
-PATCH {{base_url}}8/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1OTIyNTc3LCJpYXQiOjE3NjU4NzkzNzcsImp0aSI6ImQ5MDBhMmVkMjNhYTRiMjQ4YWM3NjM1MjY2MmY1YTkyIiwidXNlcl9pZCI6IjEifQ.mJrTvIMykKkmVfyzvsxEFr9DkYITM05KEUXdRp17gzI
+PATCH {{base_url}}26/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1OTIzMTAwLCJpYXQiOjE3NjU4Nzk5MDAsImp0aSI6ImI1YWQ0ZmEwZjRkYTQzNzliOWFhNzhkYWI5MGFiZDNkIiwidXNlcl9pZCI6IjEifQ.nsMFBGHDH9DUe1RK4_pcgvApHSs2iRtfin8zqm9yCEw
 Content-Type: application/json
 
 {
@@ -86,11 +86,11 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 ### filter trainer by slot,time,date
 POST {{base_url}}available-trainers/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MDg1OTAyLCJpYXQiOjE3NjQwNDI3MDIsImp0aSI6IjYxYTZhMThlN2MxNDQ3NjE5N2E5ZGMyYjJlNzFkNTc3IiwidXNlcl9pZCI6IjMifQ.hb6GFjue_iPMinaQFs9EsaVsAI8sZRtYlwDbvJAL0p8
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1OTIzNDYyLCJpYXQiOjE3NjU4ODAyNjIsImp0aSI6ImQ2YjNlMTUzZGU4MDQzZjU5OTNkNmIzNzY5ZGI4YTJkIiwidXNlcl9pZCI6IjE0In0.CMq1X9DYaYPwIeOZzdWXWJa3jZGptdy-AB9ujzcPiUA
 Content-Type: application/json
 
 {
-  "plan_id": 2,
+  "plan_id": 1,
   "slot_days": ["mon", "wed", "fri"],
   "time": "11:00",
   "start_date": "2025-11-26"
@@ -106,13 +106,13 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 ### book filtered trainer
 POST {{base_url}}book-trainer/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MDg1OTAyLCJpYXQiOjE3NjQwNDI3MDIsImp0aSI6IjYxYTZhMThlN2MxNDQ3NjE5N2E5ZGMyYjJlNzFkNTc3IiwidXNlcl9pZCI6IjMifQ.hb6GFjue_iPMinaQFs9EsaVsAI8sZRtYlwDbvJAL0p8
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1OTIzNDYyLCJpYXQiOjE3NjU4ODAyNjIsImp0aSI6ImQ2YjNlMTUzZGU4MDQzZjU5OTNkNmIzNzY5ZGI4YTJkIiwidXNlcl9pZCI6IjE0In0.CMq1X9DYaYPwIeOZzdWXWJa3jZGptdy-AB9ujzcPiUA
 Content-Type: application/json
 
 {
-  "trainer_id": 2,
-  "plan_id": 2,
-  "start_date": "2025-11-27",
+  "trainer_id": 21,
+  "plan_id": 1,
+  "start_date": "2026-01-12",
   "time": "10:00",
   "slot_days": ["mon", "wed", "fri"]  
 }
