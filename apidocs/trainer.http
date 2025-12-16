@@ -15,9 +15,9 @@ POST {{base_url}}
 Content-Type: application/json
 
 {
-  "name": "user",
-  "phno": "9900278037",
-  "email": "userS@gmail.com",
+  "name": "dummy",
+  "phno": "9330278037",
+  "email": "dummmy@gmail.com",
   "dob": "2001-05-16",
   "training_field": 2,
   "section_timing": "30",
@@ -48,8 +48,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 
 ### Trainer Partial Update (PATCH)
-PATCH {{base_url}}2/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1NTYyMjA2LCJpYXQiOjE3NjU1MTkwMDYsImp0aSI6ImQ1NTM1YmQ0MDQ0MDRkMzFiOTc4YTBjOWY1M2RiMDYzIiwidXNlcl9pZCI6IjEifQ.2PEg1HBz1x3Ddq4waALkIp2r6uGXk2aV-VWfllbjUkQ
+PATCH {{base_url}}8/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1OTIyNTc3LCJpYXQiOjE3NjU4NzkzNzcsImp0aSI6ImQ5MDBhMmVkMjNhYTRiMjQ4YWM3NjM1MjY2MmY1YTkyIiwidXNlcl9pZCI6IjEifQ.mJrTvIMykKkmVfyzvsxEFr9DkYITM05KEUXdRp17gzI
 Content-Type: application/json
 
 {

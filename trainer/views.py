@@ -56,7 +56,7 @@ class TrainerListView(generics.ListAPIView):
         return Trainer.objects.filter(status='approved')
 
 
-
+from datetime import time
 class TrainerDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Trainer.objects.all()
     serializer_class = TrainerSerializer
@@ -72,16 +72,19 @@ class TrainerDetailView(generics.RetrieveUpdateDestroyAPIView):
         trainer.delete()
         return Response({"detail": "Trainer and related user deleted"}, status=200)
 
+
+
     def patch(self, request, *args, **kwargs):
         trainer = self.get_object()
         old_status = trainer.status
+
         serializer = self.get_serializer(trainer, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         new_status = serializer.validated_data.get('status', old_status)
 
         # Pending -> Rejected
         if old_status == 'pending' and new_status == 'rejected':
-            if trainer.user:  # safety
+            if trainer.user:
                 trainer.user.delete()
             trainer.delete()
             return Response({"detail": "Trainer rejected and deleted"}, status=200)
@@ -93,11 +96,13 @@ class TrainerDetailView(generics.RetrieveUpdateDestroyAPIView):
             trainer.delete()
             return Response({"detail": "Trainer rejected and deleted along with user"}, status=200)
 
-        # Update trainer normally
+        # Save trainer changes
         serializer.save()
 
-        # Pending -> Approved OR (any -> approved)
+        # 🚀 CREATE USER + AVAILABILITY ONLY WHEN APPROVED
         if new_status == 'approved' and trainer.user is None:
+
+            # Create user
             user = User.objects.create_user(
                 email=trainer.email,
                 password=trainer.password,
@@ -108,8 +113,23 @@ class TrainerDetailView(generics.RetrieveUpdateDestroyAPIView):
             trainer.user = user
             trainer.save()
 
-        return Response(serializer.data)
+            # ✅ CREATE DEFAULT AVAILABILITY
+            TrainerAvailability.objects.get_or_create(
+                trainer=trainer,
+                defaults={
+                    "mon": True,
+                    "tue": True,
+                    "wed": True,
+                    "thu": True,
+                    "fri": True,
+                    "sat": True,
+                    "sun": False,
+                    "start_time": time(9, 0),
+                    "end_time": time(18, 0),
+                }
+            )
 
+        return Response(serializer.data)
 
 
 class PendingTrainerListView(generics.ListAPIView):

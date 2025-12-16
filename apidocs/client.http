@@ -14,7 +14,7 @@ Content-Type: application/json
 
 {
   "name": "Jesna",
-  "phno": "9976543210",
+  "phno": "9176543210",
   "email": "jeznajamal@example.com",
   "dob": "2003-01-15",
   "gender": "female",
