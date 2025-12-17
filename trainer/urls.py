@@ -6,7 +6,7 @@ urlpatterns = [
     path('list/', TrainerListView.as_view(), name='trainer-list'),
     path('<int:pk>/', TrainerDetailView.as_view(), name='trainer-detail'),
     path('upload-image/', LocalImageUploadAPIView.as_view()),
-    path('trainers/pending/', PendingTrainerListView.as_view(), name='pending-trainers'),
+    path("trainers/pending/<int:plan_id>/",PendingTrainerListView.as_view(),name="pending-trainers-by-plan",),
 
 
 # ------MOBILE APP-trainer

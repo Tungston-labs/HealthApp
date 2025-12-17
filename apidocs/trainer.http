@@ -1,4 +1,4 @@
-# @base_url = http://127.0.0.1:8000/api/trainer/
+#  @base_url = http://127.0.0.1:8000/api/trainer/
  @base_url = http://178.248.112.16:9001/api/trainer/
 
 ###----------------------login/get access token and refresh token
@@ -48,12 +48,12 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 
 ### Trainer Partial Update (PATCH)
-PATCH {{base_url}}26/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1OTIzMTAwLCJpYXQiOjE3NjU4Nzk5MDAsImp0aSI6ImI1YWQ0ZmEwZjRkYTQzNzliOWFhNzhkYWI5MGFiZDNkIiwidXNlcl9pZCI6IjEifQ.nsMFBGHDH9DUe1RK4_pcgvApHSs2iRtfin8zqm9yCEw
+PATCH {{base_url}}24/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1OTk3MTA3LCJpYXQiOjE3NjU5NTM5MDcsImp0aSI6IjQ5M2E1YjBmNjE0MTRmMWViNDVmNmMwMmQ2ZDNkNzNlIiwidXNlcl9pZCI6IjEifQ.MyA2NICwvAOC0AyjP8ENjRO1uIRhxgrXCHTJoM3VrUI
 Content-Type: application/json
 
 {
-  "status": "approved"
+  "status": "pending"
 }
 
 
@@ -81,8 +81,8 @@ Content-Type: application/json
 }
 
 ### List Pending Trainers
-GET {{base_url}}trainers/pending/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNDA5ODUxLCJpYXQiOjE3NjMzNjY2NTEsImp0aSI6IjhkNDBmNWY3MDc3ZDRhMDA5ZjIwYzVlYTMwYTNmYjc4IiwidXNlcl9pZCI6IjEifQ.vQkS6wLWkCnBhsY3t91sTv6YiJeAytmQZ1mE-oOtH9A
+GET {{base_url}}trainers/pending/1/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1OTk3MTA3LCJpYXQiOjE3NjU5NTM5MDcsImp0aSI6IjQ5M2E1YjBmNjE0MTRmMWViNDVmNmMwMmQ2ZDNkNzNlIiwidXNlcl9pZCI6IjEifQ.MyA2NICwvAOC0AyjP8ENjRO1uIRhxgrXCHTJoM3VrUI
 
 ### filter trainer by slot,time,date
 POST {{base_url}}available-trainers/

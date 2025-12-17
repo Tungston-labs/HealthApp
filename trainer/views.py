@@ -132,16 +132,19 @@ class TrainerDetailView(generics.RetrieveUpdateDestroyAPIView):
         return Response(serializer.data)
 
 
+
+
 class PendingTrainerListView(generics.ListAPIView):
-    """
-    API view to list all trainers whose status is 'pending'
-    """
     serializer_class = TrainerSerializer
-    permission_classes = [permissions.IsAuthenticated]  # Only authenticated users (Admin/Trainer)
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Trainer.objects.filter(status='pending').order_by('-created_at')
+        plan_id = self.kwargs.get("plan_id")
 
+        return Trainer.objects.filter(
+            status="pending",
+            training_field_id=plan_id
+        ).order_by("-created_at")
 
 # ===============================  MOBILE APP  ===============================
 

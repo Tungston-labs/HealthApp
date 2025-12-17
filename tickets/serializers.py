@@ -58,6 +58,8 @@ class TrainerDetailSerializer(serializers.ModelSerializer):
 class TicketDetailSerializer(serializers.ModelSerializer):
     client = ClientDetailSerializer(read_only=True)
     trainer = TrainerDetailSerializer(read_only=True)
+    plan_name = serializers.CharField(source="plan.plan_name", read_only=True)
+
 
     class Meta:
         model = Ticket
@@ -68,7 +70,8 @@ class TicketDetailSerializer(serializers.ModelSerializer):
             "plan",
             "complaint",
             "status",
-            "date"
+            "date",
+            "plan_name",
         ]
 
 class TicketStatusUpdateSerializer(serializers.ModelSerializer):
