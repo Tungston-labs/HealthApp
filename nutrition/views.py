@@ -23,7 +23,12 @@ class NutritionRequestCreateView(CreateAPIView):
 
 # list requests by admin
 class AdminNutritionRequestListView(ListAPIView):
-    queryset = NutritionRequest.objects.filter(status="pending").order_by("-date")
+    queryset = (
+        NutritionRequest.objects
+        .filter(status="pending")
+        .select_related("client")
+        .order_by("-date")
+    )
     serializer_class = NutritionRequestListSerializer
     permission_classes = [IsAdmin]
     pagination_class = CustomPagination

@@ -32,11 +32,17 @@ class NutritionRequestCreateSerializer(serializers.ModelSerializer):
         validated_data["status"] = "pending"
         return super().create(validated_data)
 
+from rest_framework import serializers
+from booking.models import SlotBooking   # adjust import path
+
 class NutritionRequestListSerializer(serializers.ModelSerializer):
-    client_name = serializers.CharField(source="client.full_name", read_only=True)
+    client_name = serializers.CharField(source="client.name", read_only=True)
     client_email = serializers.EmailField(source="client.email", read_only=True)
-    client_phone = serializers.CharField(source="client.phone", read_only=True)
+    client_phone = serializers.CharField(source="client.phno", read_only=True)
     client_profile_pic = serializers.SerializerMethodField()
+
+    # ✅ PLAN NAME
+    plan_name = serializers.SerializerMethodField()
 
     class Meta:
         model = NutritionRequest
@@ -46,9 +52,10 @@ class NutritionRequestListSerializer(serializers.ModelSerializer):
             "client_email",
             "client_phone",
             "client_profile_pic",
+            "plan_name",
             "consultation_type",
             "date",
-            "status"
+            "status",
         ]
 
     def get_client_profile_pic(self, obj):
@@ -56,6 +63,16 @@ class NutritionRequestListSerializer(serializers.ModelSerializer):
         if obj.client.profile_pic:
             return request.build_absolute_uri(obj.client.profile_pic.url)
         return None
+
+    def get_plan_name(self, obj):
+        booking = (
+            SlotBooking.objects
+            .filter(client=obj.client)
+            .select_related("plan")
+            .order_by("-created_at")
+            .first()
+        )
+        return booking.plan.plan_name if booking else None
 
 class NutritionRequestDetailSerializer(serializers.ModelSerializer):
     client = SerializerMethodField()

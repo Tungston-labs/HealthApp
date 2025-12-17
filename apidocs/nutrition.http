@@ -1,8 +1,8 @@
 ### -------------------------------
 ### CLIENT: Create Nutrition Request
 ### -------------------------------
-POST http://127.0.0.1:8000/api/nutrition/request/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MTc4NjcyLCJpYXQiOjE3NjQxMzU0NzIsImp0aSI6Ijg0MGY4ZWY2MTllNzRlMzFhYWFkYjQ4YzFhYWI1MWEwIiwidXNlcl9pZCI6IjMifQ.9edSzTDOUVlqJO-hpn1Wxv-lttdk1zTzwL1iSA4OAmk
+POST http://178.248.112.16:9001/api/nutrition/request/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY2MDAxNDc2LCJpYXQiOjE3NjU5NTgyNzYsImp0aSI6IjNjODQyOWI3MTUzNzRkZGJiZjJiODQ0N2Y5NDA1ZjJlIiwidXNlcl9pZCI6IjE0In0.u6M83wlYOP_8_RxiF4ATArKUogs88jGWF0cHRlA0FlA
 Content-Type: application/json
 
 {
@@ -14,8 +14,8 @@ Content-Type: application/json
 ### -------------------------------
 ### ADMIN: List All Pending Requests
 ### -------------------------------
-GET http://127.0.0.1:8000/api/nutrition/admin/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MTc5MTE3LCJpYXQiOjE3NjQxMzU5MTcsImp0aSI6ImFlMDEwMWI4MTk4ODQxYjk5YjE0NjgzNGM2ZDcxOWZmIiwidXNlcl9pZCI6IjEifQ.KFoXyzoJFt0eS7oPuzDDqk1YpHA0v8R1Us_C4OlUhq4
+GET http://178.248.112.16:9001/api/nutrition/admin/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY2MDA4MzMzLCJpYXQiOjE3NjU5NjUxMzMsImp0aSI6IjFlZjlhYjVlMTUzYjQ1OTQ5NjlhNmQ5ZDliZTFjOGQzIiwidXNlcl9pZCI6IjEifQ.WagJSvb8njWuJhCXFaWuAcKgZMqfCYiG7u0uRCtCWQM
 
 
 ### -------------------------------
