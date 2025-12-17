@@ -33,7 +33,7 @@ class NutritionRequestCreateSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 from rest_framework import serializers
-from booking.models import SlotBooking   # adjust import path
+from trainer.models import SlotBooking   # adjust import path
 
 class NutritionRequestListSerializer(serializers.ModelSerializer):
     client_name = serializers.CharField(source="client.name", read_only=True)
