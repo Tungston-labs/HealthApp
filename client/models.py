@@ -25,11 +25,12 @@ class Client(models.Model):
     blood_group = models.CharField(max_length=5, choices=BLOOD_GROUP_CHOICES)
     weight = models.DecimalField(max_digits=5, decimal_places=2)
     height = models.DecimalField(max_digits=5, decimal_places=2)
-    wellness_goal = models.CharField(max_length=100)
     address = models.TextField()
-    health_issues = models.CharField(max_length=3, choices=(('yes','Yes'),('no','No')))
     profile_pic = models.ImageField(upload_to='clients/', null=True, blank=True)
     user = models.OneToOneField(User, on_delete=models.SET_NULL, blank=True, null=True)
+    health_issues = models.JSONField(default=list, blank=True)
+    wellness_goal = models.JSONField(default=list, blank=True)
+
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
