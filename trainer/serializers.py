@@ -40,19 +40,18 @@ class TrainerSerializer(serializers.ModelSerializer):
         certificate_urls = validated_data.pop('certificates', [])
         password = validated_data.pop('password', None)
 
-        # Create trainer (store raw password temporarily)
         trainer = Trainer.objects.create(
             **validated_data,
             password=password
         )
 
+        # ✅ CREATE CERTIFICATES AND ADD TO M2M
         for url in certificate_urls:
-            TrainerCertificate.objects.create(
-                trainer=trainer,
-                image_url=url
-            )
+            cert = TrainerCertificate.objects.create(image_url=url)
+            trainer.certificates.add(cert)
 
         return trainer
+
 
     
     def get_profile_pic(self, obj):
@@ -64,9 +63,11 @@ class TrainerSerializer(serializers.ModelSerializer):
     def get_certificates_read(self, obj):
         request = self.context.get("request")
         return [
-            request.build_absolute_uri(c.image_url)
+            c.image_url if c.image_url.startswith("http")
+            else request.build_absolute_uri(c.image_url)
             for c in obj.certificates.all()
         ]
+
 
 
 
