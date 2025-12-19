@@ -25,16 +25,28 @@ class TrainerSerializer(serializers.ModelSerializer):
         required=False
     )
     certificates_read = serializers.SerializerMethodField()
-    password = serializers.CharField(write_only=True, required=False)
-    profile_pic = serializers.SerializerMethodField()
-    plan_id = serializers.IntegerField(source='training_field.id', read_only=True)
-    plan_name = serializers.CharField(source='training_field.plan_name', read_only=True)
 
+    password = serializers.CharField(write_only=True, required=False)
+
+    profile_pic = serializers.SerializerMethodField()
+
+    plan_id = serializers.IntegerField(
+        source='training_field.id',
+        read_only=True
+    )
+    plan_name = serializers.CharField(
+        source='training_field.plan_name',
+        read_only=True
+    )
+
+    # ✅ ADD THIS
+    plan_image = serializers.SerializerMethodField()
 
     class Meta:
         model = Trainer
         fields = '__all__'
         read_only_fields = ['user']
+
 
     def create(self, validated_data):
         certificate_urls = validated_data.pop('certificates', [])
@@ -67,6 +79,16 @@ class TrainerSerializer(serializers.ModelSerializer):
             else request.build_absolute_uri(c.image_url)
             for c in obj.certificates.all()
         ]
+    
+    def get_plan_image(self, obj):
+        request = self.context.get("request")
+
+        if obj.training_field and obj.training_field.upload_file:
+            return request.build_absolute_uri(
+                obj.training_field.upload_file.url
+            )
+        return None
+
 
 
 
