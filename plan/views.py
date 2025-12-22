@@ -42,10 +42,9 @@ class PlanRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
         # ✅ Check trainers linked to this plan
         trainer_exists = Trainer.objects.filter(training_field=plan).exists()
 
-        # ✅ Check users/clients linked to this plan
-        user_exists = Client.objects.filter(plan=plan).exists()
+       
 
-        if trainer_exists or user_exists:
+        if trainer_exists :
             return Response(
                 {
                     "success": False,
