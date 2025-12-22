@@ -1,5 +1,5 @@
-   @base_url = http://127.0.0.1:8000/api/trainer/
-#  @base_url = http://178.248.112.16:9001/api/trainer/
+  #  @base_url = http://127.0.0.1:8000/api/trainer/
+ @base_url = http://178.248.112.16:9001/api/trainer/
 
 ###----------------------login/get access token and refresh token
 POST http://178.248.112.16:9001/api/auth/login/
@@ -41,8 +41,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 
 ### Trainer Detail (Retrieve)
-GET {{base_url}}9/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY2MTgxMzY3LCJpYXQiOjE3NjYxMzgxNjcsImp0aSI6ImQ3ZTYyZDFjMGIzODRiNDNiNTNhNTUwY2Y4ZjAzOTVhIiwidXNlcl9pZCI6IjEifQ.IkhdKCYW4w5sJ8x-MJQDx_HjBkOM5cRwrRauru0zU4c
+GET {{base_url}}29/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY2MTgyMDAzLCJpYXQiOjE3NjYxMzg4MDMsImp0aSI6Ijg4MDZhOWYxMDNhMDQzODBhMzk2NTMwZDQ2NWYwNGM1IiwidXNlcl9pZCI6IjEifQ.dJkWMoIUCm22a8JBsWKQp62SgBOeuL6BQ64cZoUMeAQ
 
 
 
