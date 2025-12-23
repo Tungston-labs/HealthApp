@@ -2,25 +2,36 @@ from rest_framework import serializers
 from .models import Client
 from accounts.models import User
 import datetime
-
 class ClientSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
     profile_pic = serializers.ImageField(required=False)
+    plan_names = serializers.SerializerMethodField(read_only=True)  
 
     class Meta:
         model = Client
-        fields = '__all__'
+        fields = '__all__'   # plan_names will be auto included
         read_only_fields = ['user']
+
+    def get_plan_names(self, obj):
+        """
+        Returns all distinct plan names this client belongs to
+        """
+        return list(
+            obj.slotbooking_set
+            .select_related("plan")
+            .values_list("plan__plan_name", flat=True)
+            .distinct()
+        )
 
     def create(self, validated_data):
         password = validated_data.pop('password')
         email = validated_data.get('email')
         phno = validated_data.get('phno')
 
-        # Create Client instance
+        # Create Client
         client = Client.objects.create(**validated_data)
 
-        # Create associated User
+        # Create User
         user = User.objects.create_user(
             email=email,
             phno=phno,
@@ -29,11 +40,11 @@ class ClientSerializer(serializers.ModelSerializer):
             name=client.name
         )
 
-        # Link user to client
         client.user = user
         client.save()
 
         return client
+
 from rest_framework import serializers
 from client.models import Client
 from trainer.models import SlotBooking

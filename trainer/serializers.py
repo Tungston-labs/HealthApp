@@ -18,6 +18,7 @@ class TrainerCertificateSerializer(serializers.ModelSerializer):
 from rest_framework import serializers
 from .models import Trainer, TrainerCertificate
 from plan.models import Plan
+
 class TrainerSerializer(serializers.ModelSerializer):
     certificates = serializers.ListField(
         child=serializers.CharField(),
