@@ -4,6 +4,7 @@ from .serializers import TodaySessionSerializer,ClientDetailSerializer,HistoryBo
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import get_object_or_404
 import datetime
 from datetime import datetime, date
 from trainer.models import Trainer, SlotBooking
@@ -17,11 +18,12 @@ from trainer.models import SlotBooking
 from trainer.serializers import TrainerMiniSerializer
 from rest_framework import generics, permissions
 from trainer.models import SlotBooking
-from .serializers import ClientSessionHistorySerializer
+from .serializers import ClientSessionHistorySerializer,AdminTrainerSessionSerializer
 
 from django.db.models import Min, Max
 from rest_framework import generics
 from rest_framework.response import Response
+from accounts.permissions import IsAdmin
 
 class ClientPlanSummaryAPIView(generics.GenericAPIView):
     def get(self, request, client_id):
@@ -341,3 +343,55 @@ class ClientWeeklyHoursAPIView(APIView):
             "weeks": weekly_hours
         })
 
+from django.shortcuts import get_object_or_404
+from django.db.models import Min, Max
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from datetime import date
+from math import ceil
+
+
+# view trainers session by admin
+class AdminTrainerSessionsView(APIView):
+    permission_classes = [IsAdmin]
+
+    def get(self, request, trainer_id):
+        trainer = get_object_or_404(Trainer, id=trainer_id)
+
+        bookings = (
+            SlotBooking.objects
+            .filter(trainer=trainer)
+            .values("client")  
+            .annotate(
+                start_date=Min("date"),    
+                end_date=Max("date"),     
+            )
+            .order_by("-end_date")          
+        )
+
+        sessions = []
+        for item in bookings:
+            start = item["start_date"]
+            end = item["end_date"]
+
+            total_days = (end - start).days + 1
+            weeks = ceil(total_days / 7)
+
+            sessions.append({
+                "trainer_name": trainer.name,
+                "trainer_profile": (
+                    request.build_absolute_uri(trainer.profile_pic.url)
+                    if trainer.profile_pic else None
+                ),
+                "client_id": item["client"],
+                "start_date": start,
+                "end_date": end,
+                "session_period": f"{weeks} weeks",
+            })
+
+        return Response({
+            "trainer_id": trainer.id,
+            "trainer_name": trainer.name,
+            "total_clients": len(sessions),
+            "sessions": sessions
+        })

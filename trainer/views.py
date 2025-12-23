@@ -53,7 +53,10 @@ class TrainerListView(generics.ListAPIView):
     filterset_fields = ['training_field']
 
     def get_queryset(self):
-        return Trainer.objects.filter(status='approved')
+        return Trainer.objects.filter(
+            status='approved',
+            user__is_active=True
+        )
 
 
 from datetime import time
@@ -545,3 +548,29 @@ class AddSlotBookingNoteView(APIView):
 
         serializer = SlotBookingNoteSerializer(booking)
         return Response({"message": "Note added successfully", "booking": serializer.data})
+
+from django.shortcuts import get_object_or_404
+class SuspendTrainerView(APIView):
+    permission_classes = [IsAdmin]
+
+    def post(self, request, trainer_id):
+        trainer = get_object_or_404(Trainer, id=trainer_id)
+
+        if not trainer.user:
+            return Response(
+                {"error": "Trainer user account not found"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        trainer.user.is_active = False
+        trainer.user.save(update_fields=["is_active"])
+
+        return Response(
+            {
+                "message": "Trainer suspended successfully",
+                "trainer_id": trainer.id,
+                "user_id": trainer.user.id,
+                "is_active": trainer.user.is_active
+            },
+            status=status.HTTP_200_OK
+        )

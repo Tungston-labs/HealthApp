@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import TrainerCreateView, TrainerListView, TrainerDetailView,LocalImageUploadAPIView,TrainerProfileView,TrainerProfileEditView,PendingTrainerListView,FilterTrainersView,BookTrainerView,TrainerDetailPageView,ChangeTrainerView,TrainerDetailSimpleView,AddSlotBookingNoteView
+from .views import TrainerCreateView, TrainerListView, TrainerDetailView,LocalImageUploadAPIView,TrainerProfileView,TrainerProfileEditView,PendingTrainerListView,FilterTrainersView,BookTrainerView,TrainerDetailPageView,ChangeTrainerView,TrainerDetailSimpleView,AddSlotBookingNoteView,SuspendTrainerView
 
 urlpatterns = [
     path('', TrainerCreateView.as_view(), name='trainer-create'),
@@ -7,6 +7,11 @@ urlpatterns = [
     path('<int:pk>/', TrainerDetailView.as_view(), name='trainer-detail'),
     path('upload-image/', LocalImageUploadAPIView.as_view()),
     path("trainers/pending/<int:plan_id>/",PendingTrainerListView.as_view(),name="pending-trainers-by-plan",),
+    path(
+        "<int:trainer_id>/suspend/",
+        SuspendTrainerView.as_view(),
+        name="suspend-trainer"
+    ),
 
 
 # ------MOBILE APP-trainer

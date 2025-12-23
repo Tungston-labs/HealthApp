@@ -14,6 +14,7 @@ from .serializers import (
     TrainingCancelStatusUpdateSerializer
 )
 from accounts.paginations import CustomPagination
+
 class RequestTrainingCancelView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -71,18 +72,18 @@ class ClientCancelRequestListView(ListAPIView):
         return TrainingCancelRequest.objects.filter(client=client).order_by("-request_date")
 
 
-class TrainingCancelListView(APIView):
+from rest_framework import generics
+
+class TrainingCancelListView(generics.ListAPIView):
     permission_classes = [IsAdminUser]
+    serializer_class = TrainingCancelListSerializer
     pagination_class = CustomPagination
 
-
-    def get(self, request):
-        requests = TrainingCancelRequest.objects.select_related(
+    def get_queryset(self):
+        return TrainingCancelRequest.objects.select_related(
             "client", "trainer", "plan", "slot"
         ).order_by("-request_date")
 
-        serializer = TrainingCancelListSerializer(requests, many=True)
-        return Response(serializer.data, status=200)
 class TrainingCancelDetailView(APIView):
     permission_classes = [IsAdminUser]
 

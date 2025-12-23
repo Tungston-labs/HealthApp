@@ -37,7 +37,7 @@ GET {{base_url}}2/
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY2NDM0MzY2LCJpYXQiOjE3NjYzOTExNjYsImp0aSI6ImJlMDk1YzZiYzU5NTQ4NTQ4ODYxZTQ5NDA1ZTkwZGZkIiwidXNlcl9pZCI6IjEifQ.YdsPrbeaQhdsOiFph4pUR-bXid_LOEMs4G6ejYawNDU
 
 ### delete single plan
-DELETE {{base_url}}4/
+DELETE {{base_url}}2/
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY2NDMzODI0LCJpYXQiOjE3NjYzOTA2MjQsImp0aSI6IjViODM5YjBhMDgyOTQwZTY4ODFhMGE3MDdkNmM4ZGUyIiwidXNlcl9pZCI6IjEifQ.MnXCXjpTIQLkuy7P1t0A14qEBSIo6na6GzIbnjMET4A
 
 ### edit single plan

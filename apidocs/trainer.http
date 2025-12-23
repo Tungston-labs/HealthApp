@@ -1,5 +1,5 @@
-  #  @base_url = http://127.0.0.1:8000/api/trainer/
- @base_url = http://178.248.112.16:9001/api/trainer/
+    @base_url = http://127.0.0.1:8000/api/trainer/
+#  @base_url = http://178.248.112.16:9001/api/trainer/
 
 ###----------------------login/get access token and refresh token
 POST http://178.248.112.16:9001/api/auth/login/
@@ -37,7 +37,7 @@ Content-Type: application/json
 
 ### Trainer List (Admin Only)
 GET {{base_url}}list/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1NTYyMjA2LCJpYXQiOjE3NjU1MTkwMDYsImp0aSI6ImQ1NTM1YmQ0MDQ0MDRkMzFiOTc4YTBjOWY1M2RiMDYzIiwidXNlcl9pZCI6IjEifQ.2PEg1HBz1x3Ddq4waALkIp2r6uGXk2aV-VWfllbjUkQ
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY2NTA0NDYzLCJpYXQiOjE3NjY0NjEyNjMsImp0aSI6IjA4NjlkMWRjYWM1MTQ3Zjk5ODk2YmIzZjZhZjE4MWQ1IiwidXNlcl9pZCI6IjEifQ.pq_Sv-ZSoI7BE6iu5rPhUFTXM9FRYZ6CQGT823xUCus
 
 
 ### Trainer Detail (Retrieve)
@@ -134,3 +134,9 @@ Content-Type: application/json
 {
     "note": "Client did well in today’s session."
 }
+
+
+### suspend trainer
+
+POST {{base_url}}8/suspend/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY2NTA0NDYzLCJpYXQiOjE3NjY0NjEyNjMsImp0aSI6IjA4NjlkMWRjYWM1MTQ3Zjk5ODk2YmIzZjZhZjE4MWQ1IiwidXNlcl9pZCI6IjEifQ.pq_Sv-ZSoI7BE6iu5rPhUFTXM9FRYZ6CQGT823xUCus

@@ -1,6 +1,6 @@
-@base_url = http://127.0.0.1:8000/api/section/
+ @base_url = http://127.0.0.1:8000/api/section/
 
-
+# @base_url = http://178.248.112.16:9001/api/section/
 
 ###----------------------login/get access token and refresh token for trainer
 POST http://127.0.0.1:8000/api/auth/login/
@@ -64,3 +64,10 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 ### client completed section detail view
 GET {{base_url}}client/completed-session/1
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MDk5Mjc0LCJpYXQiOjE3NjQwNTYwNzQsImp0aSI6IjI1ZDRkMmMxM2JiMDQzYjJhOGUzNmJmZjc2NzVhZGMzIiwidXNlcl9pZCI6IjMifQ.FNEsEtAkv1Pk62SB_5yqC3JpeMk3FiUCWQjZRpL1FK0
+
+
+### list trainer sessions
+GET {{base_url}}admin/trainer/2/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY2NDQzODkwLCJpYXQiOjE3NjY0MDA2OTAsImp0aSI6IjE1MGE3YWJhODcxMDQ0NjZiZWI4YWJmYTliNjkwNjY4IiwidXNlcl9pZCI6IjEifQ.3f-ZXho1KojpGjQR7V8nWzIlldlcxt16p5SUr9Mylkw
+
+

@@ -183,3 +183,47 @@ class ClientSessionHistorySerializer(serializers.ModelSerializer):
         if plan.plan_type == "6_days":
             return plan.couple_price
         return plan.single_price
+
+
+
+
+
+
+class AdminTrainerSessionSerializer(serializers.ModelSerializer):
+    trainer_name = serializers.CharField(source="trainer.name", read_only=True)
+    trainer_profile = serializers.SerializerMethodField()
+    session_period = serializers.SerializerMethodField()
+    start_date = serializers.DateField(source="date")
+    end_date = serializers.DateField(source="session_end_date")
+    amount = serializers.DecimalField(
+        source="plan.price",
+        max_digits=10,
+        decimal_places=2,
+        read_only=True
+    )
+
+    class Meta:
+        model = SlotBooking
+        fields = [
+            "id",
+            "trainer_name",
+            "trainer_profile",
+            "session_period",
+            "start_date",
+            "end_date",
+            "amount",
+            "status",
+        ]
+
+    def get_trainer_profile(self, obj):
+        request = self.context.get("request")
+        if obj.trainer.profile_pic and request:
+            return request.build_absolute_uri(obj.trainer.profile_pic.url)
+        return None
+
+    def get_session_period(self, obj):
+        # Example: "3 weeks / 4 weeks"
+        duration = getattr(obj.plan, "duration_weeks", None)
+        if duration:
+            return f"{duration} weeks"
+        return "-"
