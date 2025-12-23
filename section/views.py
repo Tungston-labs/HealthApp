@@ -352,6 +352,12 @@ from math import ceil
 
 
 # view trainers session by admin
+from django.db.models import Min, Max
+from math import ceil
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
+
 class AdminTrainerSessionsView(APIView):
     permission_classes = [IsAdmin]
 
@@ -361,12 +367,16 @@ class AdminTrainerSessionsView(APIView):
         bookings = (
             SlotBooking.objects
             .filter(trainer=trainer)
-            .values("client")  
-            .annotate(
-                start_date=Min("date"),    
-                end_date=Max("date"),     
+            .values(
+                "client",
+                "client__name",
+                "client__profile_pic",
             )
-            .order_by("-end_date")          
+            .annotate(
+                start_date=Min("date"),
+                end_date=Max("date"),
+            )
+            .order_by("-end_date")
         )
 
         sessions = []
@@ -383,7 +393,15 @@ class AdminTrainerSessionsView(APIView):
                     request.build_absolute_uri(trainer.profile_pic.url)
                     if trainer.profile_pic else None
                 ),
+
+                # ✅ CLIENT DETAILS
                 "client_id": item["client"],
+                "client_name": item["client__name"],
+                "client_profile": (
+                    request.build_absolute_uri(item["client__profile_pic"])
+                    if item["client__profile_pic"] else None
+                ),
+
                 "start_date": start,
                 "end_date": end,
                 "session_period": f"{weeks} weeks",

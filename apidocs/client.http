@@ -1,11 +1,11 @@
 
-#  @base_url = http://178.248.112.16:9001/api/client/
- @base_url = http://localhost:8000/api/client/
+  @base_url = http://178.248.112.16:9001/api/client/
+#  @base_url = http://localhost:8000/api/client/
 POST http://178.248.112.16:9001/api/auth/login/
 Content-Type: application/json
 
 {
-  "email_or_phno": "9976543210",
+  "email_or_phno": "4440043210",
   "password": "Password@123"
 }
 ### Client Registration
@@ -13,9 +13,9 @@ POST {{base_url}}register/
 Content-Type: application/json
 
 {
-  "name": "Jesnajamal",
-  "phno": "9170043210",
-  "email": "jeznajamall@example.com",
+  "name": "user0001",
+  "phno": "4440043210",
+  "email": "user044001@example.com",
   "dob": "2003-01-15",
   "gender": "female",
   "blood_group": "O+",

@@ -1,5 +1,5 @@
-    @base_url = http://127.0.0.1:8000/api/trainer/
-#  @base_url = http://178.248.112.16:9001/api/trainer/
+    # @base_url = http://127.0.0.1:8000/api/trainer/
+  @base_url = http://178.248.112.16:9001/api/trainer/
 
 ###----------------------login/get access token and refresh token
 POST http://178.248.112.16:9001/api/auth/login/
@@ -86,14 +86,14 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 ### filter trainer by slot,time,date
 POST {{base_url}}available-trainers/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1OTIzNDYyLCJpYXQiOjE3NjU4ODAyNjIsImp0aSI6ImQ2YjNlMTUzZGU4MDQzZjU5OTNkNmIzNzY5ZGI4YTJkIiwidXNlcl9pZCI6IjE0In0.CMq1X9DYaYPwIeOZzdWXWJa3jZGptdy-AB9ujzcPiUA
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY2NTMxMDM3LCJpYXQiOjE3NjY0ODc4MzcsImp0aSI6ImRjNGFkOWVkYzQ5ZjRhNjdiOTExMTQxOTgyZjA4OWIwIiwidXNlcl9pZCI6IjM5In0.ZYUBLtMxAQdXkfdrhq5stSHyj21rC8xwX4fNSzt76tc
 Content-Type: application/json
 
 {
   "plan_id": 1,
   "slot_days": ["mon", "wed", "fri"],
   "time": "11:00",
-  "start_date": "2025-11-26"
+  "start_date": "2025-02-03"
 }
 
 ### trainer detail view for modal in mobile app
@@ -106,14 +106,14 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 ### book filtered trainer
 POST {{base_url}}book-trainer/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1OTIzNDYyLCJpYXQiOjE3NjU4ODAyNjIsImp0aSI6ImQ2YjNlMTUzZGU4MDQzZjU5OTNkNmIzNzY5ZGI4YTJkIiwidXNlcl9pZCI6IjE0In0.CMq1X9DYaYPwIeOZzdWXWJa3jZGptdy-AB9ujzcPiUA
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY2NTMxMDM3LCJpYXQiOjE3NjY0ODc4MzcsImp0aSI6ImRjNGFkOWVkYzQ5ZjRhNjdiOTExMTQxOTgyZjA4OWIwIiwidXNlcl9pZCI6IjM5In0.ZYUBLtMxAQdXkfdrhq5stSHyj21rC8xwX4fNSzt76tc
 Content-Type: application/json
 
 {
   "trainer_id": 21,
   "plan_id": 1,
-  "start_date": "2026-01-12",
-  "time": "10:00",
+  "start_date": "2025-02-03",
+  "time": "11:00",
   "slot_days": ["mon", "wed", "fri"]  
 }
 
