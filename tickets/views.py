@@ -18,6 +18,13 @@ class AdminTicketListView(ListAPIView):
     permission_classes = [IsAdmin]
     pagination_class = CustomPagination
 
+class AdminTicketRequestListView(ListAPIView):
+    queryset = Ticket.objects.filter(
+            status='open'
+        ).order_by("-date")
+    serializer_class = TicketListSerializer
+    permission_classes = [IsAdmin]
+    pagination_class = CustomPagination
 
 class AdminTicketDetailView(RetrieveAPIView):
     queryset = Ticket.objects.all()

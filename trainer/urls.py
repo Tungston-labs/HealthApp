@@ -1,9 +1,11 @@
 from django.urls import path
-from .views import TrainerCreateView, TrainerListView, TrainerDetailView,LocalImageUploadAPIView,TrainerProfileView,TrainerProfileEditView,PendingTrainerListView,FilterTrainersView,BookTrainerView,TrainerDetailPageView,ChangeTrainerView,TrainerDetailSimpleView,AddSlotBookingNoteView,SuspendTrainerView
+from .views import TrainerCreateView, TrainerListView, TrainerDetailView,LocalImageUploadAPIView,TrainerProfileView,TrainerProfileEditView,PendingTrainerListView,FilterTrainersView,BookTrainerView,TrainerDetailPageView,ChangeTrainerView,TrainerDetailSimpleView,AddSlotBookingNoteView,SuspendTrainerView,TrainerPendingListView
 
 urlpatterns = [
     path('', TrainerCreateView.as_view(), name='trainer-create'),
     path('list/', TrainerListView.as_view(), name='trainer-list'),
+    path('pending-request/', TrainerPendingListView.as_view(), name='pending-list'),
+
     path('<int:pk>/', TrainerDetailView.as_view(), name='trainer-detail'),
     path('upload-image/', LocalImageUploadAPIView.as_view()),
     path("trainers/pending/<int:plan_id>/",PendingTrainerListView.as_view(),name="pending-trainers-by-plan",),

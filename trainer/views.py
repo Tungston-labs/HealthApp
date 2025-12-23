@@ -57,7 +57,15 @@ class TrainerListView(generics.ListAPIView):
             status='approved',
             user__is_active=True
         )
+class TrainerPendingListView(generics.ListAPIView):
+    serializer_class = TrainerSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_class = CustomPagination
 
+    def get_queryset(self):
+        return Trainer.objects.filter(
+            status='pending'
+        )
 
 from datetime import time
 class TrainerDetailView(generics.RetrieveUpdateDestroyAPIView):
