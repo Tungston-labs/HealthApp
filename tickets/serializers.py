@@ -47,7 +47,9 @@ class TicketListSerializer(serializers.ModelSerializer):
             "plan",        # plan id
             "plan_name",   # 👈 plan name
             "date",
-            "status"
+            "status",
+            "complaint"
+
         ]
 
 class TrainerDetailSerializer(serializers.ModelSerializer):
