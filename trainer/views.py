@@ -582,3 +582,30 @@ class SuspendTrainerView(APIView):
             },
             status=status.HTTP_200_OK
         )
+
+
+# trainer/views.py
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAdminUser
+from django.shortcuts import get_object_or_404
+from .models import TrainerPayment
+from .serializers import TrainerPaymentSerializer
+
+class TrainerPaymentStatusUpdate(APIView):
+    permission_classes = [IsAdminUser]
+
+    def patch(self, request, payment_id):
+        payment = get_object_or_404(TrainerPayment, id=payment_id)
+
+        payment.salary = request.data.get("salary", payment.salary)
+        payment.status = request.data.get("status", payment.status)
+        payment.remarks = request.data.get("remarks", payment.remarks)
+
+        payment.save()
+
+        return Response({
+            "message": "Payment updated successfully",
+            "data": TrainerPaymentSerializer(payment).data
+        })

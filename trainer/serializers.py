@@ -165,12 +165,18 @@ class TrainerDetailSerializer(serializers.ModelSerializer):
     total_reviews = serializers.SerializerMethodField()
     average_rating = serializers.SerializerMethodField()
     rating_breakdown = serializers.SerializerMethodField()
+    plan_name = serializers.CharField(
+        source="training_field.plan_name",
+        read_only=True
+    )
 
     class Meta:
         model = Trainer
         fields = [
             "id",
             "name",
+            "section_timing",
+            "no_of_section",
             "profile_pic",
             "experience",
             "location",
@@ -179,6 +185,7 @@ class TrainerDetailSerializer(serializers.ModelSerializer):
             "average_rating",
             "rating_breakdown",
             "reviews",
+            "plan_name",
         ]
 
     # Trainer profile pic (full URL)
@@ -215,7 +222,7 @@ class TrainerDetailSerializer(serializers.ModelSerializer):
             breakdown[r.rating] += 1
         return breakdown
 
-    # 🔥 FIX: Pass context to nested serializer
+    #  Pass context to nested serializer
     def to_representation(self, instance):
         rep = super().to_representation(instance)
 
@@ -285,3 +292,16 @@ class SlotBookingNoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = SlotBooking
         fields = ["id", "notes"]  # Assuming you add a `note` field to SlotBooking
+
+
+
+from rest_framework import serializers
+from .models import TrainerPayment
+
+class TrainerPaymentSerializer(serializers.ModelSerializer):
+    trainer_name = serializers.CharField(source="trainer.name", read_only=True)
+
+    class Meta:
+        model = TrainerPayment
+        fields = "__all__"
+        read_only_fields = ("paid_date",)

@@ -25,9 +25,27 @@
 #         instance.user.delete()
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from .models import Trainer, TrainerAvailability
+from .models import Trainer, TrainerAvailability,TrainerPayment
 
 @receiver(post_save, sender=Trainer)
 def create_trainer_availability(sender, instance, created, **kwargs):
     if instance.status == "approved":
         TrainerAvailability.objects.get_or_create(trainer=instance)
+# trainer/signals.py
+
+from datetime import date
+
+@receiver(post_save, sender=Trainer)
+def create_yearly_payments(sender, instance, created, **kwargs):
+    if instance.status == "approved":
+        current_year = date.today().year
+
+        for month in range(1, 13):
+            TrainerPayment.objects.get_or_create(
+                trainer=instance,
+                year=current_year,
+                month=month,
+                defaults={
+                    "salary": instance.expecting_salary
+                }
+            )

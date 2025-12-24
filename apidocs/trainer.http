@@ -1,5 +1,5 @@
-    # @base_url = http://127.0.0.1:8000/api/trainer/
-  @base_url = http://178.248.112.16:9001/api/trainer/
+    @base_url = http://127.0.0.1:8000/api/trainer/
+   #@base_url = http://178.248.112.16:9001/api/trainer/
 
 ###----------------------login/get access token and refresh token
 POST http://178.248.112.16:9001/api/auth/login/
@@ -16,8 +16,8 @@ Content-Type: application/json
 
 {
   "name": "dummyyy",
-  "phno": "9775656807",
-  "email": "dnnnmy@gmail.com",
+  "phno": "4475656807",
+  "email": "abcdfff@gmail.com",
   "dob": "2001-05-16",
   "training_field": 2,
   "section_timing": "30",
@@ -48,12 +48,12 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 
 ### Trainer Partial Update (PATCH)
-PATCH {{base_url}}24/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1OTk3MTA3LCJpYXQiOjE3NjU5NTM5MDcsImp0aSI6IjQ5M2E1YjBmNjE0MTRmMWViNDVmNmMwMmQ2ZDNkNzNlIiwidXNlcl9pZCI6IjEifQ.MyA2NICwvAOC0AyjP8ENjRO1uIRhxgrXCHTJoM3VrUI
+PATCH {{base_url}}10/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY2NTk1MDQxLCJpYXQiOjE3NjY1NTE4NDEsImp0aSI6ImQzNTkyZGRjNTIyMDQxNWY5OWViZTJkMTY4NDA5OGE3IiwidXNlcl9pZCI6IjEifQ.9tNZDnYk5M_TeGuLuUjvZPR3oHtbXkOWYXWsRW0Qfbo
 Content-Type: application/json
 
 {
-  "status": "pending"
+  "status": "approved"
 }
 
 

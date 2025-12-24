@@ -101,3 +101,79 @@ class SlotBooking(models.Model):
 
     def __str__(self):
         return f"{self.trainer.name} - {self.date} {self.time}"
+
+
+from django.utils import timezone
+
+class TrainerPayment(models.Model):
+
+    STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('paid', 'Paid'),
+        ('hold', 'Hold'),
+    )
+
+    MONTH_CHOICES = (
+        (1, 'January'),
+        (2, 'February'),
+        (3, 'March'),
+        (4, 'April'),
+        (5, 'May'),
+        (6, 'June'),
+        (7, 'July'),
+        (8, 'August'),
+        (9, 'September'),
+        (10, 'October'),
+        (11, 'November'),
+        (12, 'December'),
+    )
+
+    trainer = models.ForeignKey(
+        "trainer.Trainer",
+        on_delete=models.CASCADE,
+        related_name="payments"
+    )
+
+    year = models.PositiveIntegerField()
+    month = models.PositiveIntegerField(choices=MONTH_CHOICES)
+
+    salary = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        help_text="Editable salary (auto-filled from trainer)"
+    )
+
+    status = models.CharField(
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default='pending'
+    )
+
+    paid_date = models.DateField(null=True, blank=True)
+
+    remarks = models.TextField(blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('trainer', 'year', 'month')
+        ordering = ['-year', '-month']
+
+    def save(self, *args, **kwargs):
+        # 🔹 Auto-fill salary from Trainer if not set
+        if not self.salary:
+            self.salary = self.trainer.expecting_salary
+
+        # 🔹 Auto set paid_date when status changes to PAID
+        if self.status == 'paid' and not self.paid_date:
+            self.paid_date = timezone.now().date()
+
+        # 🔹 Clear paid_date if reverted back
+        if self.status != 'paid':
+            self.paid_date = None
+
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.trainer.name} - {self.month}/{self.year} - {self.status}"
