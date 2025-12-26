@@ -51,7 +51,7 @@ class Trainer(models.Model):
     profile_pic = models.ImageField(upload_to='trainer_profile/', null=True, blank=True)
     experience = models.IntegerField(null=True,blank=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
-    password = models.CharField(max_length=128,null=True,blank=True)  # store trainer-set password temporarily
+    password = models.CharField(max_length=128,null=True,blank=True)                          
 
     user = models.OneToOneField(User, on_delete=models.SET_NULL, blank=True, null=True)
 

@@ -21,7 +21,6 @@ class RequestTrainingCancelView(APIView):
     def post(self, request):
         client = request.user.client
 
-        # 1. Get latest active slot
         slot = (
             SlotBooking.objects.filter(
                 client=client,
@@ -33,18 +32,26 @@ class RequestTrainingCancelView(APIView):
 
         if not slot:
             return Response(
-                {"error": "No active session available to cancel"},
+                {
+                    "success": False,
+                    "status_code": status.HTTP_404_NOT_FOUND,
+                    "message": "No active session available to cancel",
+                    "errors": None
+                },
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        # 2. Prevent duplicate requests
         if TrainingCancelRequest.objects.filter(slot=slot, status="open").exists():
             return Response(
-                {"error": "Cancellation already requested"},
+                {
+                    "success": False,
+                    "status_code": status.HTTP_400_BAD_REQUEST,
+                    "message": "Cancellation already requested",
+                    "errors": None
+                },
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # 3. Create request
         cancel_req = TrainingCancelRequest.objects.create(
             client=client,
             trainer=slot.trainer,
@@ -55,8 +62,12 @@ class RequestTrainingCancelView(APIView):
 
         return Response(
             {
+                "success": True,
+                "status_code": status.HTTP_201_CREATED,
                 "message": "Cancellation request submitted",
-                "request_id": cancel_req.id
+                "data": {
+                    "request_id": cancel_req.id
+                }
             },
             status=status.HTTP_201_CREATED
         )
@@ -67,9 +78,22 @@ class ClientCancelRequestListView(ListAPIView):
     permission_classes = [IsAuthenticated]
     pagination_class = CustomPagination
 
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        page = self.paginate_queryset(queryset)
+        serializer = self.get_serializer(page, many=True)
+
+        return self.get_paginated_response({
+            "success": True,
+            "status_code": status.HTTP_200_OK,
+            "message": "Cancellation requests fetched",
+            "data": serializer.data
+        })
+
     def get_queryset(self):
         client = self.request.user.client
         return TrainingCancelRequest.objects.filter(client=client).order_by("-request_date")
+
 
 
 from rest_framework import generics
@@ -79,10 +103,23 @@ class TrainingCancelListView(generics.ListAPIView):
     serializer_class = TrainingCancelListSerializer
     pagination_class = CustomPagination
 
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        page = self.paginate_queryset(queryset)
+        serializer = self.get_serializer(page, many=True)
+
+        return self.get_paginated_response({
+            "success": True,
+            "status_code": status.HTTP_200_OK,
+            "message": "Cancellation requests list",
+            "data": serializer.data
+        })
+
     def get_queryset(self):
         return TrainingCancelRequest.objects.select_related(
             "client", "trainer", "plan", "slot"
         ).order_by("-request_date")
+
 
 class TrainingCancelDetailView(APIView):
     permission_classes = [IsAdminUser]

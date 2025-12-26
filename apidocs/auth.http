@@ -66,5 +66,5 @@ POST {{base_url}}/token/refresh/
 Content-Type: application/json
 
 {
-  "refresh": "<refresh_token>"
+  "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2NzMyNjUzNywiaWF0IjoxNzY2NzIxNzM3LCJqdGkiOiJiM2UzZjVkNmE4NjU0ZGI5OTc1MDIwZDIxZjVkMGM1YiIsInVzZXJfaWQiOiIxIn0.tEoTXUuknbRfCFx9K1akt0ZBmLQIqqU2scUNeStPeMY"
 }
