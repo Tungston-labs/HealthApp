@@ -74,14 +74,17 @@ class NutritionRequestListSerializer(serializers.ModelSerializer):
         )
         return booking.plan.plan_name if booking else None
 
+
 class NutritionRequestDetailSerializer(serializers.ModelSerializer):
-    client = SerializerMethodField()
+    client = serializers.SerializerMethodField()
+    plan_name = serializers.SerializerMethodField()
 
     class Meta:
         model = NutritionRequest
         fields = [
             "id",
             "client",
+            "plan_name",
             "consultation_type",
             "note",
             "date",
@@ -89,4 +92,18 @@ class NutritionRequestDetailSerializer(serializers.ModelSerializer):
         ]
 
     def get_client(self, obj):
-        return ClientDetailSerializer(obj.client, context=self.context).data
+        return ClientDetailSerializer(
+            obj.client,
+            context=self.context
+        ).data
+
+    def get_plan_name(self, obj):
+        booking = (
+            SlotBooking.objects
+            .filter(client=obj.client)
+            .select_related("plan")
+            .order_by("-created_at")
+            .first()
+        )
+        return booking.plan.plan_name if booking else None
+

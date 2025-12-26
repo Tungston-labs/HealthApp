@@ -22,7 +22,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 ### ADMIN: Get Nutrition Request Details
 ### -------------------------------
 GET http://127.0.0.1:8000/api/nutrition/admin/3/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MTc5MTE3LCJpYXQiOjE3NjQxMzU5MTcsImp0aSI6ImFlMDEwMWI4MTk4ODQxYjk5YjE0NjgzNGM2ZDcxOWZmIiwidXNlcl9pZCI6IjEifQ.KFoXyzoJFt0eS7oPuzDDqk1YpHA0v8R1Us_C4OlUhq4
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY2NzkwOTcxLCJpYXQiOjE3NjY3NDc3NzEsImp0aSI6ImIzOTAxYTdkNTY0NjQ2NDViZTZiZTRmZTczMDQwNGZlIiwidXNlcl9pZCI6IjEifQ.2w6DXFTRc_oAxIVLMIIKytqFMg-yKXq4R6EBiLR_OY8
 
 
 ### -------------------------------
