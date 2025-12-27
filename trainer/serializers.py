@@ -3,6 +3,7 @@ from .models import Trainer, TrainerCertificate,TrainerAvailability,SlotBooking
 from rest_framework import serializers
 from client.models import Client
 from review.models import TrainerReview
+import json
 
 class TrainerAvailabilitySerializer(serializers.ModelSerializer):
     class Meta:
@@ -19,6 +20,7 @@ from rest_framework import serializers
 from .models import Trainer, TrainerCertificate
 from plan.models import Plan
 
+
 class TrainerSerializer(serializers.ModelSerializer):
     certificates = serializers.ListField(
         child=serializers.CharField(),
@@ -29,7 +31,8 @@ class TrainerSerializer(serializers.ModelSerializer):
 
     password = serializers.CharField(write_only=True, required=False)
 
-    profile_pic = serializers.SerializerMethodField()
+    profile_pic = serializers.ImageField(required=False, allow_null=True)
+    profile_pic_url = serializers.SerializerMethodField()
 
     plan_id = serializers.IntegerField(
         source='training_field.id',
@@ -40,7 +43,6 @@ class TrainerSerializer(serializers.ModelSerializer):
         read_only=True
     )
 
-    # ✅ ADD THIS
     plan_image = serializers.SerializerMethodField()
 
     class Meta:
@@ -48,17 +50,30 @@ class TrainerSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ['user']
 
+    def get_profile_pic_url(self, obj):
+        request = self.context.get("request")
+        if obj.profile_pic:
+            return request.build_absolute_uri(obj.profile_pic.url)
+        return None
+
+
 
     def create(self, validated_data):
         certificate_urls = validated_data.pop('certificates', [])
         password = validated_data.pop('password', None)
+
+        # 🔥 FIX: handle JSON string from form-data
+        if isinstance(certificate_urls, str):
+            try:
+                certificate_urls = json.loads(certificate_urls)
+            except Exception:
+                certificate_urls = []
 
         trainer = Trainer.objects.create(
             **validated_data,
             password=password
         )
 
-        # ✅ CREATE CERTIFICATES AND ADD TO M2M
         for url in certificate_urls:
             cert = TrainerCertificate.objects.create(image_url=url)
             trainer.certificates.add(cert)
@@ -66,12 +81,6 @@ class TrainerSerializer(serializers.ModelSerializer):
         return trainer
 
 
-    
-    def get_profile_pic(self, obj):
-        request = self.context.get("request")
-        if obj.profile_pic:
-            return request.build_absolute_uri(obj.profile_pic.url)
-        return None
 
     def get_certificates_read(self, obj):
         request = self.context.get("request")
@@ -89,6 +98,11 @@ class TrainerSerializer(serializers.ModelSerializer):
                 obj.training_field.upload_file.url
             )
         return None
+    
+    def validate_email(self, value):
+        print("EMAIL RECEIVED:", repr(value))
+        return value
+
 
 
 

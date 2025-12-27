@@ -34,10 +34,21 @@ class LocalImageUploadAPIView(APIView):
 
 
 
+from rest_framework.parsers import MultiPartParser, FormParser
+
 class TrainerCreateView(generics.CreateAPIView):
     queryset = Trainer.objects.all()
     serializer_class = TrainerSerializer
     permission_classes = [permissions.AllowAny]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if not serializer.is_valid():
+            print("❌ SERIALIZER ERRORS:", serializer.errors)
+            return Response(serializer.errors, status=400)
+
+        return super().create(request, *args, **kwargs)
 
 
 from rest_framework import generics, permissions, filters
