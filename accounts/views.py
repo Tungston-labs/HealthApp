@@ -7,7 +7,7 @@ from .serializers import (
     VerifyOTPSerializer, ResetPasswordSerializer,
     ChangePasswordSerializer
 )
-from rest_framework.exceptions import ValidationError   
+from django.core.exceptions import ValidationError
 # ---------------- LOGIN ---------------- #
 from rest_framework import generics, status
 from rest_framework.response import Response
