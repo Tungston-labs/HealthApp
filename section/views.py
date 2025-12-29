@@ -24,6 +24,7 @@ from django.db.models import Min, Max
 from rest_framework import generics
 from rest_framework.response import Response
 from accounts.permissions import IsAdmin
+from accounts.paginations import CustomPagination
 
 class ClientPlanSummaryAPIView(generics.GenericAPIView):
     def get(self, request, client_id):
@@ -70,6 +71,9 @@ class ClientPlanSummaryAPIView(generics.GenericAPIView):
 
 class TrainerTodaySessionsView(APIView):
     permission_classes = [IsAuthenticated]
+    pagination_class = CustomPagination
+
+
 
     def get(self, request):
         trainer = Trainer.objects.get(user=request.user)
@@ -100,6 +104,8 @@ class ClientDetailView(APIView):
 
 class TrainerAllBookingsView(APIView):
     permission_classes = [IsAuthenticated]
+    pagination_class = CustomPagination
+
 
     def get(self, request):
         trainer = Trainer.objects.get(user=request.user)
@@ -129,6 +135,8 @@ class TrainerAllBookingsView(APIView):
 
 class TrainerHistorySessionsView(APIView):
     permission_classes = [IsAuthenticated]
+    pagination_class = CustomPagination
+
 
     def get(self, request):
         trainer = Trainer.objects.get(user=request.user)
@@ -227,6 +235,7 @@ class EndTrainingView(APIView):
 
 class ClientCompletedSessionsView(APIView):
     permission_classes = [IsAuthenticated]
+    pagination_class = CustomPagination
 
     def get(self, request):
         client = request.user.client  # assuming OneToOne

@@ -1,6 +1,6 @@
 
- @base_url = http://127.0.0.1:8000/api/auth
-#  @base_url = http://178.248.112.16:9001/api/auth
+#  @base_url = http://127.0.0.1:8000/api/auth
+  @base_url = http://178.248.112.16:9001/api/auth
 
 
 ###----------------------login/get access token and refresh token
@@ -9,7 +9,7 @@ Content-Type: application/json
 
 {
   "email_or_phno": "admin@gmail.com",
-  "password": "Password@123"
+  "password": "Password@1234"
 }
 
 ###--------------------------logout
@@ -28,7 +28,7 @@ POST {{base_url}}/forgot-password/step1/
 Content-Type: application/json
 
 {
-  "email": "admin@gmail.com"
+  "email": "ajaytungstonlabs@gmail.com"
 
 }
 
@@ -37,8 +37,8 @@ POST {{base_url}}/forgot-password/verify-otp/
 Content-Type: application/json
 
 {
-  "email": "admin@gmail.com",
-  "otp": "807543"
+  "email": "ajaytungstonlabs@gmail.com",
+  "otp": "402632"
 }
 
 ###--------------------------------reset password
@@ -46,7 +46,7 @@ POST {{base_url}}/forgot-password/reset/
 Content-Type: application/json
 
 {
-  "email": "admin@gmail.com",
+  "email": "ajaytungstonlabs@gmail.com",
   "password": "Password@123",
   "confirm_password": "Password@123"
 }
