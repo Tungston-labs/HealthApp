@@ -1,13 +1,13 @@
-#  @base_url = http://127.0.0.1:8000/api/section/
+  @base_url = http://127.0.0.1:8000/api/section/
 
- @base_url = http://178.248.112.16:9001/api/section/
+#  @base_url = http://178.248.112.16:9001/api/section/
 
 ###----------------------login/get access token and refresh token for trainer
 POST http://127.0.0.1:8000/api/auth/login/
 Content-Type: application/json
 
 {
-  "email_or_phno": "9947564532",
+  "email_or_phno": "4475656807",
   "password": "Password@1234"
 }
 
@@ -20,7 +20,7 @@ GET {{base_url}}client/2/weekly-hours/
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1NTc4NjE5LCJpYXQiOjE3NjU1MzU0MjAsImp0aSI6IjczMTI3NTNiZWI3YTQ4M2E4OGRiNGVjOTY5NjE1NDA0IiwidXNlcl9pZCI6IjEifQ.kwJW1GEtGN25RU5CU5vvv80BVn1_I4bKhWoLXAdVGM4
 ### todays sessions by trainer
 GET {{base_url}}today-sessions/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3MDQ2MjQ1LCJpYXQiOjE3NjcwMDMwNDUsImp0aSI6IjVhNTU0ZThjYzU1ZDQ4ZWJiYWFkYmE4NjU5ZWMyMzE1IiwidXNlcl9pZCI6Ijc0In0.pGpaC6ejiavWkTrpd17nsEbUyVqFKbdyURXYQpZi_ro
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3MDQ5MzE5LCJpYXQiOjE3NjcwMDYxMTksImp0aSI6ImIzNmYzZmY1YzUwMTQwODA4MDg4NmQ1ZGU4YTI5Y2RjIiwidXNlcl9pZCI6IjkifQ.F_KATQ8a-RgXiHAeOKawW8nCKGOzgM1ESNj_iRTErUE
 
 
 

@@ -2,6 +2,8 @@ from django.shortcuts import render
 from client.models import Client
 from .serializers import TodaySessionSerializer,ClientDetailSerializer,HistoryBookingSerializer,AllBookingSerializer
 from rest_framework.views import APIView
+from rest_framework.generics import GenericAPIView
+
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
@@ -69,23 +71,36 @@ class ClientPlanSummaryAPIView(generics.GenericAPIView):
 
         return Response(output)
 
-class TrainerTodaySessionsView(APIView):
+from rest_framework.generics import GenericAPIView
+from rest_framework.permissions import IsAuthenticated
+from datetime import date
+
+class TrainerTodaySessionsView(GenericAPIView):
     permission_classes = [IsAuthenticated]
     pagination_class = CustomPagination
+    serializer_class = TodaySessionSerializer
 
     def get(self, request):
         trainer = Trainer.objects.get(user=request.user)
         today = date.today()
 
-        sessions = SlotBooking.objects.filter(
+        queryset = SlotBooking.objects.filter(
             trainer=trainer,
             date=today
         ).order_by("time")
 
-        serializer = TodaySessionSerializer(
-            sessions, many=True, context={"request": request}
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(
+                page, many=True, context={"request": request}
+            )
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(
+            queryset, many=True, context={"request": request}
         )
-        return Response({"total_sessions": len(sessions), "sessions": serializer.data})
+        return Response(serializer.data)
+
 class ClientDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
