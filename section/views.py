@@ -73,8 +73,6 @@ class TrainerTodaySessionsView(APIView):
     permission_classes = [IsAuthenticated]
     pagination_class = CustomPagination
 
-
-
     def get(self, request):
         trainer = Trainer.objects.get(user=request.user)
         today = date.today()

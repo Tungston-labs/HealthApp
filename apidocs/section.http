@@ -1,13 +1,13 @@
- @base_url = http://127.0.0.1:8000/api/section/
+#  @base_url = http://127.0.0.1:8000/api/section/
 
-# @base_url = http://178.248.112.16:9001/api/section/
+ @base_url = http://178.248.112.16:9001/api/section/
 
 ###----------------------login/get access token and refresh token for trainer
 POST http://127.0.0.1:8000/api/auth/login/
 Content-Type: application/json
 
 {
-  "email_or_phno": "7025220037",
+  "email_or_phno": "9947564532",
   "password": "Password@1234"
 }
 
@@ -20,7 +20,7 @@ GET {{base_url}}client/2/weekly-hours/
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1NTc4NjE5LCJpYXQiOjE3NjU1MzU0MjAsImp0aSI6IjczMTI3NTNiZWI3YTQ4M2E4OGRiNGVjOTY5NjE1NDA0IiwidXNlcl9pZCI6IjEifQ.kwJW1GEtGN25RU5CU5vvv80BVn1_I4bKhWoLXAdVGM4
 ### todays sessions by trainer
 GET {{base_url}}today-sessions/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MDkyNzczLCJpYXQiOjE3NjQwNDk1NzMsImp0aSI6IjQwNjc0NjkwMDBiMTQxMzNhMGQzYTE2ZWRjMTU1NDJjIiwidXNlcl9pZCI6IjQifQ.BCRwi1iQuXKstkSdWS2C8m7XDtOSo7K6-TsUFQc29MI
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3MDQ2MjQ1LCJpYXQiOjE3NjcwMDMwNDUsImp0aSI6IjVhNTU0ZThjYzU1ZDQ4ZWJiYWFkYmE4NjU5ZWMyMzE1IiwidXNlcl9pZCI6Ijc0In0.pGpaC6ejiavWkTrpd17nsEbUyVqFKbdyURXYQpZi_ro
 
 
 
@@ -29,8 +29,8 @@ GET {{base_url}}client/2/
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1NDg5ODY4LCJpYXQiOjE3NjU0NDY2NjgsImp0aSI6ImMwNDMyYzAzODE1OTRmNzY5YmUxOWNlMWE5NGQ1MWExIiwidXNlcl9pZCI6IjEifQ.FlJe7yr_BFi_haGdDSFig047SGIo0IAQtaop_PN3pH0
 
 ### get all session details for trainer
-GET {{base_url}}trainer/bookings/?date=2025-12-05
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MDk1MTYzLCJpYXQiOjE3NjQwNTE5NjMsImp0aSI6ImJmOGE4ODJhMzBiMjRlY2FiZTVmZDE2MjY1ZGEwYTdiIiwidXNlcl9pZCI6IjQifQ.gzgAge--adSOOosRNODG4VO7wscJiwHnPys0C5AcD7o
+GET {{base_url}}trainer/bookings/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3MDQ2MjQ1LCJpYXQiOjE3NjcwMDMwNDUsImp0aSI6IjVhNTU0ZThjYzU1ZDQ4ZWJiYWFkYmE4NjU5ZWMyMzE1IiwidXNlcl9pZCI6Ijc0In0.pGpaC6ejiavWkTrpd17nsEbUyVqFKbdyURXYQpZi_ro
 
 ### getting happend session details for trainer
 GET {{base_url}}trainer/history/
