@@ -115,65 +115,80 @@ class ClientDetailView(APIView):
 
 
 
-class TrainerAllBookingsView(APIView):
+from rest_framework.generics import GenericAPIView
+from rest_framework.permissions import IsAuthenticated
+from datetime import date, datetime
+
+class TrainerAllBookingsView(GenericAPIView):
     permission_classes = [IsAuthenticated]
     pagination_class = CustomPagination
-
+    serializer_class = AllBookingSerializer
 
     def get(self, request):
         trainer = Trainer.objects.get(user=request.user)
 
         filter_date = request.query_params.get("date")
+
         if filter_date:
             try:
                 filter_date = datetime.strptime(filter_date, "%Y-%m-%d").date()
-            except:
+            except ValueError:
                 return Response({"error": "Invalid date format"}, status=400)
 
-            bookings = SlotBooking.objects.filter(
+            queryset = SlotBooking.objects.filter(
                 trainer=trainer,
                 date=filter_date
             ).order_by("time")
         else:
-            bookings = SlotBooking.objects.filter(
+            queryset = SlotBooking.objects.filter(
                 trainer=trainer,
                 date__gte=date.today()
             ).order_by("date", "time")
 
-        serializer = AllBookingSerializer(bookings, many=True, context={"request": request})
-        return Response({
-            "total": len(bookings),
-            "bookings": serializer.data
-        })
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(
+                page, many=True, context={"request": request}
+            )
+            return self.get_paginated_response(serializer.data)
 
-class TrainerHistorySessionsView(APIView):
+        serializer = self.get_serializer(
+            queryset, many=True, context={"request": request}
+        )
+        return Response(serializer.data)
+class TrainerHistorySessionsView(GenericAPIView):
     permission_classes = [IsAuthenticated]
     pagination_class = CustomPagination
-
+    serializer_class = AllBookingSerializer
 
     def get(self, request):
         trainer = Trainer.objects.get(user=request.user)
 
-        filter_date = request.query_params.get("date")
-
-        history_qs = SlotBooking.objects.filter(
+        queryset = SlotBooking.objects.filter(
             trainer=trainer,
             status="completed"
         ).order_by("-session_end_date", "-session_end_time")
 
+        filter_date = request.query_params.get("date")
         if filter_date:
             try:
                 filter_date = datetime.strptime(filter_date, "%Y-%m-%d").date()
-            except:
-                return Response({"error": "Invalid date format"}, 400)
+            except ValueError:
+                return Response({"error": "Invalid date format"}, status=400)
 
-            history_qs = history_qs.filter(session_end_date=filter_date)
+            queryset = queryset.filter(session_end_date=filter_date)
 
-        serializer = AllBookingSerializer(history_qs, many=True, context={"request": request})
-        return Response({
-            "total_completed": len(history_qs),
-            "sessions": serializer.data
-        })
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(
+                page, many=True, context={"request": request}
+            )
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(
+            queryset, many=True, context={"request": request}
+        )
+        return Response(serializer.data)
 
 
 
@@ -246,31 +261,38 @@ class EndTrainingView(APIView):
 
 
 
-class ClientCompletedSessionsView(APIView):
+from rest_framework.generics import GenericAPIView
+from rest_framework.permissions import IsAuthenticated
+
+class ClientCompletedSessionsView(GenericAPIView):
     permission_classes = [IsAuthenticated]
     pagination_class = CustomPagination
 
     def get(self, request):
-        client = request.user.client  # assuming OneToOne
-        sessions = SlotBooking.objects.filter(
+        client = request.user.client  # OneToOne assumed
+
+        queryset = SlotBooking.objects.filter(
             client=client,
             status='completed'
         ).order_by('-date', '-time')
 
-        response_data = [
+        page = self.paginate_queryset(queryset)
+
+        sessions_data = [
             {
                 "section_id": s.id,
                 "date": s.date,
                 "time": s.time,
-                "trainer": TrainerMiniSerializer(s.trainer, context={"request": request}).data,
-                "notes": s.notes if hasattr(s, "notes") else None
+                "trainer": TrainerMiniSerializer(
+                    s.trainer, context={"request": request}
+                ).data,
+                "notes": getattr(s, "notes", None)
             }
-            for s in sessions
+            for s in page
         ]
 
-        return Response({
-            "total_completed_sessions": len(sessions),
-            "sessions": response_data
+        return self.get_paginated_response({
+            "sessions": sessions_data
         })
 
 # for getting details about single sessions
