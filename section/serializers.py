@@ -80,6 +80,8 @@ class BookingClientSerializer(serializers.ModelSerializer):
 class AllBookingSerializer(serializers.ModelSerializer):
     client = BookingClientSerializer()
     time_label = serializers.SerializerMethodField()
+    session_number = serializers.SerializerMethodField()
+    total_sessions = serializers.SerializerMethodField()
 
     class Meta:
         model = SlotBooking
@@ -91,7 +93,9 @@ class AllBookingSerializer(serializers.ModelSerializer):
             "session_end_date",
             "session_end_time",
             "status",
-            "client"
+            "client",
+            "session_number",
+            "total_sessions",
         ]
 
     def get_time_label(self, obj):
@@ -103,6 +107,26 @@ class AllBookingSerializer(serializers.ModelSerializer):
         else:
             return "evening"
 
+    def get_total_sessions(self, obj):
+        # total sessions from trainer profile
+        return obj.trainer.no_of_section
+
+    def get_session_number(self, obj):
+        """
+        Calculate session index using date + time order
+        """
+        bookings = SlotBooking.objects.filter(
+            trainer=obj.trainer,
+            client=obj.client,
+            plan=obj.plan,
+        ).order_by("date", "time")
+
+        booking_ids = list(bookings.values_list("id", flat=True))
+
+        try:
+            return booking_ids.index(obj.id) + 1
+        except ValueError:
+            return 1
 
 # for getting already done session details
 from rest_framework import serializers
