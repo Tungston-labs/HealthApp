@@ -295,13 +295,19 @@ class PlanDetailSerializer(serializers.ModelSerializer):
 
 from datetime import datetime, timedelta
 
+from datetime import datetime, timedelta
+from django.utils.dateformat import format
+from rest_framework import serializers
+
 class SlotBookingDetailSerializer(serializers.ModelSerializer):
     client = ClientDetailSerializer()
     plan = PlanDetailSerializer()
 
     session_number = serializers.SerializerMethodField()
     total_sessions = serializers.SerializerMethodField()
+    day_status = serializers.SerializerMethodField()
     training_time = serializers.SerializerMethodField()
+    allowed_days = serializers.SerializerMethodField()
 
     class Meta:
         model = SlotBooking
@@ -315,26 +321,52 @@ class SlotBookingDetailSerializer(serializers.ModelSerializer):
             "training_time",
             "session_number",
             "total_sessions",
+            "day_status",
+            "allowed_days",
             "client",
             "plan",
             "notes",
         ]
 
+    # ✅ Total sessions = trainer sections
     def get_total_sessions(self, obj):
         return obj.trainer.no_of_section
 
+    # ✅ 1/2, 2/2 logic (per booking batch)
     def get_session_number(self, obj):
         sessions = SlotBooking.objects.filter(
             trainer=obj.trainer,
             client=obj.client,
-            plan=obj.plan
+            plan=obj.plan,
+            created_at__date=obj.created_at.date()
         ).order_by("date", "time")
 
-        for index, session in enumerate(sessions, start=1):
-            if session.id == obj.id:
-                return index
-        return None
+        ids = list(sessions.values_list("id", flat=True))
 
+        try:
+            index = ids.index(obj.id) + 1
+        except ValueError:
+            index = 1
+
+        return f"{index}/{obj.trainer.no_of_section}"
+
+    # ✅ Day 1 / Day 2
+    def get_day_status(self, obj):
+        sessions = SlotBooking.objects.filter(
+            trainer=obj.trainer,
+            client=obj.client,
+            plan=obj.plan,
+            created_at__date=obj.created_at.date()
+        ).order_by("date", "time")
+
+        ids = list(sessions.values_list("id", flat=True))
+
+        try:
+            return f"Day {ids.index(obj.id) + 1}"
+        except ValueError:
+            return "Day 1"
+
+    # ✅ Training time calculation
     def get_training_time(self, obj):
         start_time = obj.time
         duration = int(obj.trainer.section_timing)
@@ -347,5 +379,31 @@ class SlotBookingDetailSerializer(serializers.ModelSerializer):
         return {
             "start": start_time.strftime("%H:%M"),
             "end": end_time.strftime("%H:%M"),
-            "duration_minutes": duration
+            "duration_minutes": duration,
         }
+
+    # ✅ All allowed days (from first → last session)
+    def get_allowed_days(self, obj):
+        bookings = SlotBooking.objects.filter(
+            trainer=obj.trainer,
+            client=obj.client,
+            plan=obj.plan,
+        ).order_by("date")
+
+        if not bookings.exists():
+            return []
+
+        start_date = bookings.first().date
+        end_date = bookings.last().date
+
+        days = []
+        current = start_date
+
+        while current <= end_date:
+            days.append({
+                "day": format(current, "l"),   # Monday
+                "date": current.strftime("%Y-%m-%d"),
+            })
+            current += timedelta(days=1)
+
+        return days
