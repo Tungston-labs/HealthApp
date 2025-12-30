@@ -456,3 +456,19 @@ class AdminTrainerSessionsView(APIView):
             "total_clients": len(sessions),
             "sessions": sessions
         })
+
+
+
+from rest_framework.generics import RetrieveAPIView
+from rest_framework.permissions import IsAuthenticated
+from .serializers import SlotBookingDetailSerializer
+
+class TrainerSlotBookingDetailView(RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = SlotBookingDetailSerializer
+
+    def get_queryset(self):
+        trainer = Trainer.objects.get(user=self.request.user)
+        return SlotBooking.objects.select_related(
+            "client", "plan", "trainer"
+        ).filter(trainer=trainer)

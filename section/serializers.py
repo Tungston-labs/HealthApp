@@ -251,3 +251,97 @@ class AdminTrainerSessionSerializer(serializers.ModelSerializer):
         if duration:
             return f"{duration} weeks"
         return "-"
+
+from plan.models import Plan
+class ClientDetailSerializer(serializers.ModelSerializer):
+    profile_pic_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Client
+        fields = [
+            "id",
+            "name",
+            "email",
+            "phno",
+            "gender",
+            "blood_group",
+            "height",
+            "weight",
+            "address",
+            "health_issues",
+            "wellness_goal",
+            "profile_pic_url",
+        ]
+
+    def get_profile_pic_url(self, obj):
+        request = self.context.get("request")
+        if obj.profile_pic:
+            return request.build_absolute_uri(obj.profile_pic.url)
+        return None
+class PlanDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Plan
+        fields = [
+            "id",
+            "plan_name",
+            "plan_type",
+            "description",
+        ]
+
+
+from datetime import datetime, timedelta
+
+class SlotBookingDetailSerializer(serializers.ModelSerializer):
+    client = ClientDetailSerializer()
+    plan = PlanDetailSerializer()
+
+    session_number = serializers.SerializerMethodField()
+    total_sessions = serializers.SerializerMethodField()
+    training_time = serializers.SerializerMethodField()
+
+    class Meta:
+        model = SlotBooking
+        fields = [
+            "id",
+            "status",
+            "date",
+            "time",
+            "session_end_date",
+            "session_end_time",
+            "training_time",
+            "session_number",
+            "total_sessions",
+            "client",
+            "plan",
+            "notes",
+        ]
+
+    def get_total_sessions(self, obj):
+        return obj.trainer.no_of_section
+
+    def get_session_number(self, obj):
+        sessions = SlotBooking.objects.filter(
+            trainer=obj.trainer,
+            client=obj.client,
+            plan=obj.plan
+        ).order_by("date", "time")
+
+        for index, session in enumerate(sessions, start=1):
+            if session.id == obj.id:
+                return index
+        return None
+
+    def get_training_time(self, obj):
+        start_time = obj.time
+        duration = int(obj.trainer.section_timing)
+
+        end_time = (
+            datetime.combine(obj.date, start_time)
+            + timedelta(minutes=duration)
+        ).time()
+
+        return {
+            "start": start_time.strftime("%H:%M"),
+            "end": end_time.strftime("%H:%M"),
+            "duration_minutes": duration
+        }
