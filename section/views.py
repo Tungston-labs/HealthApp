@@ -77,7 +77,6 @@ from datetime import date
 
 class TrainerTodaySessionsView(GenericAPIView):
     permission_classes = [IsAuthenticated]
-    pagination_class = CustomPagination
     serializer_class = TodaySessionSerializer
 
     def get(self, request):

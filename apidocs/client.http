@@ -5,8 +5,8 @@ POST http://178.248.112.16:9001/api/auth/login/
 Content-Type: application/json
 
 {
-  "email_or_phno": "9895977148",
-  "password": "Password@123"
+  "email_or_phno": "@anzal@gmail.com",
+  "password": "Anzal@123"
 }
 ### Client Registration
 POST {{base_url}}register/
