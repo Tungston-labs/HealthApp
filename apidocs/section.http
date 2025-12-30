@@ -30,7 +30,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 ### get all session details for trainer
 GET {{base_url}}trainer/bookings/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3MDUxODUxLCJpYXQiOjE3NjcwMDg2NTEsImp0aSI6ImUwNDQ5Y2QxOWFjYzRkYjBhNTZmZWRkODI3MTY3MDE0IiwidXNlcl9pZCI6Ijc0In0.hV-Pkgu8lxaquew5RcOUAixAFIID_z5htIw_z3JIpNQ
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3MTE2OTc4LCJpYXQiOjE3NjcwNzM3NzgsImp0aSI6IjUzYzZhOGFhZDU0NzRlYWY4OGZiMDUzNjBlYTJkYTBhIiwidXNlcl9pZCI6Ijc0In0.T10u2c7y8DRacKxu3mJhJERawVCQ5kDTVTWGXTBYgTU
 
 ### getting happend session details for trainer
 GET {{base_url}}trainer/history/
@@ -38,20 +38,20 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 ### Start Training
 POST {{base_url}}start-training/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1NTgwMjM4LCJpYXQiOjE3NjU1MzcwMzgsImp0aSI6IjUyZTEzMzRlMzRlYzRmMzliMjg5Mzk5NWFmZjkwZjM4IiwidXNlcl9pZCI6IjQifQ.60dyCE0U-KV7d9gCpXLGFLtiEKCIQdlBS0o2H1Ausro
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3MTEzNTYxLCJpYXQiOjE3NjcwNzAzNjEsImp0aSI6ImI3MWE1OGJiODdiNjQwNDM4M2U1YTJmMTk4MDJhYWJlIiwidXNlcl9pZCI6Ijc0In0.P0Yt7AHPujZuxQahcebA7bfjkM27fELpeOVromLyNzg
 Content-Type: application/json
 
 {
-    "booking_id": 5
+    "booking_id": 43
 }
 
 ### End Training
 POST {{base_url}}end-training/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1NTgwMjM4LCJpYXQiOjE3NjU1MzcwMzgsImp0aSI6IjUyZTEzMzRlMzRlYzRmMzliMjg5Mzk5NWFmZjkwZjM4IiwidXNlcl9pZCI6IjQifQ.60dyCE0U-KV7d9gCpXLGFLtiEKCIQdlBS0o2H1Ausro
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3MTEzNTYxLCJpYXQiOjE3NjcwNzAzNjEsImp0aSI6ImI3MWE1OGJiODdiNjQwNDM4M2U1YTJmMTk4MDJhYWJlIiwidXNlcl9pZCI6Ijc0In0.P0Yt7AHPujZuxQahcebA7bfjkM27fELpeOVromLyNzg
 Content-Type: application/json
 
 {
-    "booking_id": 5
+    "booking_id": 43
 }
 
 

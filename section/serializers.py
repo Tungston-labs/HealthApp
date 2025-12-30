@@ -20,7 +20,7 @@ class TodaySessionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SlotBooking
-        fields = ["date", "time", "client"]
+        fields = ["date", "time", "client","id"]
 class ClientDetailSerializer(serializers.ModelSerializer):
     profile_pic = serializers.SerializerMethodField()
     upcoming_sessions = serializers.SerializerMethodField()

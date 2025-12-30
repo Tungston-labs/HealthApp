@@ -2,12 +2,12 @@
    @base_url = http://178.248.112.16:9001/api/trainer/
 
 ###----------------------login/get access token and refresh token
-POST http://127.0.0.1:8000/api/auth/login/
+POST http://178.248.112.16:9001/api/auth/login/
 Content-Type: application/json
 
 {
-  "email_or_phno": "7025220037",
-  "password": "Password@1234"
+  "email_or_phno": "bruno@gmail.com ",
+  "password": "Password@123"
 }
 
 ### Trainer Registration
