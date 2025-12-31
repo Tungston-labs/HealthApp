@@ -8,7 +8,7 @@ Content-Type: application/json
 
 {
   "email_or_phno": "bruno@gmail.com",
-  "password": "Password@123"
+  "password": "Password@1234"
 }
 
 
@@ -30,7 +30,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 ### get all session details for trainer
 GET {{base_url}}trainer/bookings/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3MTE2OTc4LCJpYXQiOjE3NjcwNzM3NzgsImp0aSI6IjUzYzZhOGFhZDU0NzRlYWY4OGZiMDUzNjBlYTJkYTBhIiwidXNlcl9pZCI6Ijc0In0.T10u2c7y8DRacKxu3mJhJERawVCQ5kDTVTWGXTBYgTU
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3MTMxOTIzLCJpYXQiOjE3NjcwODg3MjMsImp0aSI6IjVjMTE0MTM1MDZmNDRjMDk5MmY0MTM0MTc2OTYyMGM5IiwidXNlcl9pZCI6Ijc0In0.7nZvqpDfAoW6uZQMTevxsndxXxP5gKAbRpT1SOyb5Ho
 
 ### getting happend session details for trainer
 GET {{base_url}}trainer/history/
@@ -44,6 +44,12 @@ Content-Type: application/json
 {
     "booking_id": 43
 }
+
+
+
+### section detail view
+GET {{base_url}}trainer/slot-bookings/43/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3MTI1NDcxLCJpYXQiOjE3NjcwODIyNzEsImp0aSI6ImRmOTRiMWIyMDA5NjQ4Mjk5MDZiNWE0NjMwNzc3MWI1IiwidXNlcl9pZCI6Ijc0In0.DDcf5CKn-kBI7lJCwtxmKNx49BonGN118Gi6BOth1-U
 
 ### End Training
 POST {{base_url}}end-training/

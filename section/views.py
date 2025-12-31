@@ -155,6 +155,8 @@ class TrainerAllBookingsView(GenericAPIView):
             queryset, many=True, context={"request": request}
         )
         return Response(serializer.data)
+    
+    
 class TrainerHistorySessionsView(GenericAPIView):
     permission_classes = [IsAuthenticated]
     pagination_class = CustomPagination

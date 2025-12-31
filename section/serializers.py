@@ -108,20 +108,24 @@ class AllBookingSerializer(serializers.ModelSerializer):
             return "evening"
 
     def get_total_sessions(self, obj):
-        # total sessions from trainer profile
+        # Comes directly from trainer profile
         return obj.trainer.no_of_section
 
     def get_session_number(self, obj):
         """
-        Calculate session index using date + time order
+        Session number within the SAME SLOT BOOKING
+        (same trainer + client + plan + date + time)
         """
-        bookings = SlotBooking.objects.filter(
+
+        same_slot_bookings = SlotBooking.objects.filter(
             trainer=obj.trainer,
             client=obj.client,
             plan=obj.plan,
-        ).order_by("date", "time")
+            date=obj.date,
+            time=obj.time,
+        ).order_by("created_at", "id")
 
-        booking_ids = list(bookings.values_list("id", flat=True))
+        booking_ids = list(same_slot_bookings.values_list("id", flat=True))
 
         try:
             return booking_ids.index(obj.id) + 1
