@@ -567,6 +567,26 @@ class AddSlotBookingNoteView(APIView):
 
         serializer = SlotBookingNoteSerializer(booking)
         return Response({"message": "Note added successfully", "booking": serializer.data})
+    
+
+class SlotBookingNoteDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, booking_id):
+        try:
+            booking = SlotBooking.objects.get(
+                id=booking_id,
+                trainer__user=request.user
+            )
+        except SlotBooking.DoesNotExist:
+            return Response(
+                {"error": "Booking not found or not authorized"},
+                status=404
+            )
+
+        serializer = SlotBookingNoteSerializer(booking)
+        return Response(serializer.data, status=200)
+
 
 from django.shortcuts import get_object_or_404
 class SuspendTrainerView(APIView):

@@ -135,6 +135,10 @@ Content-Type: application/json
     "note": "Client did well in today’s session."
 }
 
+### get notes on sessions by trainer
+GET {{base_url}}booking/1/note/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MTAxMTc2LCJpYXQiOjE3NjQwNTc5NzYsImp0aSI6IjM4YzFiYjVlZTA3NjQxZGJhZjM5Mzg3NDg2MmRiNmJlIiwidXNlcl9pZCI6IjQifQ.3O8V_ekbc7fHlGF4MVRpemyK0L46Qp7hAJTgbY1Om4U
+
 
 ### suspend trainer
 
