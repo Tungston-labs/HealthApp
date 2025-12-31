@@ -573,19 +573,22 @@ class AddSlotBookingNoteView(APIView):
         if not note_text:
             return Response({"error": "Note is required"}, status=400)
 
+        # ✅ Ensure notes is always a list
+        if not isinstance(booking.notes, list):
+            booking.notes = []
+
         new_note = {
             "note": note_text,
             "created_at": now().isoformat()
         }
 
-        # ✅ APPEND
-        booking.trainer_notes.append(new_note)
-        booking.save()
+        booking.notes.append(new_note)
+        booking.save(update_fields=["notes"])
 
         return Response(
             {
                 "message": "Note added successfully",
-                "trainer_notes": booking.trainer_notes
+                "notes": booking.notes
             },
             status=201
         )
@@ -607,7 +610,7 @@ class SlotBookingNoteDetailView(APIView):
         return Response(
             {
                 "booking_id": booking.id,
-                "trainer_notes": booking.trainer_notes
+                "notes": booking.notes or []
             },
             status=200
         )
@@ -626,26 +629,26 @@ class DeleteSlotBookingNoteView(APIView):
                 status=404
             )
 
-        if not isinstance(booking.trainer_notes, list):
+        if not isinstance(booking.notes, list):
             return Response(
                 {"error": "Invalid notes format"},
                 status=400
             )
 
         try:
-            booking.trainer_notes.pop(index)
+            booking.notes.pop(index)
         except IndexError:
             return Response(
                 {"error": "Invalid note index"},
                 status=400
             )
 
-        booking.save()
+        booking.save(update_fields=["notes"])
 
         return Response(
             {
                 "message": "Note deleted successfully",
-                "trainer_notes": booking.trainer_notes
+                "notes": booking.notes
             },
             status=200
         )
