@@ -52,7 +52,7 @@ class TrainerSerializer(serializers.ModelSerializer):
 
     def get_profile_pic_url(self, obj):
         request = self.context.get("request")
-        if obj.profile_pic:
+        if obj.profile_pic and request:
             return request.build_absolute_uri(obj.profile_pic.url)
         return None
 
