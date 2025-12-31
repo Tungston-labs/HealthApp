@@ -7,7 +7,7 @@ Content-Type: application/json
 
 {
   "email_or_phno": "bruno@gmail.com ",
-  "password": "Password@123"
+  "password": "Password@1234"
 }
 
 ### Trainer Registration
@@ -127,8 +127,8 @@ GET {{base_url}}info/10/
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY2NjAzMjM1LCJpYXQiOjE3NjY1NjAwMzUsImp0aSI6IjFkYTEwNjY2ZTNmMzQxYWRiNzUyMmNiY2JiOTRiMzY0IiwidXNlcl9pZCI6IjIifQ.h_Ek10IsL7h-0J_IY_BidLAjV8s-CnTTvH_7wPSaDRk
 
 ### add notes on sessions by trainer
-POST {{base_url}}booking/1/add-note/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MTAxMTc2LCJpYXQiOjE3NjQwNTc5NzYsImp0aSI6IjM4YzFiYjVlZTA3NjQxZGJhZjM5Mzg3NDg2MmRiNmJlIiwidXNlcl9pZCI6IjQifQ.3O8V_ekbc7fHlGF4MVRpemyK0L46Qp7hAJTgbY1Om4U
+POST {{base_url}}booking/43/add-note/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3MjA0ODY5LCJpYXQiOjE3NjcxNjE2NjksImp0aSI6ImZhNjQ3YjU0ODM5ODRjOGM5ZDQxZWIxNmU3YmEzODE2IiwidXNlcl9pZCI6Ijc0In0.us-g5CFzB4mvXRJYEgGEaxkiJS-fS06UpRYxhpBd0Cg
 Content-Type: application/json
 
 {
@@ -136,8 +136,8 @@ Content-Type: application/json
 }
 
 ### get notes on sessions by trainer
-GET {{base_url}}booking/1/note/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MTAxMTc2LCJpYXQiOjE3NjQwNTc5NzYsImp0aSI6IjM4YzFiYjVlZTA3NjQxZGJhZjM5Mzg3NDg2MmRiNmJlIiwidXNlcl9pZCI6IjQifQ.3O8V_ekbc7fHlGF4MVRpemyK0L46Qp7hAJTgbY1Om4U
+GET {{base_url}}booking/43/note/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3MjA0ODY5LCJpYXQiOjE3NjcxNjE2NjksImp0aSI6ImZhNjQ3YjU0ODM5ODRjOGM5ZDQxZWIxNmU3YmEzODE2IiwidXNlcl9pZCI6Ijc0In0.us-g5CFzB4mvXRJYEgGEaxkiJS-fS06UpRYxhpBd0Cg
 
 
 ### suspend trainer

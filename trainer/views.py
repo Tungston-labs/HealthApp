@@ -549,26 +549,46 @@ class TrainerDetailSimpleView(APIView):
         })
 
 
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from django.utils.timezone import now
+
 class AddSlotBookingNoteView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, booking_id):
         try:
-            booking = SlotBooking.objects.get(id=booking_id, trainer__user=request.user)
+            booking = SlotBooking.objects.get(
+                id=booking_id,
+                trainer__user=request.user
+            )
         except SlotBooking.DoesNotExist:
-            return Response({"error": "Booking not found or not authorized"}, status=404)
+            return Response(
+                {"error": "Booking not found or not authorized"},
+                status=404
+            )
 
-        note = request.data.get("note")
-        if not note:
+        note_text = request.data.get("note")
+        if not note_text:
             return Response({"error": "Note is required"}, status=400)
 
-        booking.notes = note
+        new_note = {
+            "note": note_text,
+            "created_at": now().isoformat()
+        }
+
+        # ✅ APPEND
+        booking.trainer_notes.append(new_note)
         booking.save()
 
-        serializer = SlotBookingNoteSerializer(booking)
-        return Response({"message": "Note added successfully", "booking": serializer.data})
-    
-
+        return Response(
+            {
+                "message": "Note added successfully",
+                "trainer_notes": booking.trainer_notes
+            },
+            status=201
+        )
 class SlotBookingNoteDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -584,8 +604,51 @@ class SlotBookingNoteDetailView(APIView):
                 status=404
             )
 
-        serializer = SlotBookingNoteSerializer(booking)
-        return Response(serializer.data, status=200)
+        return Response(
+            {
+                "booking_id": booking.id,
+                "trainer_notes": booking.trainer_notes
+            },
+            status=200
+        )
+class DeleteSlotBookingNoteView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, booking_id, index):
+        try:
+            booking = SlotBooking.objects.get(
+                id=booking_id,
+                trainer__user=request.user
+            )
+        except SlotBooking.DoesNotExist:
+            return Response(
+                {"error": "Booking not found or not authorized"},
+                status=404
+            )
+
+        if not isinstance(booking.trainer_notes, list):
+            return Response(
+                {"error": "Invalid notes format"},
+                status=400
+            )
+
+        try:
+            booking.trainer_notes.pop(index)
+        except IndexError:
+            return Response(
+                {"error": "Invalid note index"},
+                status=400
+            )
+
+        booking.save()
+
+        return Response(
+            {
+                "message": "Note deleted successfully",
+                "trainer_notes": booking.trainer_notes
+            },
+            status=200
+        )
 
 
 from django.shortcuts import get_object_or_404

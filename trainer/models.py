@@ -95,8 +95,7 @@ class SlotBooking(models.Model):
         ),
         default='upcoming'
     )
-    notes = models.TextField(null=True, blank=True)
-
+    notes = models.JSONField(default=list, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

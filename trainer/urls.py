@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import TrainerCreateView, TrainerListView, TrainerDetailView,LocalImageUploadAPIView,TrainerProfileView,TrainerProfileEditView,PendingTrainerListView,FilterTrainersView,BookTrainerView,TrainerDetailPageView,ChangeTrainerView,TrainerDetailSimpleView,AddSlotBookingNoteView,SuspendTrainerView,TrainerPendingListView,SlotBookingNoteDetailView
+from .views import TrainerCreateView, TrainerListView, TrainerDetailView,LocalImageUploadAPIView,TrainerProfileView,TrainerProfileEditView,PendingTrainerListView,FilterTrainersView,BookTrainerView,TrainerDetailPageView,ChangeTrainerView,TrainerDetailSimpleView,AddSlotBookingNoteView,SuspendTrainerView,TrainerPendingListView,SlotBookingNoteDetailView,DeleteSlotBookingNoteView
 
 urlpatterns = [
     path('', TrainerCreateView.as_view(), name='trainer-create'),
@@ -30,6 +30,8 @@ urlpatterns = [
     path('info/<int:trainer_id>/', TrainerDetailSimpleView.as_view(), name='trainer-detail-simple'),
     path('booking/<int:booking_id>/add-note/', AddSlotBookingNoteView.as_view(), name='add-slot-note'),
     path("booking/<int:booking_id>/note/",SlotBookingNoteDetailView.as_view(),name="get-slot-booking-note"),
+    path("bookings/<int:booking_id>/notes/delete/<int:index>/",DeleteSlotBookingNoteView.as_view()),
+
 
 
 ]
