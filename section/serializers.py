@@ -113,24 +113,24 @@ class AllBookingSerializer(serializers.ModelSerializer):
 
     def get_session_number(self, obj):
         """
-        Session number within the SAME SLOT BOOKING
-        (same trainer + client + plan + date + time)
+        Session number based on:
+        same trainer + same client + same time
+        ordered by created_at
         """
 
-        same_slot_bookings = SlotBooking.objects.filter(
+        same_slot_sessions = SlotBooking.objects.filter(
             trainer=obj.trainer,
             client=obj.client,
-            plan=obj.plan,
-            date=obj.date,
             time=obj.time,
+            created_at__date=obj.created_at.date(),  # important
         ).order_by("created_at", "id")
 
-        booking_ids = list(same_slot_bookings.values_list("id", flat=True))
+        for index, session in enumerate(same_slot_sessions, start=1):
+            if session.id == obj.id:
+                return index
 
-        try:
-            return booking_ids.index(obj.id) + 1
-        except ValueError:
-            return 1
+        return 1
+
 
 # for getting already done session details
 from rest_framework import serializers
