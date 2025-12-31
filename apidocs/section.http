@@ -49,7 +49,7 @@ Content-Type: application/json
 
 ### section detail view
 GET {{base_url}}trainer/slot-bookings/43/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3MTI1NDcxLCJpYXQiOjE3NjcwODIyNzEsImp0aSI6ImRmOTRiMWIyMDA5NjQ4Mjk5MDZiNWE0NjMwNzc3MWI1IiwidXNlcl9pZCI6Ijc0In0.DDcf5CKn-kBI7lJCwtxmKNx49BonGN118Gi6BOth1-U
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3MTk0NTc2LCJpYXQiOjE3NjcxNTEzNzYsImp0aSI6IjQ3ODU3NGZkNDUxZDQxOTQ4MmJhNWUwMTY1MWQzNjQwIiwidXNlcl9pZCI6Ijc0In0.fXaa8-krXsiCfuK_PyKKyUJiKM4Xca52qoN8GZWvs4E
 
 ### End Training
 POST {{base_url}}end-training/
