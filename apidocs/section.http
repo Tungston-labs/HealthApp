@@ -8,7 +8,7 @@ Content-Type: application/json
 
 {
   "email_or_phno": "bruno@gmail.com",
-  "password": "Password@123"
+  "password": "Password@1234"
 }
 
 
