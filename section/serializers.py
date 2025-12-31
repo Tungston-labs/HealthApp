@@ -299,6 +299,10 @@ from rest_framework import serializers
 from datetime import datetime, timedelta
 import calendar
 
+import calendar
+from datetime import datetime, timedelta
+from rest_framework import serializers
+
 class SlotBookingDetailSerializer(serializers.ModelSerializer):
     client = ClientDetailSerializer()
     plan = PlanDetailSerializer()
@@ -311,6 +315,7 @@ class SlotBookingDetailSerializer(serializers.ModelSerializer):
     day_number = serializers.SerializerMethodField()
     day_label = serializers.SerializerMethodField()
     allowed_days = serializers.SerializerMethodField()
+    last_date = serializers.SerializerMethodField()   # ✅ NEW
 
     class Meta:
         model = SlotBooking
@@ -326,10 +331,10 @@ class SlotBookingDetailSerializer(serializers.ModelSerializer):
             "session_number",
             "total_sessions",
 
-            # NEW
             "day_number",
             "day_label",
             "allowed_days",
+            "last_date",     # ✅ ADDED
 
             "client",
             "plan",
@@ -337,13 +342,13 @@ class SlotBookingDetailSerializer(serializers.ModelSerializer):
         ]
 
     # -----------------------------------
-    # TOTAL SESSIONS (from trainer profile)
+    # TOTAL SESSIONS
     # -----------------------------------
     def get_total_sessions(self, obj):
         return obj.trainer.no_of_section
 
     # -----------------------------------
-    # SESSION NUMBER (unchanged logic)
+    # SESSION NUMBER
     # -----------------------------------
     def get_session_number(self, obj):
         sessions = SlotBooking.objects.filter(
@@ -358,7 +363,7 @@ class SlotBookingDetailSerializer(serializers.ModelSerializer):
         return None
 
     # -----------------------------------
-    # DAY NUMBER (Day 1 / Day 2 logic)
+    # DAY NUMBER (per created day)
     # -----------------------------------
     def get_day_number(self, obj):
         sessions = SlotBooking.objects.filter(
@@ -371,17 +376,16 @@ class SlotBookingDetailSerializer(serializers.ModelSerializer):
         for index, session in enumerate(sessions, start=1):
             if session.id == obj.id:
                 return index
-
         return 1
 
     # -----------------------------------
-    # DAY LABEL (Day 1, Day 2...)
+    # DAY LABEL
     # -----------------------------------
     def get_day_label(self, obj):
         return f"Day {self.get_day_number(obj)}"
 
     # -----------------------------------
-    # ALLOWED DAYS (date + weekday name)
+    # ALLOWED DAYS (date + weekday)
     # -----------------------------------
     def get_allowed_days(self, obj):
         sessions = SlotBooking.objects.filter(
@@ -405,7 +409,19 @@ class SlotBookingDetailSerializer(serializers.ModelSerializer):
         return days
 
     # -----------------------------------
-    # TRAINING TIME (start + end + duration)
+    # LAST BOOKED DATE ✅
+    # -----------------------------------
+    def get_last_date(self, obj):
+        last_session = SlotBooking.objects.filter(
+            trainer=obj.trainer,
+            client=obj.client,
+            plan=obj.plan
+        ).order_by("-date").first()
+
+        return last_session.date if last_session else None
+
+    # -----------------------------------
+    # TRAINING TIME
     # -----------------------------------
     def get_training_time(self, obj):
         start_time = obj.time
