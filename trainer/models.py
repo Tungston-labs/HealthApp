@@ -84,6 +84,7 @@ class SlotBooking(models.Model):
     time = models.TimeField()
     session_end_date = models.DateField(null=True, blank=True)  # when timer finishes
     session_end_time = models.TimeField(null=True, blank=True)
+    session_start_apihit_time = models.DateTimeField(null=True, blank=True)
     status = models.CharField(
         max_length=20,
         choices=(

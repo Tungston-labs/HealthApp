@@ -38,11 +38,11 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 ### Start Training
 POST {{base_url}}start-training/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3MTEzNTYxLCJpYXQiOjE3NjcwNzAzNjEsImp0aSI6ImI3MWE1OGJiODdiNjQwNDM4M2U1YTJmMTk4MDJhYWJlIiwidXNlcl9pZCI6Ijc0In0.P0Yt7AHPujZuxQahcebA7bfjkM27fELpeOVromLyNzg
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3MjE4MzE2LCJpYXQiOjE3NjcxNzUxMTYsImp0aSI6IjE2ZDBlNzZiZGUwOTRmMTdhNjU1N2ZlZGJkZjFmZWMwIiwidXNlcl9pZCI6Ijc0In0.kjEP81vfJ1MQRggLRJArgor9XOv1QTvlnXVW0F9zdCQ
 Content-Type: application/json
 
 {
-    "booking_id": 43
+    "booking_id": 44
 }
 
 

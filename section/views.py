@@ -194,13 +194,21 @@ class TrainerHistorySessionsView(GenericAPIView):
 
 
 
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from django.utils.timezone import now
+
 class StartTrainingView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        trainer = Trainer.objects.get(user=request.user)
-        booking_id = request.data.get("booking_id")
+        try:
+            trainer = Trainer.objects.get(user=request.user)
+        except Trainer.DoesNotExist:
+            return Response({"error": "Trainer not found"}, status=404)
 
+        booking_id = request.data.get("booking_id")
         if not booking_id:
             return Response({"error": "Booking ID is required"}, status=400)
 
@@ -210,16 +218,23 @@ class StartTrainingView(APIView):
             return Response({"error": "Booking not found"}, status=404)
 
         if booking.status != "upcoming":
-            return Response({"error": f"Cannot start session with status {booking.status}"}, status=400)
+            return Response(
+                {"error": f"Cannot start session with status {booking.status}"},
+                status=400
+            )
 
+        # ✅ UPDATE STATUS + API HIT TIME
         booking.status = "ongoing"
-        booking.save()
+        booking.session_start_apihit_time = now()
+        booking.save(update_fields=["status", "session_start_apihit_time"])
 
         return Response({
             "message": "Training started",
             "booking_id": booking.id,
-            "status": booking.status
-        })
+            "status": booking.status,
+            "session_start_apihit_time": booking.session_start_apihit_time
+        }, status=200)
+
     
 from django.utils import timezone
 from zoneinfo import ZoneInfo    
