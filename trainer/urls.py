@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import TrainerCreateView, TrainerListView, TrainerDetailView,LocalImageUploadAPIView,TrainerProfileView,TrainerProfileEditView,PendingTrainerListView,FilterTrainersView,BookTrainerView,TrainerDetailPageView,ChangeTrainerView,TrainerDetailSimpleView,AddSlotBookingNoteView,SuspendTrainerView,TrainerPendingListView,SlotBookingNoteDetailView,DeleteSlotBookingNoteView
+from .views import TrainerCreateView, TrainerListView, TrainerDetailView,LocalImageUploadAPIView,TrainerProfileView,TrainerProfileEditView,PendingTrainerListView,FilterTrainersView,BookTrainerView,TrainerDetailPageView,ChangeTrainerView,TrainerDetailSimpleView,AddSlotBookingNoteView,SuspendTrainerView,TrainerPendingListView,SlotBookingNoteDetailView,DeleteSlotBookingNoteView,OngoingSessionView
 
 urlpatterns = [
     path('', TrainerCreateView.as_view(), name='trainer-create'),
@@ -20,6 +20,7 @@ urlpatterns = [
 
     path('profile/', TrainerProfileView.as_view(), name='trainer-profile'),
     path('profile/edit/', TrainerProfileEditView.as_view(), name='trainer-profile-edit'),
+    path('ongoing-sessions/', OngoingSessionView.as_view(), name='trainer-ongoing-sessions'),
 
 # ------MOBILE APP-user
 
