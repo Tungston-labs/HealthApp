@@ -116,7 +116,9 @@ class ClientDetailView(APIView):
 
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from datetime import date, datetime
+from django.db.models import Q
 
 class TrainerAllBookingsView(GenericAPIView):
     permission_classes = [IsAuthenticated]
@@ -125,24 +127,37 @@ class TrainerAllBookingsView(GenericAPIView):
 
     def get(self, request):
         trainer = Trainer.objects.get(user=request.user)
-
         filter_date = request.query_params.get("date")
 
+        #  If specific date is provided
         if filter_date:
             try:
                 filter_date = datetime.strptime(filter_date, "%Y-%m-%d").date()
             except ValueError:
-                return Response({"error": "Invalid date format"}, status=400)
+                return Response({"error": "Invalid date format. Use YYYY-MM-DD"}, status=400)
 
             queryset = SlotBooking.objects.filter(
                 trainer=trainer,
                 date=filter_date
             ).order_by("time")
+
         else:
-            queryset = SlotBooking.objects.filter(
+            today = date.today()
+
+            #  TODAY sessions (recent time first)
+            today_sessions = SlotBooking.objects.filter(
                 trainer=trainer,
-                date__gte=date.today()
+                date=today
+            ).order_by("-time")
+
+            #  FUTURE sessions
+            upcoming_sessions = SlotBooking.objects.filter(
+                trainer=trainer,
+                date__gt=today
             ).order_by("date", "time")
+
+            #  Combine querysets
+            queryset = today_sessions | upcoming_sessions
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -155,7 +170,7 @@ class TrainerAllBookingsView(GenericAPIView):
             queryset, many=True, context={"request": request}
         )
         return Response(serializer.data)
-    
+
     
 class TrainerHistorySessionsView(GenericAPIView):
     permission_classes = [IsAuthenticated]
