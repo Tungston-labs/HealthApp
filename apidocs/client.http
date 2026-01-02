@@ -6,7 +6,7 @@ Content-Type: application/json
 
 {
   "email_or_phno": "pranav@gmail.com",
-  "password": "Anzal@123"
+  "password": "Pranav@123"
 }
 ### Client Registration
 POST {{base_url}}register/

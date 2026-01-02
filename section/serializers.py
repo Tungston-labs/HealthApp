@@ -82,6 +82,7 @@ class AllBookingSerializer(serializers.ModelSerializer):
     time_label = serializers.SerializerMethodField()
     session_number = serializers.SerializerMethodField()
     total_sessions = serializers.SerializerMethodField()
+    section_timing = serializers.SerializerMethodField()
 
     class Meta:
         model = SlotBooking
@@ -96,6 +97,7 @@ class AllBookingSerializer(serializers.ModelSerializer):
             "client",
             "session_number",
             "total_sessions",
+            "section_timing",
         ]
 
     def get_time_label(self, obj):
@@ -108,28 +110,33 @@ class AllBookingSerializer(serializers.ModelSerializer):
             return "evening"
 
     def get_total_sessions(self, obj):
-        # Comes directly from trainer profile
         return obj.trainer.no_of_section
 
     def get_session_number(self, obj):
-        """
-        Session number based on:
-        same trainer + same client + same time
-        ordered by created_at
-        """
-
         same_slot_sessions = SlotBooking.objects.filter(
             trainer=obj.trainer,
             client=obj.client,
             time=obj.time,
-            created_at__date=obj.created_at.date(),  # important
+            created_at__date=obj.created_at.date(),
         ).order_by("created_at", "id")
 
         for index, session in enumerate(same_slot_sessions, start=1):
             if session.id == obj.id:
                 return index
-
         return 1
+
+    def get_section_timing(self, obj):
+        """
+        Returns:
+        {
+          "value": "30",
+          "label": "30 min"
+        }
+        """
+        return {
+            "value": obj.trainer.section_timing,
+            "label": obj.trainer.get_section_timing_display()
+        }
 
 
 # for getting already done session details

@@ -106,16 +106,17 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 ### book filtered trainer
 POST {{base_url}}book-trainer/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3MDUyMjQzLCJpYXQiOjE3NjcwMDkwNDMsImp0aSI6IjhkYmEzZjFmNDE4ZjRjNzQ5YWUzZTBkZjEwMDMwMDlkIiwidXNlcl9pZCI6IjI2In0.6xL147Py47z-eegRMyC8G0xox9cSyHC9PPq_q6TmIIE
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3MzgyNzU2LCJpYXQiOjE3NjczMzk1NTYsImp0aSI6IjRlMmU4YjY4YmIwYzQ5NmI5YzNiYWYyZmQ4YTI3MmQ2IiwidXNlcl9pZCI6IjI2In0.pLm3dPxBlEDZ0p62_BEJixki-oRqKDbIiHPNE8IutZs
 Content-Type: application/json
 
 {
   "trainer_id": 66,
   "plan_id": 2,
-  "start_date": "2025-12-29",
-  "time": "18:00",
-  "slot_days": ["mon", "wed", "fri"]  
+  "start_date": "2026-01-15",
+  "time": "14:00",
+  "slot_days": ["mon", "wed", "fri"]
 }
+
 
 ### change trainer by user
 GET {{base_url}}change/
