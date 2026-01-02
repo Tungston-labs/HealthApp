@@ -688,7 +688,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
 from django.shortcuts import get_object_or_404
 from .models import TrainerPayment
-from .serializers import TrainerPaymentSerializer
+from .serializers import TrainerPaymentSerializer,OngoingSessionSerializer
 
 class TrainerPaymentStatusUpdate(APIView):
     permission_classes = [IsAdminUser]
@@ -706,3 +706,30 @@ class TrainerPaymentStatusUpdate(APIView):
             "message": "Payment updated successfully",
             "data": TrainerPaymentSerializer(payment).data
         })
+
+
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from django.utils.timezone import localdate
+
+class OngoingSessionView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        trainer = request.user.trainer
+
+        ongoing_session = SlotBooking.objects.filter(
+            trainer=trainer,
+            status="ongoing",
+            date=localdate()
+        ).select_related("trainer").first()
+
+        if not ongoing_session:
+            return Response(
+                {"message": "No ongoing session"},
+                status=200
+            )
+
+        serializer = OngoingSessionSerializer(ongoing_session)
+        return Response(serializer.data, status=200)

@@ -319,3 +319,42 @@ class TrainerPaymentSerializer(serializers.ModelSerializer):
         model = TrainerPayment
         fields = "__all__"
         read_only_fields = ("paid_date",)
+
+
+from rest_framework import serializers
+from datetime import datetime, timedelta
+
+class OngoingSessionSerializer(serializers.ModelSerializer):
+    session_id = serializers.IntegerField(source="id")
+    session_start_time = serializers.TimeField(source="time")
+    session_duration = serializers.SerializerMethodField()
+    session_end_time = serializers.SerializerMethodField()
+
+    class Meta:
+        model = SlotBooking
+        fields = [
+            "session_id",
+            "date",
+            "session_start_time",
+            "session_duration",
+            "session_end_time",
+            "session_start_apihit_time",
+        ]
+
+    def get_session_duration(self, obj):
+        """
+        From Trainer.section_timing
+        """
+        return {
+            "value": obj.trainer.section_timing,
+            "label": obj.trainer.get_section_timing_display()
+        }
+
+    def get_session_end_time(self, obj):
+        """
+        Calculate end time dynamically
+        """
+        start_dt = datetime.combine(obj.date, obj.time)
+        minutes = int(obj.trainer.section_timing)
+        end_dt = start_dt + timedelta(minutes=minutes)
+        return end_dt.time()
