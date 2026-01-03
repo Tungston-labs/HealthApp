@@ -733,6 +733,8 @@ class OngoingSessionView(APIView):
 
         serializer = OngoingSessionSerializer(ongoing_session)
         return Response(serializer.data, status=200)
+    
+
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
 
@@ -746,6 +748,6 @@ class TrainerClientsListView(ListAPIView):
         return (
             SlotBooking.objects
             .filter(trainer=trainer)
-            .select_related("client")
+            .select_related("client").distinct()
             .order_by("date", "time")
         )
