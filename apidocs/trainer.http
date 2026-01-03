@@ -104,14 +104,30 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 
 
-### book filtered trainer
+### Create booking payment (Razorpay order)
 POST {{base_url}}book-trainer/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3MzgyNzU2LCJpYXQiOjE3NjczMzk1NTYsImp0aSI6IjRlMmU4YjY4YmIwYzQ5NmI5YzNiYWYyZmQ4YTI3MmQ2IiwidXNlcl9pZCI6IjI2In0.pLm3dPxBlEDZ0p62_BEJixki-oRqKDbIiHPNE8IutZs
+Authorization: Bearer {{access_token}}
 Content-Type: application/json
 
 {
   "trainer_id": 66,
   "plan_id": 2,
+  "start_date": "2026-01-15",
+  "time": "14:00",
+  "slot_days": ["mon", "wed", "fri"],
+  "booking_type": "single"
+}
+
+
+### Verify Razorpay payment and confirm booking
+POST {{base_url}}verify-payment/
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "razorpay_payment_id": "pay_OjR9abcd123",
+  "razorpay_order_id": "order_OjR8z6xYabc123",
+  "razorpay_signature": "5cbeae0f7a6e9c8d...",
   "start_date": "2026-01-15",
   "time": "14:00",
   "slot_days": ["mon", "wed", "fri"]
@@ -161,4 +177,10 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 ### ongoing trainer sessions
 GET {{base_url}}ongoing-sessions/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3Mzk4NzU4LCJpYXQiOjE3NjczNTU1NTgsImp0aSI6IjZjOTIyMDhlZGUyZjRkMWZhOGQ0ZWJlMWM2ZDQwYWM2IiwidXNlcl9pZCI6Ijc0In0.O2Gt0BRfFjc8yPfXV10IbJ0fO3sq5X4ac4IlNeWGbmc
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3NDU1MTgzLCJpYXQiOjE3Njc0MTE5ODMsImp0aSI6ImE3ZjYzMjg0YzVkNDRhMzY5ZjdhOTE2OGMzZGZjYjM0IiwidXNlcl9pZCI6Ijc0In0.IC3rw6sDdhU-R0QozqaSwyr0VQUp2rnqugfewfeYSGo
+
+
+### list clients under trainer
+GET {{base_url}}assigned-clients/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3NDU1MTgzLCJpYXQiOjE3Njc0MTE5ODMsImp0aSI6ImE3ZjYzMjg0YzVkNDRhMzY5ZjdhOTE2OGMzZGZjYjM0IiwidXNlcl9pZCI6Ijc0In0.IC3rw6sDdhU-R0QozqaSwyr0VQUp2rnqugfewfeYSGo
+

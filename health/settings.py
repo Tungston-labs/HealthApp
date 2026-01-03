@@ -34,6 +34,8 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='', cast=Csv())
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+RAZORPAY_KEY_ID = config('RAZORPAY_KEY_ID')
+RAZORPAY_KEY_SECRET = config('RAZORPAY_KEY_SECRET')
 
 
 

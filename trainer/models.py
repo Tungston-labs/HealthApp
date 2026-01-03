@@ -116,8 +116,8 @@ class SlotBooking(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
     plan = models.ForeignKey(Plan, on_delete=models.CASCADE)
 
-    booking_type = models.CharField(max_length=10, choices=BOOKING_TYPE_CHOICES)
-    amount_paid = models.DecimalField(max_digits=10, decimal_places=2)
+    booking_type = models.CharField(max_length=10, choices=BOOKING_TYPE_CHOICES,null=True,blank=True)
+    amount_paid = models.DecimalField(max_digits=10, decimal_places=2,null=True,blank=True)
 
     payment = models.ForeignKey(
         "Payment",
@@ -162,6 +162,31 @@ class SlotBooking(models.Model):
     def __str__(self):
         return f"{self.trainer.name} - {self.date} {self.time}"
 
+class Payment(models.Model):
+    STATUS_CHOICES = (
+        ('created', 'Created'),
+        ('success', 'Success'),
+        ('failed', 'Failed'),
+    )
+
+    client = models.ForeignKey(Client, on_delete=models.CASCADE)
+    trainer = models.ForeignKey("trainer.Trainer", on_delete=models.CASCADE)
+    plan = models.ForeignKey(Plan, on_delete=models.CASCADE)
+
+    booking_type = models.CharField(max_length=10)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+
+    razorpay_order_id = models.CharField(max_length=200)
+    razorpay_payment_id = models.CharField(max_length=200, null=True, blank=True)
+    razorpay_signature = models.CharField(max_length=500, null=True, blank=True)
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='created'
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
 
 
 from django.utils import timezone

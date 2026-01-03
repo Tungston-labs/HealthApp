@@ -294,7 +294,7 @@ class FilterTrainersView(APIView):
 # for client to view trainer details in modal includig reviews
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from trainer.models import Trainer
+from trainer.models import Trainer,Payment
 from .serializers import TrainerDetailSerializer
 
 class TrainerDetailPageView(APIView):
@@ -315,6 +315,13 @@ class TrainerDetailPageView(APIView):
 
 
 
+import razorpay
+from django.conf import settings
+from datetime import datetime, timedelta
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+
 class BookTrainerView(APIView):
     permission_classes = [IsUser]
 
@@ -324,107 +331,162 @@ class BookTrainerView(APIView):
         start_date = request.data.get("start_date")
         time_slot = request.data.get("time")
         slot_days = request.data.get("slot_days")
+        booking_type = request.data.get("booking_type", "single")
 
-        if not (trainer_id and plan_id and start_date and time_slot):
-            return Response({"error": "Missing required fields"}, status=400)
+        if not all([trainer_id, plan_id, start_date, time_slot, slot_days]):
+            return Response({"error": "Missing required fields"}, 400)
 
-        # Get client
+        # -------------------------------
+        # GET CLIENT
+        # -------------------------------
         try:
             client = Client.objects.get(user=request.user)
         except Client.DoesNotExist:
-            return Response({"error": "Client profile not found"}, status=400)
-
-        # Convert
-        time_slot_obj = datetime.strptime(time_slot, "%H:%M").time()
-        start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
+            return Response({"error": "Client not found"}, 400)
 
         trainer = Trainer.objects.get(id=trainer_id, status="approved")
         plan = Plan.objects.get(id=plan_id)
 
-        # -----------------------------------------
-        # PLAN → DURATION
-        # -----------------------------------------
-        if plan.plan_type == "3_days":
-            duration = 3
-        elif plan.plan_type == "6_days":
-            duration = 6
-        else:
-            duration = 30
+        start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
+        time_obj = datetime.strptime(time_slot, "%H:%M").time()
 
-        end_date = start_date_obj + timedelta(days=duration)
+        # -------------------------------
+        # CALCULATE TOTAL SESSIONS
+        # -------------------------------
+        total_sessions = trainer.no_of_section
 
-        # -----------------------------------------
-        # DAY PATTERN FOR 6-DAY GYM PLAN
-        # -----------------------------------------
-        weekday_map = {"mon":0,"tue":1,"wed":2,"thu":3,"fri":4,"sat":5,"sun":6}
+        # -------------------------------
+        # CALCULATE AMOUNT
+        # -------------------------------
+        amount = plan.price  # example: ₹1500
+        if booking_type == "couple":
+            amount *= 2
+        elif booking_type == "group":
+            amount *= 4
 
-        if plan.plan_type == "6_days":
-            slot_days = ["mon","tue","wed","thu","fri","sat"]
+        amount_paise = int(amount * 100)
 
-        slot_days = [d.lower() for d in slot_days]
-        selected_weekdays = [weekday_map[d] for d in slot_days]
+        # -------------------------------
+        # CREATE RAZORPAY ORDER
+        # -------------------------------
+        client_rzp = razorpay.Client(
+            auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
+        )
 
-        # -----------------------------------------
-        # NEW SESSION GENERATION USING no_of_section
-        # -----------------------------------------
-        max_sessions = trainer.no_of_section  # e.g 10 or 14
-        session_dates = []
+        razorpay_order = client_rzp.order.create({
+            "amount": amount_paise,
+            "currency": "INR",
+            "payment_capture": 1
+        })
 
-        d = start_date_obj
-        filled = 0
-
-        while filled < max_sessions:
-            if d.weekday() in selected_weekdays:
-                session_dates.append(d)
-                filled += 1
-                if filled >= max_sessions:
-                    break
-            d += timedelta(days=1)
-
-        # -----------------------------------------
-        # AVAILABILITY CHECK
-        # -----------------------------------------
-        availability = TrainerAvailability.objects.filter(trainer=trainer).first()
-        if not availability:
-            return Response({"error": "Trainer availability not found"}, 400)
-
-        for day in slot_days:
-            if not getattr(availability, day):
-                return Response({"error": f"Trainer not available on {day}"}, 400)
-
-        if not (availability.start_time <= time_slot_obj <= availability.end_time):
-            return Response({"error": "Trainer not available at that time"}, 400)
-
-        # -----------------------------------------
-        # CONFLICT CHECK
-        # -----------------------------------------
-        conflict = SlotBooking.objects.filter(
+        # -------------------------------
+        # SAVE PAYMENT RECORD
+        # -------------------------------
+        payment = Payment.objects.create(
+            client=client,
             trainer=trainer,
-            date__in=session_dates,
-            time=time_slot_obj
-        ).exists()
-
-        if conflict:
-            return Response({"error": "Trainer already booked on some session dates"}, 400)
-
-        # -----------------------------------------
-        # CREATE BOOKINGS
-        # -----------------------------------------
-        for date in session_dates:
-            SlotBooking.objects.create(
-                trainer=trainer,
-                client=client,
-                plan=plan,
-                date=date,
-                time=time_slot_obj
-            )
+            plan=plan,
+            booking_type=booking_type,
+            amount=amount,
+            razorpay_order_id=razorpay_order["id"],
+            status="created"
+        )
 
         return Response({
-            "message": "Trainer booked successfully",
-            "total_sessions": len(session_dates),
+            "razorpay_key": settings.RAZORPAY_KEY_ID,
+            "order_id": razorpay_order["id"],
+            "amount": amount,
+            "currency": "INR",
+            "payment_id": payment.id,
             "trainer_id": trainer.id,
-            "start_date": str(start_date_obj),
-            "end_date": str(end_date)
+            "plan_id": plan.id,
+            "start_date": start_date,
+            "time": time_slot,
+            "slot_days": slot_days,
+            "booking_type": booking_type,
+            "total_sessions": total_sessions
+        })
+import razorpay
+from django.conf import settings
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+
+class VerifyPaymentAndCreateBookingView(APIView):
+    permission_classes = [IsUser]
+
+    def post(self, request):
+        razorpay_payment_id = request.data.get("razorpay_payment_id")
+        razorpay_order_id = request.data.get("razorpay_order_id")
+        razorpay_signature = request.data.get("razorpay_signature")
+
+        payment = Payment.objects.get(razorpay_order_id=razorpay_order_id)
+
+        # -------------------------------
+        # VERIFY SIGNATURE
+        # -------------------------------
+        client_rzp = razorpay.Client(
+            auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
+        )
+
+        try:
+            client_rzp.utility.verify_payment_signature({
+                "razorpay_payment_id": razorpay_payment_id,
+                "razorpay_order_id": razorpay_order_id,
+                "razorpay_signature": razorpay_signature
+            })
+        except:
+            payment.status = "failed"
+            payment.save()
+            return Response({"error": "Payment verification failed"}, 400)
+
+        # -------------------------------
+        # UPDATE PAYMENT
+        # -------------------------------
+        payment.razorpay_payment_id = razorpay_payment_id
+        payment.razorpay_signature = razorpay_signature
+        payment.status = "success"
+        payment.save()
+
+        # -------------------------------
+        # CREATE SLOT BOOKINGS
+        # -------------------------------
+        trainer = payment.trainer
+        client = payment.client
+        plan = payment.plan
+
+        start_date = request.data.get("start_date")
+        time_slot = request.data.get("time")
+        slot_days = request.data.get("slot_days")
+
+        start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
+        time_obj = datetime.strptime(time_slot, "%H:%M").time()
+
+        weekday_map = {"mon":0,"tue":1,"wed":2,"thu":3,"fri":4,"sat":5,"sun":6}
+        wanted_days = [weekday_map[d] for d in slot_days]
+
+        d = start_date_obj
+        created = 0
+
+        while created < trainer.no_of_section:
+            if d.weekday() in wanted_days:
+                SlotBooking.objects.create(
+                    trainer=trainer,
+                    client=client,
+                    plan=plan,
+                    date=d,
+                    time=time_obj,
+                    booking_type=payment.booking_type,
+                    amount_paid=payment.amount,
+                    payment=payment,
+                    payment_status="paid"
+                )
+                created += 1
+            d += timedelta(days=1)
+
+        return Response({
+            "message": "Payment verified & booking confirmed",
+            "total_sessions": created
         })
 
 class ChangeTrainerView(APIView):
@@ -733,3 +795,23 @@ class OngoingSessionView(APIView):
 
         serializer = OngoingSessionSerializer(ongoing_session)
         return Response(serializer.data, status=200)
+    
+
+
+    
+from rest_framework.generics import ListAPIView
+from rest_framework.permissions import IsAuthenticated
+
+class TrainerClientsListView(ListAPIView):
+    serializer_class = TrainerClientSessionSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        trainer = self.request.user.trainer
+
+        return (
+            SlotBooking.objects
+            .filter(trainer=trainer)
+            .select_related("client")
+            .order_by("date", "time")
+        )

@@ -62,7 +62,7 @@ class TrainerSerializer(serializers.ModelSerializer):
         certificate_urls = validated_data.pop('certificates', [])
         password = validated_data.pop('password', None)
 
-        # 🔥 FIX: handle JSON string from form-data
+        #  FIX: handle JSON string from form-data
         if isinstance(certificate_urls, str):
             try:
                 certificate_urls = json.loads(certificate_urls)
@@ -358,3 +358,41 @@ class OngoingSessionSerializer(serializers.ModelSerializer):
         minutes = int(obj.trainer.section_timing)
         end_dt = start_dt + timedelta(minutes=minutes)
         return end_dt.time()
+
+
+
+class TrainerClientSessionSerializer(serializers.ModelSerializer):
+    session_id = serializers.IntegerField(source="id")
+    session_time = serializers.TimeField(source="time")
+
+    client_name = serializers.CharField(source="client.name")
+    client_weight = serializers.DecimalField(
+        source="client.weight",
+        max_digits=5,
+        decimal_places=2
+    )
+    client_height = serializers.DecimalField(
+        source="client.height",
+        max_digits=5,
+        decimal_places=2
+    )
+    client_profile_pic = serializers.SerializerMethodField()
+
+    class Meta:
+        model = SlotBooking
+        fields = [
+            "session_id",
+            "date",
+            "session_time",
+            "status",
+            "client_name",
+            "client_profile_pic",
+            "client_weight",
+            "client_height",
+        ]
+
+    def get_client_profile_pic(self, obj):
+        request = self.context.get("request")
+        if obj.client.profile_pic:
+            return request.build_absolute_uri(obj.client.profile_pic.url)
+        return None

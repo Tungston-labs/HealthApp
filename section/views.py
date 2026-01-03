@@ -120,6 +120,11 @@ from rest_framework.response import Response
 from datetime import date, datetime
 from django.db.models import Q
 
+from datetime import date, datetime
+from rest_framework.generics import GenericAPIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
 class TrainerAllBookingsView(GenericAPIView):
     permission_classes = [IsAuthenticated]
     pagination_class = CustomPagination
@@ -129,34 +134,39 @@ class TrainerAllBookingsView(GenericAPIView):
         trainer = Trainer.objects.get(user=request.user)
         filter_date = request.query_params.get("date")
 
-        #  If specific date is provided
+        # 🔹 If specific date is provided
         if filter_date:
             try:
                 filter_date = datetime.strptime(filter_date, "%Y-%m-%d").date()
             except ValueError:
-                return Response({"error": "Invalid date format. Use YYYY-MM-DD"}, status=400)
+                return Response(
+                    {"error": "Invalid date format. Use YYYY-MM-DD"},
+                    status=400
+                )
 
             queryset = SlotBooking.objects.filter(
                 trainer=trainer,
-                date=filter_date
+                date=filter_date,
+                status="upcoming"  # ✅ KEY FIX
             ).order_by("time")
 
         else:
             today = date.today()
 
-            #  TODAY sessions (recent time first)
+            # 🔹 TODAY → upcoming only, nearest time first
             today_sessions = SlotBooking.objects.filter(
                 trainer=trainer,
-                date=today
-            ).order_by("-time")
+                date=today,
+                status="upcoming"
+            ).order_by("time")
 
-            #  FUTURE sessions
+            # 🔹 FUTURE → upcoming only
             upcoming_sessions = SlotBooking.objects.filter(
                 trainer=trainer,
-                date__gt=today
+                date__gt=today,
+                status="upcoming"
             ).order_by("date", "time")
 
-            #  Combine querysets
             queryset = today_sessions | upcoming_sessions
 
         page = self.paginate_queryset(queryset)
@@ -170,6 +180,7 @@ class TrainerAllBookingsView(GenericAPIView):
             queryset, many=True, context={"request": request}
         )
         return Response(serializer.data)
+
 
     
 class TrainerHistorySessionsView(GenericAPIView):
