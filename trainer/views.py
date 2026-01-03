@@ -735,6 +735,7 @@ class OngoingSessionView(APIView):
         return Response(serializer.data, status=200)
     
 
+from django.db.models import OuterRef, Subquery
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
 
@@ -745,10 +746,25 @@ class TrainerClientsListView(ListAPIView):
     def get_queryset(self):
         trainer = self.request.user.trainer
 
-        return (
-            Client.objects
-            .filter(slotbooking__trainer=trainer)
-            .distinct()
-            .order_by("id")
+        # Subquery: next upcoming session per client
+        next_session = (
+            SlotBooking.objects
+            .filter(
+                trainer=trainer,
+                client=OuterRef("client"),
+                status="upcoming"
+            )
+            .order_by("date", "time")
+            .values("id")[:1]
         )
 
+        return (
+            SlotBooking.objects
+            .filter(
+                trainer=trainer,
+                status="upcoming",
+                id=Subquery(next_session)
+            )
+            .select_related("client")
+            .order_by("date", "time")
+        )
