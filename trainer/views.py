@@ -295,7 +295,7 @@ class FilterTrainersView(APIView):
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from trainer.models import Trainer
-from .serializers import TrainerDetailSerializer
+from .serializers import TrainerDetailSerializer,TrainerClientSessionSerializer
 
 class TrainerDetailPageView(APIView):
     permission_classes = [IsAuthenticated]
@@ -733,3 +733,19 @@ class OngoingSessionView(APIView):
 
         serializer = OngoingSessionSerializer(ongoing_session)
         return Response(serializer.data, status=200)
+from rest_framework.generics import ListAPIView
+from rest_framework.permissions import IsAuthenticated
+
+class TrainerClientsListView(ListAPIView):
+    serializer_class = TrainerClientSessionSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        trainer = self.request.user.trainer
+
+        return (
+            SlotBooking.objects
+            .filter(trainer=trainer)
+            .select_related("client")
+            .order_by("date", "time")
+        )
