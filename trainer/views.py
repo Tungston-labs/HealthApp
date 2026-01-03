@@ -746,8 +746,9 @@ class TrainerClientsListView(ListAPIView):
         trainer = self.request.user.trainer
 
         return (
-            SlotBooking.objects
-            .filter(trainer=trainer)
-            .select_related("client").distinct()
-            .order_by("date", "time")
+            Client.objects
+            .filter(slotbooking__trainer=trainer)
+            .distinct()
+            .order_by("id")
         )
+
