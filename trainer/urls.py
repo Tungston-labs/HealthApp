@@ -28,7 +28,6 @@ urlpatterns = [
     path("available-trainers/", FilterTrainersView.as_view(), name="available-trainers"),
     path("detail/<int:trainer_id>/", TrainerDetailPageView.as_view()),
     path("book-trainer/", BookTrainerView.as_view(), name="book-trainer"),
-    path("verify-payment/", VerifyPaymentAndCreateBookingView.as_view()),
 
     path('change/', ChangeTrainerView.as_view(), name='change-trainer'),
     path('info/<int:trainer_id>/', TrainerDetailSimpleView.as_view(), name='trainer-detail-simple'),
