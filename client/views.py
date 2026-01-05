@@ -19,6 +19,7 @@ class ClientCreateView(generics.CreateAPIView):
     queryset = Client.objects.all()
     serializer_class = ClientSerializer
     permission_classes = [permissions.AllowAny]
+    parser_classes = (MultiPartParser, FormParser)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
