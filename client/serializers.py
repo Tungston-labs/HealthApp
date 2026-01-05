@@ -1,71 +1,49 @@
-import json
 from rest_framework import serializers
 from .models import Client
 from accounts.models import User
-
+import datetime
 class ClientSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
+    password = serializers.CharField(write_only=True, required=True)
     profile_pic = serializers.ImageField(required=False)
-    health_issues = serializers.ListField(
-    child=serializers.CharField(),
-    required=False
-     )
-
-    wellness_goal = serializers.ListField(
-        child=serializers.CharField(),
-        required=False
-    )
-
+    plan_names = serializers.SerializerMethodField(read_only=True)  
 
     class Meta:
         model = Client
-        fields = [
-            "name", "email", "phno", "password",
-            "dob", "gender", "blood_group",
-            "height", "weight", "address",
-            "health_issues", "wellness_goal",
-            "profile_pic",
-        ]
+        fields = '__all__'   # plan_names will be auto included
+        read_only_fields = ['user']
 
-    def to_internal_value(self, data):
-        data = data.copy()
-
-        for field in ["health_issues", "wellness_goal"]:
-            value = data.get(field)
-
-            # Handle list-wrapped values from multipart
-            if isinstance(value, list):
-                value = value[0]
-
-            if isinstance(value, str):
-                try:
-                    data[field] = json.loads(value)
-                except Exception:
-                    data[field] = []
-
-        return super().to_internal_value(data)
-
+    def get_plan_names(self, obj):
+        """
+        Returns all distinct plan names this client belongs to
+        """
+        return list(
+            obj.slotbooking_set
+            .select_related("plan")
+            .values_list("plan__plan_name", flat=True)
+            .distinct()
+        )
 
     def create(self, validated_data):
-        password = validated_data.pop("password")
-        email = validated_data.pop("email")
-        phno = validated_data.pop("phno")
+        password = validated_data.pop('password')
+        email = validated_data.get('email')
+        phno = validated_data.get('phno')
 
+        # Create Client
         client = Client.objects.create(**validated_data)
 
+        # Create User
         user = User.objects.create_user(
             email=email,
             phno=phno,
             password=password,
-            role="user",
-            name=client.name,
+            role='user',
+            name=client.name
         )
 
         client.user = user
         client.save()
-        return client
 
-    
+        return client
 
 from rest_framework import serializers
 from client.models import Client
@@ -80,7 +58,7 @@ class TrainerSessionSerializer(serializers.ModelSerializer):
         fields = ['trainer_name', 'profile_pic', 'day_name', 'time', 'date']
 
     trainer_name = serializers.CharField(source='trainer.name', read_only=True)
-    
+
     def get_profile_pic(self, obj):
         request = self.context.get('request')
         if obj.trainer.profile_pic:
@@ -90,7 +68,7 @@ class TrainerSessionSerializer(serializers.ModelSerializer):
     def get_day_name(self, obj):
         return obj.date.strftime("%A")  # Monday, Tuesday, etc.
         
-      
+
 class ClientProfileSerializer(serializers.ModelSerializer):
     profile_pic = serializers.SerializerMethodField()
     bmi = serializers.SerializerMethodField()
