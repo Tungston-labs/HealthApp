@@ -24,7 +24,19 @@ class ClientCreateView(generics.CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
+        print("\n========== RAW REQUEST DEBUG ==========")
+        print("CONTENT TYPE:", request.content_type)
+        print("REQUEST.DATA:", request.data)
+        print("REQUEST.DATA TYPE:", type(request.data))
 
+        print("\n--- INDIVIDUAL FIELDS ---")
+        for key, value in request.data.items():
+            print(f"{key}: {value} | type: {type(value)}")
+
+        print("\n--- FILES ---")
+        print(request.FILES)
+
+        print("=====================================\n")
         if not serializer.is_valid():
             return Response({
                 "status": False,
