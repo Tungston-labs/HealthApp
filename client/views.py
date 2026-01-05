@@ -23,22 +23,32 @@ class ClientCreateView(generics.CreateAPIView):
     parser_classes = (MultiPartParser, FormParser)
 
     def create(self, request, *args, **kwargs):
+        print("🔥🔥🔥 CONTENT TYPE:", request.content_type)
+        print("🔥🔥🔥 RAW DATA:", request.data)
+
         serializer = self.get_serializer(data=request.data)
 
         if not serializer.is_valid():
+            print("❌❌❌ SERIALIZER ERRORS:", serializer.errors)
             return Response({
                 "status": False,
-                "message": "Validation failed",
                 "errors": serializer.errors
-            }, status=status.HTTP_400_BAD_REQUEST)
+            }, status=400)
 
-        self.perform_create(serializer)
+        try:
+            self.perform_create(serializer)
+        except Exception as e:
+            print("💥💥💥 SAVE ERROR:", str(e))
+            return Response({
+                "status": False,
+                "error": str(e)
+            }, status=500)
 
         return Response({
             "status": True,
-            "message": "Client registered successfully",
-            "data": serializer.data
-        }, status=status.HTTP_201_CREATED)
+            "message": "Client registered successfully"
+        }, status=201)
+
 
 
 
