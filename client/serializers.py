@@ -23,13 +23,20 @@ class ClientSerializer(serializers.ModelSerializer):
         data = data.copy()
 
         for field in ["health_issues", "wellness_goal"]:
-            if field in data and isinstance(data[field], str):
+            value = data.get(field)
+
+            # Handle list-wrapped values from multipart
+            if isinstance(value, list):
+                value = value[0]
+
+            if isinstance(value, str):
                 try:
-                    data[field] = json.loads(data[field])
+                    data[field] = json.loads(value)
                 except Exception:
                     data[field] = []
 
         return super().to_internal_value(data)
+
 
     def create(self, validated_data):
         password = validated_data.pop("password")
