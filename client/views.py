@@ -14,41 +14,29 @@ from nutrition.models import NutritionRequest
 from tickets.models import Ticket
 from refund.models import TrainingCancelRequest
 from accounts.paginations import CustomPagination
-from rest_framework.parsers import MultiPartParser, FormParser
 
 class ClientCreateView(generics.CreateAPIView):
     queryset = Client.objects.all()
     serializer_class = ClientSerializer
     permission_classes = [permissions.AllowAny]
-    parser_classes = (MultiPartParser, FormParser)
 
     def create(self, request, *args, **kwargs):
-        print("🔥🔥🔥 CONTENT TYPE:", request.content_type)
-        print("🔥🔥🔥 RAW DATA:", request.data)
-
         serializer = self.get_serializer(data=request.data)
 
         if not serializer.is_valid():
-            print("❌❌❌ SERIALIZER ERRORS:", serializer.errors)
             return Response({
                 "status": False,
+                "message": "Validation failed",
                 "errors": serializer.errors
-            }, status=400)
+            }, status=status.HTTP_400_BAD_REQUEST)
 
-        try:
-            self.perform_create(serializer)
-        except Exception as e:
-            print("💥💥💥 SAVE ERROR:", str(e))
-            return Response({
-                "status": False,
-                "error": str(e)
-            }, status=500)
+        self.perform_create(serializer)
 
         return Response({
             "status": True,
-            "message": "Client registered successfully"
-        }, status=201)
-
+            "message": "Client registered successfully",
+            "data": serializer.data
+        }, status=status.HTTP_201_CREATED)
 
 
 
