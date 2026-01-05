@@ -6,8 +6,16 @@ from accounts.models import User
 class ClientSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     profile_pic = serializers.ImageField(required=False)
-    health_issues = serializers.JSONField(required=False)
-    wellness_goal = serializers.JSONField(required=False)
+    health_issues = serializers.ListField(
+    child=serializers.CharField(),
+    required=False
+     )
+
+    wellness_goal = serializers.ListField(
+        child=serializers.CharField(),
+        required=False
+    )
+
 
     class Meta:
         model = Client
