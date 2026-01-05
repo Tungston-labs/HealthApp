@@ -1,9 +1,10 @@
+import json
 from rest_framework import serializers
 from .models import Client
 from accounts.models import User
-import datetime
+
 class ClientSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, required=True)
+    password = serializers.CharField(write_only=True)
     profile_pic = serializers.ImageField(required=False)
     health_issues = serializers.JSONField(required=False)
     wellness_goal = serializers.JSONField(required=False)
@@ -11,94 +12,44 @@ class ClientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Client
         fields = [
-            "name",
-            "email",
-            "phno",
-            "password",
-            "dob",
-            "gender",
-            "blood_group",
-            "height",
-            "weight",
-            "address",
-            "health_issues",
-            "wellness_goal",
+            "name", "email", "phno", "password",
+            "dob", "gender", "blood_group",
+            "height", "weight", "address",
+            "health_issues", "wellness_goal",
             "profile_pic",
         ]
 
-    def get_plan_names(self, obj):
-        """
-        Returns all distinct plan names this client belongs to
-        """
-        return list(
-            obj.slotbooking_set
-            .select_related("plan")
-            .values_list("plan__plan_name", flat=True)
-            .distinct()
-        )
     def to_internal_value(self, data):
         data = data.copy()
 
-        if "health_issues" in data:
-            try:
-                data["health_issues"] = json.loads(data["health_issues"])
-            except Exception:
-                data["health_issues"] = []
-
-        if "wellness_goal" in data:
-            try:
-                data["wellness_goal"] = json.loads(data["wellness_goal"])
-            except Exception:
-                data["wellness_goal"] = []
+        for field in ["health_issues", "wellness_goal"]:
+            if field in data and isinstance(data[field], str):
+                try:
+                    data[field] = json.loads(data[field])
+                except Exception:
+                    data[field] = []
 
         return super().to_internal_value(data)
-    import json
 
     def create(self, validated_data):
-        # Required for User
-        password = validated_data.pop('password')
-        email = validated_data.pop('email')
-        phno = validated_data.pop('phno')
+        password = validated_data.pop("password")
+        email = validated_data.pop("email")
+        phno = validated_data.pop("phno")
 
-        # Remove fields not in Client model
-        validated_data.pop('role', None)
+        client = Client.objects.create(**validated_data)
 
-        # Parse JSON string fields safely
-        health_issues = validated_data.pop('health_issues', '[]')
-        wellness_goal = validated_data.pop('wellness_goal', '[]')
-
-        try:
-            health_issues = json.loads(health_issues)
-        except Exception:
-            health_issues = []
-
-        try:
-            wellness_goal = json.loads(wellness_goal)
-        except Exception:
-            wellness_goal = []
-
-        # Create Client
-        client = Client.objects.create(
-            email=email,
-            phno=phno,
-            health_issues=health_issues,
-            wellness_goal=wellness_goal,
-            **validated_data
-        )
-
-        # Create User
         user = User.objects.create_user(
             email=email,
             phno=phno,
             password=password,
-            role='user',
-            name=client.name
+            role="user",
+            name=client.name,
         )
 
         client.user = user
         client.save()
-
         return client
+
     
 
 from rest_framework import serializers
