@@ -14,6 +14,7 @@ from nutrition.models import NutritionRequest
 from tickets.models import Ticket
 from refund.models import TrainingCancelRequest
 from accounts.paginations import CustomPagination
+from rest_framework.parsers import MultiPartParser, FormParser
 
 class ClientCreateView(generics.CreateAPIView):
     queryset = Client.objects.all()

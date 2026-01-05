@@ -23,13 +23,39 @@ class ClientSerializer(serializers.ModelSerializer):
             .distinct()
         )
 
+    import json
+
     def create(self, validated_data):
+        # Required for User
         password = validated_data.pop('password')
-        email = validated_data.get('email')
-        phno = validated_data.get('phno')
+        email = validated_data.pop('email')
+        phno = validated_data.pop('phno')
+
+        # Remove fields not in Client model
+        validated_data.pop('role', None)
+
+        # Parse JSON string fields safely
+        health_issues = validated_data.pop('health_issues', '[]')
+        wellness_goal = validated_data.pop('wellness_goal', '[]')
+
+        try:
+            health_issues = json.loads(health_issues)
+        except Exception:
+            health_issues = []
+
+        try:
+            wellness_goal = json.loads(wellness_goal)
+        except Exception:
+            wellness_goal = []
 
         # Create Client
-        client = Client.objects.create(**validated_data)
+        client = Client.objects.create(
+            email=email,
+            phno=phno,
+            health_issues=health_issues,
+            wellness_goal=wellness_goal,
+            **validated_data
+        )
 
         # Create User
         user = User.objects.create_user(
@@ -44,6 +70,7 @@ class ClientSerializer(serializers.ModelSerializer):
         client.save()
 
         return client
+
 
 from rest_framework import serializers
 from client.models import Client
