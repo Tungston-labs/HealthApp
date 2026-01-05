@@ -5,12 +5,26 @@ import datetime
 class ClientSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
     profile_pic = serializers.ImageField(required=False)
-    plan_names = serializers.SerializerMethodField(read_only=True)  
+    health_issues = serializers.JSONField(required=False)
+    wellness_goal = serializers.JSONField(required=False)
 
     class Meta:
         model = Client
-        fields = '__all__'   # plan_names will be auto included
-        read_only_fields = ['user']
+        fields = [
+            "name",
+            "email",
+            "phno",
+            "password",
+            "dob",
+            "gender",
+            "blood_group",
+            "height",
+            "weight",
+            "address",
+            "health_issues",
+            "wellness_goal",
+            "profile_pic",
+        ]
 
     def get_plan_names(self, obj):
         """
@@ -22,7 +36,22 @@ class ClientSerializer(serializers.ModelSerializer):
             .values_list("plan__plan_name", flat=True)
             .distinct()
         )
+    def to_internal_value(self, data):
+        data = data.copy()
 
+        if "health_issues" in data:
+            try:
+                data["health_issues"] = json.loads(data["health_issues"])
+            except Exception:
+                data["health_issues"] = []
+
+        if "wellness_goal" in data:
+            try:
+                data["wellness_goal"] = json.loads(data["wellness_goal"])
+            except Exception:
+                data["wellness_goal"] = []
+
+        return super().to_internal_value(data)
     import json
 
     def create(self, validated_data):
@@ -70,7 +99,7 @@ class ClientSerializer(serializers.ModelSerializer):
         client.save()
 
         return client
-
+    
 
 from rest_framework import serializers
 from client.models import Client
@@ -85,7 +114,7 @@ class TrainerSessionSerializer(serializers.ModelSerializer):
         fields = ['trainer_name', 'profile_pic', 'day_name', 'time', 'date']
 
     trainer_name = serializers.CharField(source='trainer.name', read_only=True)
-
+    
     def get_profile_pic(self, obj):
         request = self.context.get('request')
         if obj.trainer.profile_pic:
@@ -95,7 +124,7 @@ class TrainerSessionSerializer(serializers.ModelSerializer):
     def get_day_name(self, obj):
         return obj.date.strftime("%A")  # Monday, Tuesday, etc.
         
-
+      
 class ClientProfileSerializer(serializers.ModelSerializer):
     profile_pic = serializers.SerializerMethodField()
     bmi = serializers.SerializerMethodField()
