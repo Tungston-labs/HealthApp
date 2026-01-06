@@ -79,6 +79,31 @@ class TrainerSerializer(serializers.ModelSerializer):
             trainer.certificates.add(cert)
 
         return trainer
+    
+    def update(self, instance, validated_data):
+        certificate_urls = validated_data.pop("certificates", None)
+
+        # update normal fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.save()
+
+        # update certificates if provided
+        if certificate_urls is not None:
+            instance.certificates.clear()
+
+            if isinstance(certificate_urls, str):
+                try:
+                    certificate_urls = json.loads(certificate_urls)
+                except Exception:
+                    certificate_urls = []
+
+            for url in certificate_urls:
+                cert = TrainerCertificate.objects.create(image_url=url)
+                instance.certificates.add(cert)
+
+        return instance
 
 
 
@@ -389,6 +414,7 @@ class TrainerClientSessionSerializer(serializers.ModelSerializer):
             "client_profile_pic",
             "client_weight",
             "client_height",
+            "client_id"
         ]
 
     def get_client_profile_pic(self, obj):

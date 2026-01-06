@@ -72,11 +72,11 @@ Content-Type: application/json
 
 ### Edit Trainer Profile
 PATCH {{base_url}}profile/edit/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNDA4NDYwLCJpYXQiOjE3NjMzNjUyNjAsImp0aSI6Ijk3NjkyMDM4YjU5NTQ4NjliMjFiYmZkODE4ZWM5MTgyIiwidXNlcl9pZCI6IjQifQ.koPBJ1LU560FFaPOMZAUE7p1HJr7uQBUd8oR6NN8yI4
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3NzE0NjQ0LCJpYXQiOjE3Njc2NzE0NDQsImp0aSI6IjdjYzk2MWJhNzkyZjQzNjhiMjRkOTIyNjQ2MGQ0YTdlIiwidXNlcl9pZCI6Ijc0In0.acy29LXOYruqwVh0RCof7wRnv9QBT986K0lc9M24dII
 Content-Type: application/json
 
 {
-  "name": "jesna jamal"
+  "name": "bruno james"
 
 }
 
@@ -86,19 +86,19 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 ### filter trainer by slot,time,date
 POST {{base_url}}available-trainers/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3MDM4NDQ3LCJpYXQiOjE3NjY5OTUyNDcsImp0aSI6IjFhMTIwNWY2YmJhMDRjNWU4ZWU3MTIwMDE5YWVlNGFmIiwidXNlcl9pZCI6IjE1In0.OVcjhtd4-N7noNrI6I1i_7q-sf7O3e1V51aZRcmqxRA
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3NzM2NDk1LCJpYXQiOjE3Njc2OTMyOTUsImp0aSI6IjE2MWNjNzYxNTJkMjRhMTk5ZjNjZDlkMzRlY2IzYTMwIiwidXNlcl9pZCI6IjI5In0.zW0dGYj5YW1ncjyYQjFKY5aci63hZDRC9cyXthw4h0Q
 Content-Type: application/json
 
 {
   "plan_id": 2,
   "slot_days": ["mon", "wed", "fri"],
-  "time": "12:00",
+  "time": "09:00",
   "start_date": "2025-01-03"
 }
 
 ### trainer detail view for modal in mobile app
-GET {{base_url}}detail/3/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY2NjAzMjM1LCJpYXQiOjE3NjY1NjAwMzUsImp0aSI6IjFkYTEwNjY2ZTNmMzQxYWRiNzUyMmNiY2JiOTRiMzY0IiwidXNlcl9pZCI6IjIifQ.h_Ek10IsL7h-0J_IY_BidLAjV8s-CnTTvH_7wPSaDRk
+GET {{base_url}}detail/66/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3NzE0NjQ0LCJpYXQiOjE3Njc2NzE0NDQsImp0aSI6IjdjYzk2MWJhNzkyZjQzNjhiMjRkOTIyNjQ2MGQ0YTdlIiwidXNlcl9pZCI6Ijc0In0.acy29LXOYruqwVh0RCof7wRnv9QBT986K0lc9M24dII
 
 
 
@@ -106,14 +106,14 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 ### Create booking payment (Razorpay order)
 POST {{base_url}}book-trainer/
-Authorization: Bearer {{access_token}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3NzM3NzUxLCJpYXQiOjE3Njc2OTQ1NTEsImp0aSI6IjM2OGU4MTUzZDQyZDRlNDBhMDJhNGIzOGRjN2Y2NzU3IiwidXNlcl9pZCI6IjgwIn0.kqVy-O5K6T9iV8IIlsVoK3D8oXXh_P1EQmYP8UfIDDY
 Content-Type: application/json
 
 {
   "trainer_id": 66,
   "plan_id": 2,
-  "start_date": "2026-01-15",
-  "time": "14:00",
+  "start_date": "2026-02-19",
+  "time": "18:00",
   "slot_days": ["mon", "wed", "fri"],
   "booking_type": "single"
 }

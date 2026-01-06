@@ -182,6 +182,7 @@ class TrainerProfileView(generics.RetrieveAPIView):
 class TrainerProfileEditView(generics.UpdateAPIView):
     serializer_class = TrainerSerializer
     permission_classes = [IsTrainer]
+    parser_classes = [MultiPartParser,FormParser]
 
     def get_object(self):
         return Trainer.objects.get(user=self.request.user)
