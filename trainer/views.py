@@ -742,6 +742,7 @@ from rest_framework.permissions import IsAuthenticated
 class TrainerClientsListView(ListAPIView):
     serializer_class = TrainerClientSessionSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = CustomPagination
 
     def get_queryset(self):
         trainer = self.request.user.trainer
