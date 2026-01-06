@@ -42,6 +42,10 @@ class Trainer(models.Model):
     section_timing = models.CharField(max_length=5, choices=SECTION_CHOICES)
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
     location = models.CharField(max_length=200)
+    address = models.CharField(max_length=255, blank=True,null=True)
+    landmark = models.CharField(max_length=255, blank=True,null=True)
+    city = models.CharField(max_length=100, blank=True,null=True)
+    pincode = models.CharField(max_length=10, blank=True,null=True)
     expecting_salary = models.DecimalField(max_digits=10, decimal_places=2)
     no_of_section = models.PositiveIntegerField()
 
