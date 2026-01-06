@@ -59,15 +59,12 @@ class TrainerSerializer(serializers.ModelSerializer):
 
 
     def create(self, validated_data):
-        certificate_urls = validated_data.pop('certificates', [])
-        password = validated_data.pop('password', None)
+        request = self.context.get("request")
 
-        #  FIX: handle JSON string from form-data
-        if isinstance(certificate_urls, str):
-            try:
-                certificate_urls = json.loads(certificate_urls)
-            except Exception:
-                certificate_urls = []
+        # READ certificates[] properly
+        certificate_urls = request.data.getlist("certificates[]")
+
+        password = validated_data.pop('password', None)
 
         trainer = Trainer.objects.create(
             **validated_data,
@@ -75,10 +72,12 @@ class TrainerSerializer(serializers.ModelSerializer):
         )
 
         for url in certificate_urls:
-            cert = TrainerCertificate.objects.create(image_url=url)
-            trainer.certificates.add(cert)
+            if url:
+                cert = TrainerCertificate.objects.create(image_url=url)
+                trainer.certificates.add(cert)
 
         return trainer
+
 
 
 
