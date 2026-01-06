@@ -391,6 +391,8 @@ class TrainerClientSessionSerializer(serializers.ModelSerializer):
     session_time = serializers.TimeField(source="time")
 
     client_name = serializers.CharField(source="client.name")
+    client_id = serializers.CharField(source="client.id")
+
     client_weight = serializers.DecimalField(
         source="client.weight",
         max_digits=5,
