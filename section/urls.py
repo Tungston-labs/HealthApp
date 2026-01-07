@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import TrainerTodaySessionsView,ClientDetailView,TrainerAllBookingsView,TrainerHistorySessionsView,StartTrainingView,EndTrainingView,ClientCompletedSessionsView,ClientSessionDetailView,ClientPlanSummaryAPIView,ClientWeeklyHoursAPIView,AdminTrainerSessionsView,TrainerSlotBookingDetailView
+from .views import TrainerTodaySessionsView,ClientDetailView,TrainerAllBookingsView,TrainerHistorySessionsView,StartTrainingView,EndTrainingView,ClientCompletedSessionsView,ClientSessionDetailView,ClientPlanSummaryAPIView,ClientWeeklyHoursAPIView,AdminTrainerSessionsView,TrainerSlotBookingDetailView,ClientTodaySessionView
 
 urlpatterns = [
 path("today-sessions/", TrainerTodaySessionsView.as_view()),
@@ -17,4 +17,6 @@ path('client/completed-session/<int:session_id>/', ClientSessionDetailView.as_vi
 path("client/<int:client_id>/sessions/", ClientPlanSummaryAPIView.as_view(), name="client-session-history"),
 path("client/<int:client_id>/weekly-hours/", ClientWeeklyHoursAPIView.as_view()),
 path("admin/trainer/<int:trainer_id>/", AdminTrainerSessionsView.as_view(),name="admin-trainer-sessions"),
+path("client/today-session/",ClientTodaySessionView.as_view(),name="client-today-session"),
+
 ]

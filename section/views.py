@@ -360,6 +360,57 @@ class ClientSessionDetailView(APIView):
         }
 
         return Response(data)
+    
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from django.utils.timezone import localdate
+
+class ClientTodaySessionView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        client = request.user.client
+        today = localdate()
+
+        try:
+            session = SlotBooking.objects.get(
+                client=client,
+                date=today
+            )
+        except SlotBooking.DoesNotExist:
+            return Response(
+                {
+                    "status": False,
+                    "message": "No session scheduled for today"
+                },
+                status=404
+            )
+
+        data = {
+            "section_id": session.id,
+            "date": session.date,
+            "time": session.time,
+            "time_label": session.time_label,
+            "status": session.status,
+            "session_end_date": session.session_end_date,
+            "session_end_time": session.session_end_time,
+            "notes": session.notes if hasattr(session, "notes") else None,
+            "section_timing": {
+                "value": session.section_timing,
+                "label": session.get_section_timing_display()
+            },
+            "trainer": TrainerMiniSerializer(
+                session.trainer,
+                context={"request": request}
+            ).data
+        }
+
+        return Response({
+            "status": True,
+            "data": data
+        })
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
