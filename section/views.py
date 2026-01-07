@@ -225,6 +225,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.utils.timezone import now
 
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from django.utils.timezone import now
+from datetime import timedelta
+
 class StartTrainingView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -249,16 +255,33 @@ class StartTrainingView(APIView):
                 status=400
             )
 
-        # ✅ UPDATE STATUS + API HIT TIME
+        #  START SESSION
+        start_time = now()
+        duration_minutes = int(trainer.section_timing)
+        expected_end_time = start_time + timedelta(minutes=duration_minutes)
+
         booking.status = "ongoing"
-        booking.session_start_apihit_time = now()
+        booking.session_start_apihit_time = start_time
         booking.save(update_fields=["status", "session_start_apihit_time"])
 
         return Response({
+            "status": True,
             "message": "Training started",
+
             "booking_id": booking.id,
-            "status": booking.status,
-            "session_start_apihit_time": booking.session_start_apihit_time
+            "booking_status": booking.status,
+
+            "session_start_time": start_time,
+            "expected_end_time": expected_end_time,
+
+            # TOTAL SESSION TIME (FROM TRAINER)
+            "total_session_time": {
+                "value": duration_minutes,
+                "label": trainer.get_section_timing_display()
+            },
+
+            #  VERY USEFUL FOR MOBILE TIMER
+            "remaining_seconds": duration_minutes * 60
         }, status=200)
 
     
