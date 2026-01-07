@@ -574,7 +574,7 @@ class AddSlotBookingNoteView(APIView):
         if not note_text:
             return Response({"error": "Note is required"}, status=400)
 
-        # ✅ Ensure notes is always a list
+        # Ensure notes is always a list
         if not isinstance(booking.notes, list):
             booking.notes = []
 

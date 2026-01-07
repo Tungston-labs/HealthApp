@@ -389,6 +389,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.utils.timezone import localdate
 
+
 class ClientTodaySessionView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -397,7 +398,9 @@ class ClientTodaySessionView(APIView):
         today = localdate()
 
         try:
-            session = SlotBooking.objects.get(
+            session = SlotBooking.objects.select_related(
+                "trainer", "plan"
+            ).get(
                 client=client,
                 date=today
             )
@@ -411,21 +414,27 @@ class ClientTodaySessionView(APIView):
             )
 
         data = {
-            "section_id": session.id,
+            "session_id": session.id,
             "date": session.date,
             "time": session.time,
-            "time_label": session.time_label,
             "status": session.status,
             "session_end_date": session.session_end_date,
             "session_end_time": session.session_end_time,
-            "notes": session.notes if hasattr(session, "notes") else None,
-            "section_timing": {
-                "value": session.section_timing,
-                "label": session.get_section_timing_display()
+            "notes": session.notes or "",
+
+            # ✅ PLAN DETAILS
+            "plan": {
+                "id": session.plan.id,
+                "name": session.plan.name,
             },
+
+            # ✅ TRAINER DETAILS (PLAN PASSED TO CONTEXT)
             "trainer": TrainerMiniSerializer(
                 session.trainer,
-                context={"request": request}
+                context={
+                    "request": request,
+                    "plan": session.plan   # 🔥 THIS IS THE KEY FIX
+                }
             ).data
         }
 
@@ -433,6 +442,7 @@ class ClientTodaySessionView(APIView):
             "status": True,
             "data": data
         })
+
 
 from rest_framework.views import APIView
 from rest_framework.response import Response

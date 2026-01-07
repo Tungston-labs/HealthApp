@@ -160,7 +160,7 @@ class SlotBooking(models.Model):
         default='paid'
     )
 
-    notes = models.JSONField(default=list, blank=True)
+    notes = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
