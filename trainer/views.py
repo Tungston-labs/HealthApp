@@ -553,7 +553,6 @@ class TrainerDetailSimpleView(APIView):
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django.utils.timezone import now
 
 class AddSlotBookingNoteView(APIView):
     permission_classes = [IsAuthenticated]
@@ -572,27 +571,23 @@ class AddSlotBookingNoteView(APIView):
 
         note_text = request.data.get("note")
         if not note_text:
-            return Response({"error": "Note is required"}, status=400)
+            return Response(
+                {"error": "Note is required"},
+                status=400
+            )
 
-        # Ensure notes is always a list
-        if not isinstance(booking.notes, list):
-            booking.notes = []
-
-        new_note = {
-            "note": note_text,
-            "created_at": now().isoformat()
-        }
-
-        booking.notes.append(new_note)
+        booking.notes = note_text
         booking.save(update_fields=["notes"])
 
         return Response(
             {
-                "message": "Note added successfully",
-                "notes": booking.notes
+                "message": "Note saved successfully",
+                "booking_id": booking.id,
+                "note": booking.notes
             },
-            status=201
+            status=200
         )
+
 class SlotBookingNoteDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -611,14 +606,15 @@ class SlotBookingNoteDetailView(APIView):
         return Response(
             {
                 "booking_id": booking.id,
-                "notes": booking.notes or []
+                "note": booking.notes or ""
             },
             status=200
         )
+
 class DeleteSlotBookingNoteView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def delete(self, request, booking_id, index):
+    def delete(self, request, booking_id):
         try:
             booking = SlotBooking.objects.get(
                 id=booking_id,
@@ -630,26 +626,47 @@ class DeleteSlotBookingNoteView(APIView):
                 status=404
             )
 
-        if not isinstance(booking.notes, list):
-            return Response(
-                {"error": "Invalid notes format"},
-                status=400
-            )
-
-        try:
-            booking.notes.pop(index)
-        except IndexError:
-            return Response(
-                {"error": "Invalid note index"},
-                status=400
-            )
-
+        booking.notes = ""
         booking.save(update_fields=["notes"])
 
         return Response(
             {
                 "message": "Note deleted successfully",
-                "notes": booking.notes
+                "booking_id": booking.id
+            },
+            status=200
+        )
+
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
+
+class EditSlotBookingNoteView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, booking_id):
+        booking = get_object_or_404(
+            SlotBooking,
+            id=booking_id,
+            trainer__user=request.user
+        )
+
+        note_text = request.data.get("note")
+        if not note_text:
+            return Response(
+                {"error": "Note is required"},
+                status=400
+            )
+
+        booking.notes = note_text
+        booking.save(update_fields=["notes"])
+
+        return Response(
+            {
+                "message": "Note updated successfully",
+                "booking_id": booking.id,
+                "note": booking.notes
             },
             status=200
         )

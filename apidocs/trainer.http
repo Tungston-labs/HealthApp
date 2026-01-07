@@ -157,10 +157,13 @@ GET {{base_url}}booking/43/note/
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3MjA0ODY5LCJpYXQiOjE3NjcxNjE2NjksImp0aSI6ImZhNjQ3YjU0ODM5ODRjOGM5ZDQxZWIxNmU3YmEzODE2IiwidXNlcl9pZCI6Ijc0In0.us-g5CFzB4mvXRJYEgGEaxkiJS-fS06UpRYxhpBd0Cg
 
 ### delete notes on sessions by trainer
-DELETE {{base_url}}bookings/43/notes/delete/0/
+DELETE {{base_url}}bookings/43/notes/delete/
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3MjA0ODY5LCJpYXQiOjE3NjcxNjE2NjksImp0aSI6ImZhNjQ3YjU0ODM5ODRjOGM5ZDQxZWIxNmU3YmEzODE2IiwidXNlcl9pZCI6Ijc0In0.us-g5CFzB4mvXRJYEgGEaxkiJS-fS06UpRYxhpBd0Cg
 
 
+### edit notes on sessions by trainer
+PUT  {{base_url}}bookings/43/note/edit/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3MjA0ODY5LCJpYXQiOjE3NjcxNjE2NjksImp0aSI6ImZhNjQ3YjU0ODM5ODRjOGM5ZDQxZWIxNmU3YmEzODE2IiwidXNlcl9pZCI6Ijc0In0.us-g5CFzB4mvXRJYEgGEaxkiJS-fS06UpRYxhpBd0Cg
 
 ### suspend trainer
 
