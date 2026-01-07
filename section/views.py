@@ -329,6 +329,7 @@ class EndTrainingView(APIView):
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import IsAuthenticated
 
+
 class ClientCompletedSessionsView(GenericAPIView):
     permission_classes = [IsAuthenticated]
     pagination_class = CustomPagination
@@ -336,22 +337,37 @@ class ClientCompletedSessionsView(GenericAPIView):
     def get(self, request):
         client = request.user.client  # OneToOne assumed
 
-        queryset = SlotBooking.objects.filter(
+        queryset = SlotBooking.objects.select_related(
+            "trainer", "plan"
+        ).filter(
             client=client,
-            status='completed'
-        ).order_by('-date', '-time')
+            status="completed"
+        ).order_by("-date", "-time")
 
         page = self.paginate_queryset(queryset)
 
         sessions_data = [
             {
-                "section_id": s.id,
+                "session_id": s.id,
                 "date": s.date,
                 "time": s.time,
+
+                # ✅ PLAN DETAILS
+                "plan": {
+                    "id": s.plan.id,
+                    "name": s.plan.plan_name
+                },
+
+                # ✅ TRAINER DETAILS (PLAN PASSED FOR PRICING)
                 "trainer": TrainerMiniSerializer(
-                    s.trainer, context={"request": request}
+                    s.trainer,
+                    context={
+                        "request": request,
+                        "plan": s.plan
+                    }
                 ).data,
-                "notes": getattr(s, "notes", None)
+
+                "notes": s.notes or ""
             }
             for s in page
         ]
