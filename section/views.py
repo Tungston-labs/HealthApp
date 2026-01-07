@@ -425,7 +425,7 @@ class ClientTodaySessionView(APIView):
             # ✅ PLAN DETAILS
             "plan": {
                 "id": session.plan.id,
-                "name": session.plan.name,
+                "name": session.plan.plan_name,
             },
 
             # ✅ TRAINER DETAILS (PLAN PASSED TO CONTEXT)
@@ -433,7 +433,7 @@ class ClientTodaySessionView(APIView):
                 session.trainer,
                 context={
                     "request": request,
-                    "plan": session.plan   # 🔥 THIS IS THE KEY FIX
+                    "plan": session.plan  
                 }
             ).data
         }
