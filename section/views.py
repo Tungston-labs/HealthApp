@@ -147,7 +147,7 @@ class TrainerAllBookingsView(GenericAPIView):
             queryset = SlotBooking.objects.filter(
                 trainer=trainer,
                 date=filter_date,
-                status="upcoming"  # ✅ KEY FIX
+                status="upcoming"  # 
             ).order_by("time")
 
         else:
@@ -615,3 +615,82 @@ class TrainerSlotBookingDetailView(RetrieveAPIView):
         return SlotBooking.objects.select_related(
             "client", "plan", "trainer"
         ).filter(trainer=trainer)
+
+
+from datetime import timedelta
+from django.utils.timezone import localdate
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
+class ClientWeeklyUpcomingSessionsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        client = request.user.client
+        today = localdate()
+        end_of_week = today + timedelta(days=(6 - today.weekday()))
+
+        sessions = SlotBooking.objects.select_related(
+            "trainer", "plan", "client"
+        ).filter(
+            client=client,
+            date__range=[today, end_of_week],
+            status__in=["pending", "confirmed"]
+        ).order_by("date", "time")
+
+        if not sessions.exists():
+            return Response(
+                {
+                    "status": False,
+                    "message": "No upcoming sessions this week"
+                },
+                status=404
+            )
+
+        data = []
+        for session in sessions:
+            data.append({
+                "session_id": session.id,
+
+                # ✅ CLIENT DETAILS
+                "client": {
+                    "name": session.client.user.get_full_name(),
+                    "profile_pic": request.build_absolute_uri(
+                        session.client.profile_pic.url
+                    ) if session.client.profile_pic else None,
+                },
+
+                # ✅ DATE FORMATTING
+                "date": session.date,
+                "day": session.date.strftime("%A"),  # Monday, Tuesday
+                "time": session.time.strftime("%I:%M %p"),  # 10:30 AM
+
+                "status": session.status,
+                "session_end_date": session.session_end_date,
+                "session_end_time": session.session_end_time.strftime("%I:%M %p")
+                if session.session_end_time else None,
+
+                "notes": session.notes or "",
+
+                # ✅ PLAN DETAILS
+                "plan": {
+                    "id": session.plan.id,
+                    "name": session.plan.plan_name,
+                },
+
+                # ✅ TRAINER DETAILS
+                "trainer": TrainerMiniSerializer(
+                    session.trainer,
+                    context={
+                        "request": request,
+                        "plan": session.plan
+                    }
+                ).data
+            })
+
+        return Response({
+            "status": True,
+            "count": len(data),
+            "data": data
+        })

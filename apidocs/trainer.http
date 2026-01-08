@@ -67,7 +67,7 @@ Authorization: Bearer <access_token>
 
 ### Get Trainer Profile
 GET {{base_url}}profile/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3NzE0NjQ0LCJpYXQiOjE3Njc2NzE0NDQsImp0aSI6IjdjYzk2MWJhNzkyZjQzNjhiMjRkOTIyNjQ2MGQ0YTdlIiwidXNlcl9pZCI6Ijc0In0.acy29LXOYruqwVh0RCof7wRnv9QBT986K0lc9M24dII
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3OTExNzcxLCJpYXQiOjE3Njc4Njg1NzEsImp0aSI6ImI5MjUzOWEyNjAwYzRmZmRiNTA0YmU1OThjY2YwZWFjIiwidXNlcl9pZCI6IjI2In0.nnKYT35YiqY9KYEHufqE6nnV8AyS6uJhBina0aoLNdc
 Content-Type: application/json
 
 ### Edit Trainer Profile
@@ -98,7 +98,7 @@ Content-Type: application/json
 
 ### trainer detail view for modal in mobile app
 GET {{base_url}}detail/66/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3NzE0NjQ0LCJpYXQiOjE3Njc2NzE0NDQsImp0aSI6IjdjYzk2MWJhNzkyZjQzNjhiMjRkOTIyNjQ2MGQ0YTdlIiwidXNlcl9pZCI6Ijc0In0.acy29LXOYruqwVh0RCof7wRnv9QBT986K0lc9M24dII
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3OTExNzcxLCJpYXQiOjE3Njc4Njg1NzEsImp0aSI6ImI5MjUzOWEyNjAwYzRmZmRiNTA0YmU1OThjY2YwZWFjIiwidXNlcl9pZCI6IjI2In0.nnKYT35YiqY9KYEHufqE6nnV8AyS6uJhBina0aoLNdc
 
 
 
@@ -140,12 +140,12 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 
 ### get single trainer details using id
-GET {{base_url}}info/10/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY2NjAzMjM1LCJpYXQiOjE3NjY1NjAwMzUsImp0aSI6IjFkYTEwNjY2ZTNmMzQxYWRiNzUyMmNiY2JiOTRiMzY0IiwidXNlcl9pZCI6IjIifQ.h_Ek10IsL7h-0J_IY_BidLAjV8s-CnTTvH_7wPSaDRk
+GET {{base_url}}info/66/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3OTExNzcxLCJpYXQiOjE3Njc4Njg1NzEsImp0aSI6ImI5MjUzOWEyNjAwYzRmZmRiNTA0YmU1OThjY2YwZWFjIiwidXNlcl9pZCI6IjI2In0.nnKYT35YiqY9KYEHufqE6nnV8AyS6uJhBina0aoLNdc
 
 ### add notes on sessions by trainer
-POST {{base_url}}booking/43/add-note/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3MjA0ODY5LCJpYXQiOjE3NjcxNjE2NjksImp0aSI6ImZhNjQ3YjU0ODM5ODRjOGM5ZDQxZWIxNmU3YmEzODE2IiwidXNlcl9pZCI6Ijc0In0.us-g5CFzB4mvXRJYEgGEaxkiJS-fS06UpRYxhpBd0Cg
+POST {{base_url}}booking/44/add-note/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3ODI5OTUwLCJpYXQiOjE3Njc3ODY3NTAsImp0aSI6IjcxNzI4ODQ0ZTQ5NjQ0MGY5Y2U0YzdmNmM3MmI2NzZjIiwidXNlcl9pZCI6Ijc0In0.LQi7QtSO7ZP40pJ7X5EVz8sNaPcjrJtCjc4lzvBcnFI
 Content-Type: application/json
 
 {
@@ -154,7 +154,7 @@ Content-Type: application/json
 
 ### get notes on sessions by trainer
 GET {{base_url}}booking/43/note/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3MjA0ODY5LCJpYXQiOjE3NjcxNjE2NjksImp0aSI6ImZhNjQ3YjU0ODM5ODRjOGM5ZDQxZWIxNmU3YmEzODE2IiwidXNlcl9pZCI6Ijc0In0.us-g5CFzB4mvXRJYEgGEaxkiJS-fS06UpRYxhpBd0Cg
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3ODI5OTUwLCJpYXQiOjE3Njc3ODY3NTAsImp0aSI6IjcxNzI4ODQ0ZTQ5NjQ0MGY5Y2U0YzdmNmM3MmI2NzZjIiwidXNlcl9pZCI6Ijc0In0.LQi7QtSO7ZP40pJ7X5EVz8sNaPcjrJtCjc4lzvBcnFI
 
 ### delete notes on sessions by trainer
 DELETE {{base_url}}bookings/43/notes/delete/
@@ -163,8 +163,12 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 ### edit notes on sessions by trainer
 PUT  {{base_url}}bookings/43/note/edit/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3MjA0ODY5LCJpYXQiOjE3NjcxNjE2NjksImp0aSI6ImZhNjQ3YjU0ODM5ODRjOGM5ZDQxZWIxNmU3YmEzODE2IiwidXNlcl9pZCI6Ijc0In0.us-g5CFzB4mvXRJYEgGEaxkiJS-fS06UpRYxhpBd0Cg
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3ODI5OTUwLCJpYXQiOjE3Njc3ODY3NTAsImp0aSI6IjcxNzI4ODQ0ZTQ5NjQ0MGY5Y2U0YzdmNmM3MmI2NzZjIiwidXNlcl9pZCI6Ijc0In0.LQi7QtSO7ZP40pJ7X5EVz8sNaPcjrJtCjc4lzvBcnFI
+Content-Type: application/json
 
+{
+    "note": "arrange mat"
+}
 ### suspend trainer
 
 POST {{base_url}}8/suspend/
