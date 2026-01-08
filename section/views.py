@@ -623,27 +623,34 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-class ClientWeeklyUpcomingSessionsView(APIView):
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from django.utils.timezone import localdate
+
+class ClientUpcomingSessionsView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         client = request.user.client
-        today = localdate()
-        end_of_week = today + timedelta(days=(6 - today.weekday()))
+        LIMIT = 5  # 🔹 change to 3 if needed
 
-        sessions = SlotBooking.objects.select_related(
-            "trainer", "plan", "client"
-        ).filter(
-            client=client,
-            date__range=[today, end_of_week],
-            status__in=["pending", "confirmed"]
-        ).order_by("date", "time")
+        sessions = (
+            SlotBooking.objects
+            .select_related("trainer")
+            .filter(
+                client=client,
+                status="upcoming",
+                date__gte=localdate()
+            )
+            .order_by("date", "time")[:LIMIT]
+        )
 
-        if not sessions.exists():
+        if not sessions:
             return Response(
                 {
                     "status": False,
-                    "message": "No upcoming sessions this week"
+                    "message": "No upcoming sessions"
                 },
                 status=404
             )
@@ -651,42 +658,14 @@ class ClientWeeklyUpcomingSessionsView(APIView):
         data = []
         for session in sessions:
             data.append({
-                "session_id": session.id,
+                "trainer_name": session.trainer.name,
+                "trainer_profile_pic": request.build_absolute_uri(
+                    session.trainer.profile_pic.url
+                ) if session.trainer.profile_pic else None,
 
-                # ✅ CLIENT DETAILS
-                "client": {
-                    "name": session.client.user.get_full_name(),
-                    "profile_pic": request.build_absolute_uri(
-                        session.client.profile_pic.url
-                    ) if session.client.profile_pic else None,
-                },
-
-                # ✅ DATE FORMATTING
                 "date": session.date,
-                "day": session.date.strftime("%A"),  # Monday, Tuesday
-                "time": session.time.strftime("%I:%M %p"),  # 10:30 AM
-
-                "status": session.status,
-                "session_end_date": session.session_end_date,
-                "session_end_time": session.session_end_time.strftime("%I:%M %p")
-                if session.session_end_time else None,
-
-                "notes": session.notes or "",
-
-                # ✅ PLAN DETAILS
-                "plan": {
-                    "id": session.plan.id,
-                    "name": session.plan.plan_name,
-                },
-
-                # ✅ TRAINER DETAILS
-                "trainer": TrainerMiniSerializer(
-                    session.trainer,
-                    context={
-                        "request": request,
-                        "plan": session.plan
-                    }
-                ).data
+                "day": session.date.strftime("%A"),
+                "time": session.time.strftime("%I:%M %p"),
             })
 
         return Response({

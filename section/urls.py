@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import TrainerTodaySessionsView,ClientDetailView,TrainerAllBookingsView,TrainerHistorySessionsView,StartTrainingView,EndTrainingView,ClientCompletedSessionsView,ClientSessionDetailView,ClientPlanSummaryAPIView,ClientWeeklyHoursAPIView,AdminTrainerSessionsView,TrainerSlotBookingDetailView,ClientTodaySessionView,ClientWeeklyUpcomingSessionsView
+from .views import TrainerTodaySessionsView,ClientDetailView,TrainerAllBookingsView,TrainerHistorySessionsView,StartTrainingView,EndTrainingView,ClientCompletedSessionsView,ClientSessionDetailView,ClientPlanSummaryAPIView,ClientWeeklyHoursAPIView,AdminTrainerSessionsView,TrainerSlotBookingDetailView,ClientTodaySessionView,ClientUpcomingSessionsView
 
 urlpatterns = [
 path("today-sessions/", TrainerTodaySessionsView.as_view()),
@@ -18,6 +18,6 @@ path("client/<int:client_id>/sessions/", ClientPlanSummaryAPIView.as_view(), nam
 path("client/<int:client_id>/weekly-hours/", ClientWeeklyHoursAPIView.as_view()),
 path("admin/trainer/<int:trainer_id>/", AdminTrainerSessionsView.as_view(),name="admin-trainer-sessions"),
 path("client/today-session/",ClientTodaySessionView.as_view(),name="client-today-session"),
-path("client/weeklysessions/",ClientWeeklyUpcomingSessionsView.as_view(),name="client-weekly-sessions"),
+path("client/weeklysessions/",ClientUpcomingSessionsView.as_view(),name="client-weekly-sessions"),
 
 ]
