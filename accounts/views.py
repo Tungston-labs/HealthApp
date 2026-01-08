@@ -15,6 +15,13 @@ from rest_framework.permissions import AllowAny
 from .serializers import LoginSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from rest_framework import generics, status
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
+from rest_framework_simplejwt.tokens import RefreshToken
+from trainer.models import SlotBooking
+
 class LoginAPIView(generics.GenericAPIView):
     serializer_class = LoginSerializer
     permission_classes = [AllowAny]
@@ -28,6 +35,22 @@ class LoginAPIView(generics.GenericAPIView):
 
             refresh = RefreshToken.for_user(user)
 
+            # ✅ DEFAULT VALUE
+            has_session = False
+
+            # ✅ CHECK SESSION ONLY FOR NORMAL USERS
+            if user.role == "user":
+                try:
+                    client = user.client  # OneToOne relation assumed
+
+                    has_session = SlotBooking.objects.filter(
+                        client=client,
+                        status__in=["upcoming", "ongoing"]
+                    ).exists()
+
+                except Exception:
+                    has_session = False
+
             return Response({
                 "status": True,
                 "message": "Login successful",
@@ -36,7 +59,8 @@ class LoginAPIView(generics.GenericAPIView):
                         "id": user.id,
                         "name": user.name,
                         "email": user.email,
-                        "role": user.role
+                        "role": user.role,
+                        "session": has_session  
                     },
                     "access": str(refresh.access_token),
                     "refresh": str(refresh)
@@ -49,7 +73,6 @@ class LoginAPIView(generics.GenericAPIView):
                 "message": "Login failed",
                 "errors": e.detail
             }, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 # ---------------- LOGOUT ---------------- #
