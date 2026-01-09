@@ -185,15 +185,8 @@ class ClientProfileView(generics.RetrieveAPIView):
 
 from trainer.models import SlotBooking
 from .serializers import ClientBookedTrainerSerializer
-
-
-from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 from django.db.models import Max
 
-from .models import SlotBooking
-from .serializers import ClientBookedTrainerSerializer
 
 
 class ClientBookedTrainersView(APIView):
