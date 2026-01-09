@@ -94,3 +94,33 @@ class ClientProfileSerializer(serializers.ModelSerializer):
         today = datetime.date.today()
         sessions = SlotBooking.objects.filter(client=obj, date__gte=today).order_by('date', 'time')
         return TrainerSessionSerializer(sessions, many=True, context=self.context).data
+    
+from trainer.models import SlotBooking
+
+class ClientBookedTrainerSerializer(serializers.ModelSerializer):
+    trainer_name = serializers.CharField(source="trainer.name", read_only=True)
+    trainer_profile_pic = serializers.SerializerMethodField()
+    plan_name = serializers.CharField(source="plan.name", read_only=True)
+    day = serializers.SerializerMethodField()
+
+    class Meta:
+        model = SlotBooking
+        fields = [
+            "id",
+            "trainer_name",
+            "trainer_profile_pic",
+            "plan_name",
+            "date",
+            "day",
+            "time",
+            "status",
+        ]
+
+    def get_trainer_profile_pic(self, obj):
+        request = self.context.get("request")
+        if obj.trainer.profile_pic:
+            return request.build_absolute_uri(obj.trainer.profile_pic.url)
+        return None
+
+    def get_day(self, obj):
+        return obj.date.strftime("%A")

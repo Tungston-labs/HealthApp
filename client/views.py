@@ -181,3 +181,32 @@ class ClientProfileView(generics.RetrieveAPIView):
                 "status": False,
                 "message": "Client profile not found"
             }, status=status.HTTP_404_NOT_FOUND)
+
+
+from trainer.models import SlotBooking
+from .serializers import ClientBookedTrainerSerializer
+
+
+class ClientBookedTrainersView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        client = request.user.client  # 🔑 Client from token
+
+        bookings = SlotBooking.objects.filter(
+            client=client
+        ).exclude(
+            status="completed"
+        ).select_related("trainer", "plan").order_by("-date")
+
+        serializer = ClientBookedTrainerSerializer(
+            bookings,
+            many=True,
+            context={"request": request}
+        )
+
+        return Response({
+            "status": True,
+            "count": bookings.count(),
+            "data": serializer.data
+        })
