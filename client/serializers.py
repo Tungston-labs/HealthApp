@@ -124,3 +124,35 @@ class ClientBookedTrainerSerializer(serializers.ModelSerializer):
 
     def get_day(self, obj):
         return obj.date.strftime("%A")
+from rest_framework import serializers
+from .models import Client
+
+
+class ClientProfileSerializer1(serializers.ModelSerializer):
+    profile_pic_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Client
+        fields = [
+            "id",
+            "name",
+            "phno",
+            "email",
+            "dob",
+            "gender",
+            "blood_group",
+            "weight",
+            "height",
+            "address",
+            "profile_pic",
+            "profile_pic_url",
+            "health_issues",
+            "wellness_goal",
+        ]
+        read_only_fields = ["id", "phno", "email"]
+
+    def get_profile_pic_url(self, obj):
+        request = self.context.get("request")
+        if obj.profile_pic and request:
+            return request.build_absolute_uri(obj.profile_pic.url)
+        return None

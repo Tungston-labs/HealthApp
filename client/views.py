@@ -223,3 +223,63 @@ class ClientBookedTrainersView(APIView):
             "count": bookings.count(),
             "data": serializer.data
         })
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
+from .models import Client
+from .serializers import ClientProfileSerializer1
+
+
+class ClientPhoneProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            client = request.user.client
+        except Client.DoesNotExist:
+            return Response(
+                {"status": False, "message": "Client profile not found"},
+                status=404
+            )
+
+        serializer = ClientProfileSerializer1(
+            client,
+            context={"request": request}
+        )
+
+        return Response({
+            "status": True,
+            "data": serializer.data
+        })
+class ClientProfileUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request):
+        try:
+            client = request.user.client
+        except Client.DoesNotExist:
+            return Response(
+                {"status": False, "message": "Client profile not found"},
+                status=404
+            )
+
+        serializer = ClientProfileSerializer1(
+            client,
+            data=request.data,
+            partial=True,
+            context={"request": request}
+        )
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                "status": True,
+                "message": "Profile updated successfully",
+                "data": serializer.data
+            })
+
+        return Response({
+            "status": False,
+            "errors": serializer.errors
+        }, status=400)
