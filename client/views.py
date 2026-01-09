@@ -187,17 +187,37 @@ from trainer.models import SlotBooking
 from .serializers import ClientBookedTrainerSerializer
 
 
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from django.db.models import Max
+
+from .models import SlotBooking
+from .serializers import ClientBookedTrainerSerializer
+
+
 class ClientBookedTrainersView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        client = request.user.client  # 🔑 Client from token
+        client = request.user.client
 
-        bookings = SlotBooking.objects.filter(
-            client=client
-        ).exclude(
-            status="completed"
-        ).select_related("trainer", "plan").order_by("-date")
+        # 🔹 Get latest booking date per trainer
+        latest_booking_ids = (
+            SlotBooking.objects
+            .filter(client=client)
+            .exclude(status="completed")
+            .values("trainer")
+            .annotate(latest_id=Max("id"))
+            .values_list("latest_id", flat=True)
+        )
+
+        bookings = (
+            SlotBooking.objects
+            .filter(id__in=latest_booking_ids)
+            .select_related("trainer", "plan")
+            .order_by("-date")
+        )
 
         serializer = ClientBookedTrainerSerializer(
             bookings,
