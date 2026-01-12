@@ -77,7 +77,7 @@ class LoginAPIView(generics.GenericAPIView):
                         "status": trainer.status,
                         "training_plan": {
                             "id": trainer.training_field.id if trainer.training_field else None,
-                            "name": trainer.training_field.name if trainer.training_field else None,
+                            "name": trainer.training_field.plan_name if trainer.training_field else None,
                         }
                     }
                 except Trainer.DoesNotExist:
