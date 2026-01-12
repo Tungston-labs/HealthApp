@@ -22,6 +22,16 @@ from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
 from trainer.models import SlotBooking
 
+from rest_framework import generics, status
+from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
+from rest_framework.exceptions import ValidationError
+from rest_framework_simplejwt.tokens import RefreshToken
+
+from booking.models import SlotBooking
+from trainer.models import Trainer
+
+
 class LoginAPIView(generics.GenericAPIView):
     serializer_class = LoginSerializer
     permission_classes = [AllowAny]
@@ -35,22 +45,47 @@ class LoginAPIView(generics.GenericAPIView):
 
             refresh = RefreshToken.for_user(user)
 
-            # ✅ DEFAULT VALUE
+            # -------------------------------
+            # DEFAULT VALUES
+            # -------------------------------
             has_session = False
+            trainer_data = None
 
-            # ✅ CHECK SESSION ONLY FOR NORMAL USERS
+            # -------------------------------
+            # NORMAL USER → SESSION CHECK
+            # -------------------------------
             if user.role == "user":
                 try:
-                    client = user.client  # OneToOne relation assumed
-
+                    client = user.client  # OneToOne
                     has_session = SlotBooking.objects.filter(
                         client=client,
                         status__in=["upcoming", "ongoing"]
                     ).exists()
-
                 except Exception:
                     has_session = False
 
+            # -------------------------------
+            # TRAINER → PLAN DETAILS
+            # -------------------------------
+            if user.role == "trainer":
+                try:
+                    trainer = Trainer.objects.select_related("training_field").get(user=user)
+
+                    trainer_data = {
+                        "trainer_id": trainer.id,
+                        "trainer_name": trainer.name,
+                        "status": trainer.status,
+                        "training_plan": {
+                            "id": trainer.training_field.id if trainer.training_field else None,
+                            "name": trainer.training_field.name if trainer.training_field else None,
+                        }
+                    }
+                except Trainer.DoesNotExist:
+                    trainer_data = None
+
+            # -------------------------------
+            # RESPONSE
+            # -------------------------------
             return Response({
                 "status": True,
                 "message": "Login successful",
@@ -60,7 +95,8 @@ class LoginAPIView(generics.GenericAPIView):
                         "name": user.name,
                         "email": user.email,
                         "role": user.role,
-                        "session": has_session  
+                        "session": has_session,        # for users
+                        "trainer": trainer_data        # for trainers
                     },
                     "access": str(refresh.access_token),
                     "refresh": str(refresh)
