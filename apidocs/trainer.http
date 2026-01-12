@@ -49,7 +49,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 ### Trainer Partial Update (PATCH)
 PATCH {{base_url}}47/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3MDI0ODAzLCJpYXQiOjE3NjY5ODE2MDMsImp0aSI6Ijk1MjhjMjQwNDZiYjQxNTRiYmY2N2YxOGQ3ZTQ5ZWM0IiwidXNlcl9pZCI6IjEifQ.VvYyB12I3S-HEGKgu5_I9z-Qnw97cPJ07_9jSQHgfac
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY4MjQzMjQ5LCJpYXQiOjE3NjgyMDAwNDksImp0aSI6ImZjYTBlOTRhNTA4ZDQ3Nzk5NzkxZWUzMTQwNmEyN2U3IiwidXNlcl9pZCI6IjEifQ.HM4P98CnwD1WuX_1Q_FfukApWVT1Voa0XIY2BxQKSkw
 Content-Type: application/json
 
 {
@@ -62,6 +62,29 @@ Content-Type: application/json
 ### Trainer Delete (Admin)
 DELETE {{base_url}}1/
 Authorization: Bearer <access_token>
+
+
+###get trainer payment details by trainer id
+GET {{base_url}}payments/?trainer_id=47
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY4MjQzMjQ5LCJpYXQiOjE3NjgyMDAwNDksImp0aSI6ImZjYTBlOTRhNTA4ZDQ3Nzk5NzkxZWUzMTQwNmEyN2U3IiwidXNlcl9pZCI6IjEifQ.HM4P98CnwD1WuX_1Q_FfukApWVT1Voa0XIY2BxQKSkw
+
+
+
+###update trainer payment ststus,salary,date
+PATCH {{base_url}}payments/47/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY4MjQzMjQ5LCJpYXQiOjE3NjgyMDAwNDksImp0aSI6ImZjYTBlOTRhNTA4ZDQ3Nzk5NzkxZWUzMTQwNmEyN2U3IiwidXNlcl9pZCI6IjEifQ.HM4P98CnwD1WuX_1Q_FfukApWVT1Voa0XIY2BxQKSkw
+Content-Type: application/json
+
+{
+  "salary": "15000",
+  "status": "paid",
+  "paid_date": "2026-03-10",
+  "remarks": "Paid via bank transfer"
+}
+
+###sed invoice to trainer mail
+POST /api/admin/trainer-payments/47/send-invoice/
+
 
 # =================================================MOBILE APP==================================================
 

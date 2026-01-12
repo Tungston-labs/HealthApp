@@ -423,3 +423,35 @@ class TrainerClientSessionSerializer(serializers.ModelSerializer):
         if obj.client.profile_pic:
             return request.build_absolute_uri(obj.client.profile_pic.url)
         return None
+
+
+from rest_framework import serializers
+from trainer.models import TrainerPayment
+
+class TrainerPaymentSerializer(serializers.ModelSerializer):
+    month_name = serializers.SerializerMethodField()
+    trainer_name = serializers.CharField(source="trainer.name", read_only=True)
+
+    class Meta:
+        model = TrainerPayment
+        fields = [
+            "id",
+            "trainer",
+            "trainer_name",
+            "year",
+            "month",
+            "month_name",
+            "salary",
+            "status",
+            "paid_date",
+            "remarks",
+        ]
+
+    def get_month_name(self, obj):
+        return obj.get_month_display()
+
+
+class TrainerPaymentUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TrainerPayment
+        fields = ["salary", "status", "paid_date", "remarks"]

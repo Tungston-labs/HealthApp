@@ -787,3 +787,92 @@ class TrainerClientsListView(ListAPIView):
             .select_related("client")
             .order_by("date", "time")
         )
+
+
+
+from trainer.models import TrainerPayment
+from trainer.serializers import TrainerPaymentSerializer
+
+class TrainerPaymentListView(APIView):
+    permission_classes = [IsAuthenticated, IsAdmin]
+
+    def get(self, request):
+        trainer_id = request.query_params.get("trainer_id")
+
+        if not trainer_id:
+            return Response(
+                {"status": False, "message": "trainer_id is required"},
+                status=400
+            )
+
+        payments = TrainerPayment.objects.filter(
+            trainer_id=trainer_id
+        ).order_by("-year", "-month")
+
+        serializer = TrainerPaymentSerializer(payments, many=True)
+
+        return Response({
+            "status": True,
+            "count": payments.count(),
+            "data": serializer.data
+        })
+    
+
+
+from rest_framework.generics import UpdateAPIView
+from trainer.models import TrainerPayment
+from trainer.serializers import TrainerPaymentUpdateSerializer
+
+class TrainerPaymentUpdateView(UpdateAPIView):
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    queryset = TrainerPayment.objects.all()
+    serializer_class = TrainerPaymentUpdateSerializer
+
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from trainer.models import TrainerPayment
+from trainer.utils import send_trainer_invoice_email
+
+class TrainerPaymentInvoiceView(APIView):
+    permission_classes = [IsAuthenticated, IsAdminUser]
+
+    def post(self, request, pk):
+        try:
+            payment = TrainerPayment.objects.select_related("trainer").get(id=pk)
+        except TrainerPayment.DoesNotExist:
+            return Response({"status": False, "message": "Payment not found"}, status=404)
+
+        trainer = payment.trainer
+
+        subject = f"Salary Invoice - {payment.get_month_display()} {payment.year}"
+
+        message = f"""
+Hello {trainer.name},
+
+Here is your salary invoice:
+
+-----------------------------------
+Month      : {payment.get_month_display()} {payment.year}
+Salary     : ₹{payment.salary}
+Status     : {payment.status.upper()}
+Paid Date  : {payment.paid_date or "Not Paid"}
+-----------------------------------
+
+If you have any questions, please contact HR.
+
+Best regards,
+HR Team
+"""
+
+        send_trainer_invoice_email(
+            trainer.email,
+            subject,
+            message
+        )
+
+        return Response({
+            "status": True,
+            "message": "Invoice sent successfully"
+        })

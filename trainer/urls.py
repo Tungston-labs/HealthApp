@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import TrainerCreateView, TrainerListView, TrainerDetailView,LocalImageUploadAPIView,TrainerProfileView,TrainerProfileEditView,PendingTrainerListView,FilterTrainersView,BookTrainerView,TrainerDetailPageView,ChangeTrainerView,TrainerDetailSimpleView,AddSlotBookingNoteView,SuspendTrainerView,TrainerPendingListView,SlotBookingNoteDetailView,DeleteSlotBookingNoteView,OngoingSessionView,TrainerClientsListView,EditSlotBookingNoteView
+from .views import TrainerCreateView, TrainerListView, TrainerDetailView,LocalImageUploadAPIView,TrainerProfileView,TrainerProfileEditView,PendingTrainerListView,FilterTrainersView,BookTrainerView,TrainerDetailPageView,ChangeTrainerView,TrainerDetailSimpleView,AddSlotBookingNoteView,SuspendTrainerView,TrainerPendingListView,SlotBookingNoteDetailView,DeleteSlotBookingNoteView,OngoingSessionView,TrainerClientsListView,EditSlotBookingNoteView,TrainerPaymentInvoiceView,TrainerPaymentListView,TrainerPaymentUpdateView
 
 urlpatterns = [
     path('', TrainerCreateView.as_view(), name='trainer-create'),
@@ -13,6 +13,12 @@ urlpatterns = [
         "<int:trainer_id>/suspend/",
         SuspendTrainerView.as_view(),
         name="suspend-trainer"
+    ),
+    path("payments/", TrainerPaymentListView.as_view()),
+    path("payments/<int:pk>/", TrainerPaymentUpdateView.as_view()),
+    path(
+        "payments/<int:pk>/send-invoice/",
+        TrainerPaymentInvoiceView.as_view()
     ),
 
 
