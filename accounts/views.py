@@ -28,7 +28,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from booking.models import SlotBooking
+from trainer.models import SlotBooking
 from trainer.models import Trainer
 
 
