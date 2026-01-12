@@ -258,20 +258,14 @@ class ClientProfileUpdateView(APIView):
     def patch(self, request):
         try:
             client = request.user.client
-            profile = client.profile   # 🔥 THIS IS THE KEY FIX
         except Client.DoesNotExist:
             return Response(
                 {"status": False, "message": "Client not found"},
                 status=404
             )
-        except Client.DoesNotExist:
-            return Response(
-                {"status": False, "message": "Client profile not found"},
-                status=404
-            )
 
         serializer = ClientProfileSerializer1(
-            profile,                   
+            client,                     # ✅ UPDATE CLIENT ITSELF
             data=request.data,
             partial=True,
             context={"request": request}
@@ -289,4 +283,5 @@ class ClientProfileUpdateView(APIView):
             "status": False,
             "errors": serializer.errors
         }, status=400)
+
 
