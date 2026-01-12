@@ -241,6 +241,8 @@ class TrainerPayment(models.Model):
 
     paid_date = models.DateField(null=True, blank=True)
 
+    approved_date = models.DateField(null=True, blank=True)
+
     remarks = models.TextField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -264,6 +266,9 @@ class TrainerPayment(models.Model):
             self.paid_date = None
 
         super().save(*args, **kwargs)
+
+
+
 
     def __str__(self):
         return f"{self.trainer.name} - {self.month}/{self.year} - {self.status}"
