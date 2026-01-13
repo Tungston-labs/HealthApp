@@ -57,13 +57,24 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 ###list booked trainers by client
 GET {{base_url}}booked-trainers/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3OTk3NDYxLCJpYXQiOjE3Njc5NTQyNjEsImp0aSI6IjgyNmUyMzdiMDc2ZjRkYzZhYTliYjc4Y2MzMmRlNDFlIiwidXNlcl9pZCI6IjI2In0.HWZms4m5oFQW8KclMmY0H6jIEj-Ra_3rwC3dVlydHpY
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY4MzE5OTg2LCJpYXQiOjE3NjgyNzY3ODYsImp0aSI6ImJlMzk5MmVhODhkNjQ3OGJhMzUyZWFlOTcyNzQ0MTRjIiwidXNlcl9pZCI6IjI2In0.HJicQuvOBwJ4s8sdP507fB-YvYXGGZih6ZA_uCbGDiw
 
 ###get client profile in mobile app
 0Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3OTk3NDYxLCJpYXQiOjE3Njc5NTQyNjEsImp0aSI6IjgyNmUyMzdiMDc2ZjRkYzZhYTliYjc4Y2MzMmRlNDFlIiwidXNlcl9pZCI6IjI2In0.HWZms4m5oFQW8KclMmY0H6jIEj-Ra_3rwC3dVlydHpY
 
 
 ###edit client profile in mobile app 
-PUT {{base_url}}profile/edit/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3OTk3NDYxLCJpYXQiOjE3Njc5NTQyNjEsImp0aSI6IjgyNmUyMzdiMDc2ZjRkYzZhYTliYjc4Y2MzMmRlNDFlIiwidXNlcl9pZCI6IjI2In0.HWZms4m5oFQW8KclMmY0H6jIEj-Ra_3rwC3dVlydHpY
+PATCH {{base_url}}profile/edit/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY4MjYxNzk0LCJpYXQiOjE3NjgyMTg1OTQsImp0aSI6IjcwMzIwOTE0MzhkMzQ5MDc4MjhhYzQyNWM0NjcwMTVhIiwidXNlcl9pZCI6IjI5In0.2ueoLj4DQAs2ulMGvEvxKI7E506OInE_GVbIHWtJ9F0
+Content-Type: application/json
 
+{
+  "name": "Test User Updated",
+  "dob": "1990-05-12",
+  "blood_group": "O+",
+  "weight": 70.5,
+  "height": 175,
+  "address": "123, New Street, City",
+  "health_issues": ["Diabetes"],
+  "wellness_goal": ["Lose Weight"]
+}
