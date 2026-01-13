@@ -207,6 +207,10 @@ class TrainerDetailSerializer(serializers.ModelSerializer):
         source="training_field.plan_name",
         read_only=True
     )
+    plan_id = serializers.CharField(
+        source="training_field.id",
+        read_only=True
+    )
 
     class Meta:
         model = Trainer
@@ -224,6 +228,7 @@ class TrainerDetailSerializer(serializers.ModelSerializer):
             "rating_breakdown",
             "reviews",
             "plan_name",
+            "plan_id",
         ]
 
     # Trainer profile pic (full URL)
