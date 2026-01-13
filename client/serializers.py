@@ -149,7 +149,7 @@ class ClientProfileSerializer1(serializers.ModelSerializer):
             "health_issues",
             "wellness_goal",
         ]
-        read_only_fields = ["id", "phno", "email"]
+        read_only_fields = ["id"]  
 
     def get_profile_pic_url(self, obj):
         request = self.context.get("request")
