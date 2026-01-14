@@ -114,9 +114,10 @@ class NutritionRequestDetailSerializer(serializers.ModelSerializer):
 
     def get_plan_image(self, obj):
         booking = self.get_latest_booking(obj)
-        if booking and booking.plan and booking.plan.plan_image:
+
+        if booking and booking.plan and booking.plan.upload_file:
             request = self.context.get("request")
             return request.build_absolute_uri(
-                booking.plan.plan_image.url
+                booking.plan.upload_file.url
             )
         return None

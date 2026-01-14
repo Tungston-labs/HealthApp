@@ -61,7 +61,7 @@ class TicketDetailSerializer(serializers.ModelSerializer):
     client = ClientDetailSerializer(read_only=True)
     trainer = TrainerDetailSerializer(read_only=True)
     plan_name = serializers.CharField(source="plan.plan_name", read_only=True)
-    plan_image = serializers.ImageField(source="plan.plan_image", read_only=True)
+    plan_image = serializers.ImageField(source="plan.upload_file", read_only=True)
 
     class Meta:
         model = Ticket
