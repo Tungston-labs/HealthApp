@@ -78,6 +78,7 @@ class NutritionRequestListSerializer(serializers.ModelSerializer):
 class NutritionRequestDetailSerializer(serializers.ModelSerializer):
     client = serializers.SerializerMethodField()
     plan_name = serializers.SerializerMethodField()
+    plan_image = serializers.SerializerMethodField()
 
     class Meta:
         model = NutritionRequest
@@ -85,6 +86,7 @@ class NutritionRequestDetailSerializer(serializers.ModelSerializer):
             "id",
             "client",
             "plan_name",
+            "plan_image",
             "consultation_type",
             "note",
             "date",
@@ -97,13 +99,24 @@ class NutritionRequestDetailSerializer(serializers.ModelSerializer):
             context=self.context
         ).data
 
-    def get_plan_name(self, obj):
-        booking = (
+    def get_latest_booking(self, obj):
+        return (
             SlotBooking.objects
             .filter(client=obj.client)
             .select_related("plan")
             .order_by("-created_at")
             .first()
         )
-        return booking.plan.plan_name if booking else None
 
+    def get_plan_name(self, obj):
+        booking = self.get_latest_booking(obj)
+        return booking.plan.plan_name if booking and booking.plan else None
+
+    def get_plan_image(self, obj):
+        booking = self.get_latest_booking(obj)
+        if booking and booking.plan and booking.plan.plan_image:
+            request = self.context.get("request")
+            return request.build_absolute_uri(
+                booking.plan.plan_image.url
+            )
+        return None
