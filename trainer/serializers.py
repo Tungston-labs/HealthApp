@@ -93,13 +93,16 @@ class TrainerSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         certificate_urls = validated_data.pop("certificates", None)
 
-        # update normal fields
+        # -------------------
+        # Update Trainer fields
+        # -------------------
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
-
         instance.save()
 
-        # update certificates if provided
+        # -------------------
+        # Update certificates if provided
+        # -------------------
         if certificate_urls is not None:
             instance.certificates.clear()
 
@@ -113,7 +116,20 @@ class TrainerSerializer(serializers.ModelSerializer):
                 cert = TrainerCertificate.objects.create(image_url=url)
                 instance.certificates.add(cert)
 
+        # -------------------
+        # Update related User fields
+        # -------------------
+        user = instance.user
+        if user:
+            # Only update if the field exists in validated_data
+            user_fields = ['name', 'email', 'phno']
+            for field in user_fields:
+                if field in validated_data:
+                    setattr(user, field, validated_data[field])
+            user.save()
+
         return instance
+
 
 
 

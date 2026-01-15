@@ -156,6 +156,22 @@ from .models import Client
 
 class ClientProfileSerializer1(serializers.ModelSerializer):
     profile_pic_url = serializers.SerializerMethodField()
+    latitude = serializers.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        required=False,
+        allow_null=True
+    )
+    longitude = serializers.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        required=False,
+        allow_null=True
+    )
+
+    name = serializers.CharField(required=False)
+    email = serializers.EmailField(required=False)
+    phno = serializers.CharField(required=False, allow_blank=True)
 
     class Meta:
         model = Client
@@ -170,8 +186,8 @@ class ClientProfileSerializer1(serializers.ModelSerializer):
             "weight",
             "height",
             "address",
-            "latitude",          
-            "longitude",         
+            "latitude",
+            "longitude",
             "profile_pic",
             "profile_pic_url",
             "health_issues",
@@ -184,6 +200,28 @@ class ClientProfileSerializer1(serializers.ModelSerializer):
         if obj.profile_pic and request:
             return request.build_absolute_uri(obj.profile_pic.url)
         return None
+
+    def update(self, instance, validated_data):
+        # -------------------
+        # Update Client fields
+        # -------------------
+        for attr, value in validated_data.items():
+            if attr not in ['name', 'email', 'phno']:  # skip user fields for now
+                setattr(instance, attr, value)
+        instance.save()
+
+        # -------------------
+        # Update related User fields
+        # -------------------
+        user = instance.user
+        if user:
+            user_fields = ['name', 'email', 'phno']
+            for field in user_fields:
+                if field in validated_data:
+                    setattr(user, field, validated_data[field])
+            user.save()
+
+        return instance
 
 
 

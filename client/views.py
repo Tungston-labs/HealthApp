@@ -265,7 +265,7 @@ class ClientProfileUpdateView(APIView):
             )
 
         serializer = ClientProfileSerializer1(
-            client,                     # ✅ UPDATE CLIENT ITSELF
+            client,
             data=request.data,
             partial=True,
             context={"request": request}
@@ -283,6 +283,7 @@ class ClientProfileUpdateView(APIView):
             "status": False,
             "errors": serializer.errors
         }, status=400)
+
 
 
 
