@@ -2,10 +2,23 @@ from rest_framework import serializers
 from .models import Client
 from accounts.models import User
 import datetime
+from decimal import Decimal
 class ClientSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
     profile_pic = serializers.ImageField(required=False)
     plan_names = serializers.SerializerMethodField(read_only=True)  
+    latitude = serializers.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        required=False,
+        allow_null=True
+    )
+    longitude = serializers.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        required=False,
+        allow_null=True
+    )
 
     class Meta:
         model = Client
@@ -25,16 +38,21 @@ class ClientSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         password = validated_data.pop('password')
-        email = validated_data.get('email')
-        phno = validated_data.get('phno')
 
-        # Create Client
+        latitude = validated_data.get("latitude")
+        longitude = validated_data.get("longitude")
+
+        if latitude is not None:
+            validated_data["latitude"] = Decimal(latitude)
+
+        if longitude is not None:
+            validated_data["longitude"] = Decimal(longitude)
+
         client = Client.objects.create(**validated_data)
 
-        # Create User
         user = User.objects.create_user(
-            email=email,
-            phno=phno,
+            email=client.email,
+            phno=client.phno,
             password=password,
             role='user',
             name=client.name
@@ -44,6 +62,7 @@ class ClientSerializer(serializers.ModelSerializer):
         client.save()
 
         return client
+
 
 from rest_framework import serializers
 from client.models import Client
