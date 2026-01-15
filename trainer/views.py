@@ -189,39 +189,61 @@ class TrainerProfileEditView(generics.UpdateAPIView):
 
 
 
+from datetime import datetime, timedelta
+from math import radians, cos, sin, asin, sqrt
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from your_app.models import Trainer, Client, Plan, SlotBooking
+from your_app.serializers import TrainerMiniSerializer
+from your_app.permissions import IsUser
+
 class FilterTrainersView(APIView):
     permission_classes = [IsUser]
 
+    def haversine(self, lat1, lon1, lat2, lon2):
+        """
+        Calculate the great-circle distance between two points on Earth in km
+        """
+        lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
+        dlon = lon2 - lon1
+        dlat = lat2 - lat1
+        a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+        c = 2 * asin(sqrt(a))
+        r = 6371  # Radius of Earth in km
+        return c * r
+
     def post(self, request):
- 
         plan_id = request.data.get("plan_id")
         slot_days = request.data.get("slot_days")
         time_slot = request.data.get("time")
         start_date = request.data.get("start_date")
 
         if not (plan_id and slot_days and time_slot and start_date):
-            return Response({"error": "Missing fields"}, 400)
+            return Response({"error": "Missing fields"}, status=400)
 
-        # get client
+        # Get client
         client = Client.objects.get(user=request.user)
         client_gender = client.gender.lower()
+        client_lat = client.latitude
+        client_lon = client.longitude
 
-        # parse inputs
+        # Parse inputs
         time_slot_obj = datetime.strptime(time_slot, "%H:%M").time()
         start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
 
-        # plan mapping
+        # Plan and duration mapping
         plan = Plan.objects.get(id=plan_id)
         plan_type_map = {"3_days": 3, "6_days": 6}
         duration = plan_type_map.get(plan.plan_type, 30)
         end_date = start_date_obj + timedelta(days=duration)
 
-        # weekday mapping
-        weekday_map = {"mon":0,"tue":1,"wed":2,"thu":3,"fri":4,"sat":5}
+        # Weekday mapping
+        weekday_map = {"mon":0, "tue":1, "wed":2, "thu":3, "fri":4, "sat":5}
         slot_days = [d.lower() for d in slot_days]
         wanted_weekdays = [weekday_map[d] for d in slot_days]
 
-        # filter trainers
+        # Filter trainers by plan, gender, and approved status
         trainers = Trainer.objects.filter(
             training_field_id=plan_id,
             status__iexact="approved",
@@ -231,27 +253,31 @@ class FilterTrainersView(APIView):
         available = []
 
         for tr in trainers:
+            # Skip trainers without location
+            if tr.latitude is None or tr.longitude is None:
+                continue
 
-            # availability
+            # 1️⃣ Distance filter: only trainers within 5 km
+            distance = self.haversine(client_lat, client_lon, tr.latitude, tr.longitude)
+            if distance > 5:
+                continue
+
+            # 2️⃣ Availability check
             try:
                 avl = tr.traineravailability
             except:
                 continue
 
-            # weekly day check
             if not all(getattr(avl, day) for day in slot_days):
                 continue
 
-            # time check
+            # 3️⃣ Time check
             if not (avl.start_time <= time_slot_obj <= avl.end_time):
                 continue
 
-            # ----------------------------------------------------
-            # NEW SESSION DATES: fill only up to tr.no_of_section
-            # ----------------------------------------------------
+            # 4️⃣ Calculate session dates (max_sessions = trainer.no_of_section)
             max_sessions = tr.no_of_section
             session_dates = []
-
             d = start_date_obj
             filled = 0
 
@@ -263,7 +289,7 @@ class FilterTrainersView(APIView):
                         break
                 d += timedelta(days=1)
 
-            # booking conflict
+            # 5️⃣ Booking conflict
             conflict = SlotBooking.objects.filter(
                 trainer=tr,
                 date__in=session_dates,
@@ -273,6 +299,7 @@ class FilterTrainersView(APIView):
             if conflict:
                 continue
 
+            # Trainer passed all filters
             available.append(tr)
 
         return Response({
@@ -284,14 +311,15 @@ class FilterTrainersView(APIView):
                 "couple_price": plan.couple_price,
                 "group_price": plan.group_price,
             },
-            "client_address": client.address,   # 👈 NEW — logged-in user address
+            "client_address": client.address,
             "total_available": len(available),
             "available_trainers": TrainerMiniSerializer(
                 available,
                 many=True,
-                context={"plan": plan,"request":request}
+                context={"plan": plan, "request": request}
             ).data
-        })
+        }, status=status.HTTP_200_OK)
+
 # for client to view trainer details in modal includig reviews
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
