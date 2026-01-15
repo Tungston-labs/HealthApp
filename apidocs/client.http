@@ -78,3 +78,8 @@ Content-Type: application/json
   "health_issues": ["Diabetes"],
   "wellness_goal": ["Lose Weight"]
 }
+
+
+###ubooked plan list
+GET {{base_url}}plans/unbooked/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY4NDA3Mjg0LCJpYXQiOjE3NjgzNjQwODQsImp0aSI6IjRhMDU3MGI5MGFlYzQ1Yjk5Y2VmMmJjMjQ2NzQ5NmJkIiwidXNlcl9pZCI6IjI2In0.K6PjndMpTlm3A8NjaDisYlXdh5GXxiYCBFOYWWlmo6c

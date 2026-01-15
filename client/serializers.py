@@ -158,3 +158,32 @@ class ClientProfileSerializer1(serializers.ModelSerializer):
         if obj.profile_pic and request:
             return request.build_absolute_uri(obj.profile_pic.url)
         return None
+
+
+from plan.models import Plan
+
+
+class UnBookedPlanSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+    amount = serializers.DecimalField(
+        source="single_price",
+        max_digits=10,
+        decimal_places=2,
+        read_only=True
+    )
+
+    class Meta:
+        model = Plan
+        fields = [
+            "id",
+            "plan_name",
+            "plan_type",
+            "image",
+            "amount",
+        ]
+
+    def get_image(self, obj):
+        request = self.context.get("request")
+        if obj.upload_file and request:
+            return request.build_absolute_uri(obj.upload_file.url)
+        return None

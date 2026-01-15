@@ -285,3 +285,35 @@ class ClientProfileUpdateView(APIView):
         }, status=400)
 
 
+
+
+
+from .serializers import UnBookedPlanSerializer
+
+
+class UnBookedPlanListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        client = request.user.client
+
+        # Get plan IDs already booked by this client
+        booked_plan_ids = (
+            SlotBooking.objects
+            .filter(client=client)
+            .values_list("plan_id", flat=True)
+        )
+
+        # Exclude booked plans
+        plans = Plan.objects.exclude(id__in=booked_plan_ids)
+
+        serializer = UnBookedPlanSerializer(
+            plans,
+            many=True,
+            context={"request": request}
+        )
+
+        return Response({
+            "status": True,
+            "data": serializer.data
+        })
