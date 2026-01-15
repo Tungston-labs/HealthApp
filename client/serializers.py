@@ -170,18 +170,21 @@ class ClientProfileSerializer1(serializers.ModelSerializer):
             "weight",
             "height",
             "address",
+            "latitude",          
+            "longitude",         
             "profile_pic",
             "profile_pic_url",
             "health_issues",
             "wellness_goal",
         ]
-        read_only_fields = ["id"]  
+        read_only_fields = ["id"]
 
     def get_profile_pic_url(self, obj):
         request = self.context.get("request")
         if obj.profile_pic and request:
             return request.build_absolute_uri(obj.profile_pic.url)
         return None
+
 
 
 from plan.models import Plan
