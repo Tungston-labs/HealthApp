@@ -194,9 +194,7 @@ from math import radians, cos, sin, asin, sqrt
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from your_app.models import Trainer, Client, Plan, SlotBooking
-from your_app.serializers import TrainerMiniSerializer
-from your_app.permissions import IsUser
+
 
 class FilterTrainersView(APIView):
     permission_classes = [IsUser]
