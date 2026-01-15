@@ -41,12 +41,17 @@ class ClientSerializer(serializers.ModelSerializer):
 
         latitude = validated_data.get("latitude")
         longitude = validated_data.get("longitude")
+        print("LAT:", validated_data.get("latitude"))
+        print("LNG:", validated_data.get("longitude"))
 
         if latitude is not None:
             validated_data["latitude"] = Decimal(latitude)
 
         if longitude is not None:
             validated_data["longitude"] = Decimal(longitude)
+
+
+
 
         client = Client.objects.create(**validated_data)
 
