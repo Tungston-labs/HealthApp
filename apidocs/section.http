@@ -7,8 +7,8 @@ POST http://178.248.112.16:9001/api/auth/login/
 Content-Type: application/json
 
 {
-  "email_or_phno": "bruno@gmail.com",
-  "password": "Password@1234"
+  "email_or_phno": "sachu@gmail.com",
+  "password": "Sachu@123"
 }
 
 
@@ -85,4 +85,4 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 ### list client weekly sessions
 GET {{base_url}}client/weeklysessions/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3OTc1NTY5LCJpYXQiOjE3Njc5MzIzNjksImp0aSI6ImNhZTUxMTVhMjM1NDQ2Y2VhMDE4MzBjYzJhNzViN2Q1IiwidXNlcl9pZCI6IjI2In0.zOtI6_OgCuBiJWlAJm3pXZG11n8soJTgfs1KtLZRMl4
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY4NTgwODc3LCJpYXQiOjE3Njg1Mzc2NzcsImp0aSI6IjcxMTE4OTVkMGY5YjQ2NWE4YTczNGMxMTFhODU1ZDIwIiwidXNlcl9pZCI6IjI5In0.V2dl15vRn1iWtzFV2HdKZrdFu876tAAgOCkiT7n11ag

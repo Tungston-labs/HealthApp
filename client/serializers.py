@@ -156,17 +156,12 @@ from .models import Client
 
 class ClientProfileSerializer1(serializers.ModelSerializer):
     profile_pic_url = serializers.SerializerMethodField()
+
     latitude = serializers.DecimalField(
-        max_digits=9,
-        decimal_places=6,
-        required=False,
-        allow_null=True
+        max_digits=9, decimal_places=6, required=False, allow_null=True
     )
     longitude = serializers.DecimalField(
-        max_digits=9,
-        decimal_places=6,
-        required=False,
-        allow_null=True
+        max_digits=9, decimal_places=6, required=False, allow_null=True
     )
 
     name = serializers.CharField(required=False)
@@ -202,18 +197,29 @@ class ClientProfileSerializer1(serializers.ModelSerializer):
         return None
 
     def update(self, instance, validated_data):
-        # -------------------
-        # Update Client fields
-        # -------------------
-        for attr, value in validated_data.items():
-            if attr not in ['name', 'email', 'phno']:  # skip user fields for now
-                setattr(instance, attr, value)
+        user = instance.user
+
+        # -------------------------
+        # 1. Update CLIENT model
+        # -------------------------
+        client_fields = [
+            'name', 'email', 'phno',
+            'dob', 'gender', 'blood_group',
+            'weight', 'height', 'address',
+            'latitude', 'longitude',
+            'health_issues', 'wellness_goal',
+            'profile_pic'
+        ]
+
+        for field in client_fields:
+            if field in validated_data:
+                setattr(instance, field, validated_data[field])
+
         instance.save()
 
-        # -------------------
-        # Update related User fields
-        # -------------------
-        user = instance.user
+        # -------------------------
+        # 2. Update USER model
+        # -------------------------
         if user:
             user_fields = ['name', 'email', 'phno']
             for field in user_fields:
@@ -222,6 +228,7 @@ class ClientProfileSerializer1(serializers.ModelSerializer):
             user.save()
 
         return instance
+
 
 
 
