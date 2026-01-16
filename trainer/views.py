@@ -201,95 +201,127 @@ class FilterTrainersView(APIView):
 
     def haversine(self, lat1, lon1, lat2, lon2):
         """
-        Calculate the great-circle distance between two points on Earth in km
+        Calculate distance between two lat/lng points in KM
         """
         lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
         dlon = lon2 - lon1
         dlat = lat2 - lat1
-        a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+        a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
         c = 2 * asin(sqrt(a))
-        r = 6371  # Radius of Earth in km
+        r = 6371
         return c * r
 
     def post(self, request):
         plan_id = request.data.get("plan_id")
-        slot_days = request.data.get("slot_days")
-        time_slot = request.data.get("time")
-        start_date = request.data.get("start_date")
+        slot_days = request.data.get("slot_days")  # ["mon", "wed"]
+        time_slot = request.data.get("time")       # "06:00"
+        start_date = request.data.get("start_date")  # "2026-01-10"
 
-        if not (plan_id and slot_days and time_slot and start_date):
-            return Response({"error": "Missing fields"}, status=400)
+        # ---------------- VALIDATION ----------------
+        if not plan_id or not slot_days or not time_slot or not start_date:
+            return Response(
+                {"status": False, "message": "Missing required fields"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-        # Get client
-        client = Client.objects.get(user=request.user)
+        # ---------------- CLIENT ----------------
+        client = get_object_or_404(Client, user=request.user)
+
+        if not client.latitude or not client.longitude:
+            return Response(
+                {"status": False, "message": "Client location not set"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         client_gender = client.gender.lower()
         client_lat = client.latitude
         client_lon = client.longitude
 
-        # Parse inputs
-        time_slot_obj = datetime.strptime(time_slot, "%H:%M").time()
-        start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
+        # ---------------- PARSE DATE & TIME ----------------
+        try:
+            time_slot_obj = datetime.strptime(time_slot, "%H:%M").time()
+            start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
+        except ValueError:
+            return Response(
+                {"status": False, "message": "Invalid date or time format"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-        # Plan and duration mapping
-        plan = Plan.objects.get(id=plan_id)
-        plan_type_map = {"3_days": 3, "6_days": 6}
-        duration = plan_type_map.get(plan.plan_type, 30)
+        # ---------------- PLAN ----------------
+        plan = get_object_or_404(Plan, id=plan_id)
+
+        plan_duration_map = {
+            "3_days": 3,
+            "6_days": 6
+        }
+        duration = plan_duration_map.get(plan.plan_type, 30)
         end_date = start_date_obj + timedelta(days=duration)
 
-        # Weekday mapping
-        weekday_map = {"mon":0, "tue":1, "wed":2, "thu":3, "fri":4, "sat":5}
-        slot_days = [d.lower() for d in slot_days]
-        wanted_weekdays = [weekday_map[d] for d in slot_days]
+        # ---------------- WEEKDAYS ----------------
+        weekday_map = {
+            "mon": 0,
+            "tue": 1,
+            "wed": 2,
+            "thu": 3,
+            "fri": 4,
+            "sat": 5,
+            "sun": 6
+        }
 
-        # Filter trainers by plan, gender, and approved status
+        slot_days = [d.lower() for d in slot_days]
+        wanted_weekdays = [weekday_map[d] for d in slot_days if d in weekday_map]
+
+        # ---------------- TRAINER FILTER ----------------
         trainers = Trainer.objects.filter(
             training_field_id=plan_id,
             status__iexact="approved",
             gender__iexact=client_gender
         )
 
-        available = []
+        available_trainers = []
 
-        for tr in trainers:
-            # Skip trainers without location
-            if tr.latitude is None or tr.longitude is None:
+        for trainer in trainers:
+
+            # -------- LOCATION CHECK --------
+            if trainer.latitude is None or trainer.longitude is None:
                 continue
 
-            # 1️⃣ Distance filter: only trainers within 5 km
-            distance = self.haversine(client_lat, client_lon, tr.latitude, tr.longitude)
+            distance = self.haversine(
+                client_lat,
+                client_lon,
+                trainer.latitude,
+                trainer.longitude
+            )
+
             if distance > 5:
                 continue
 
-            # 2️⃣ Availability check
+            # -------- AVAILABILITY --------
             try:
-                avl = tr.traineravailability
-            except:
+                availability = trainer.traineravailability
+            except TrainerAvailability.DoesNotExist:
                 continue
 
-            if not all(getattr(avl, day) for day in slot_days):
+            if not all(getattr(availability, day) for day in slot_days):
                 continue
 
-            # 3️⃣ Time check
-            if not (avl.start_time <= time_slot_obj <= avl.end_time):
+            # -------- TIME CHECK --------
+            if not (availability.start_time <= time_slot_obj <= availability.end_time):
                 continue
 
-            # 4️⃣ Calculate session dates (max_sessions = trainer.no_of_section)
-            max_sessions = tr.no_of_section
+            # -------- SESSION DATE GENERATION --------
+            max_sessions = trainer.no_of_section
             session_dates = []
             d = start_date_obj
-            filled = 0
 
-            while filled < max_sessions:
+            while len(session_dates) < max_sessions and d <= end_date:
                 if d.weekday() in wanted_weekdays:
                     session_dates.append(d)
-                    filled += 1
-                    if filled >= max_sessions:
-                        break
                 d += timedelta(days=1)
 
-            # 5️⃣ Booking conflict
+            # -------- BOOKING CONFLICT --------
             conflict = SlotBooking.objects.filter(
-                trainer=tr,
+                trainer=trainer,
                 date__in=session_dates,
                 time=time_slot_obj
             ).exists()
@@ -297,10 +329,11 @@ class FilterTrainersView(APIView):
             if conflict:
                 continue
 
-            # Trainer passed all filters
-            available.append(tr)
+            available_trainers.append(trainer)
 
+        # ---------------- RESPONSE ----------------
         return Response({
+            "status": True,
             "plan": {
                 "id": plan.id,
                 "name": plan.plan_name,
@@ -310,13 +343,14 @@ class FilterTrainersView(APIView):
                 "group_price": plan.group_price,
             },
             "client_address": client.address,
-            "total_available": len(available),
+            "total_available": len(available_trainers),
             "available_trainers": TrainerMiniSerializer(
-                available,
+                available_trainers,
                 many=True,
                 context={"plan": plan, "request": request}
             ).data
         }, status=status.HTTP_200_OK)
+
 
 # for client to view trainer details in modal includig reviews
 from rest_framework.response import Response
