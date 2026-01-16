@@ -318,3 +318,47 @@ class UnBookedPlanListView(APIView):
             "status": True,
             "data": serializer.data
         })
+
+
+
+
+class ClientBMIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            client = request.user.client
+        except Client.DoesNotExist:
+            return Response({
+                "status": False,
+                "message": "Client profile not found"
+            }, status=404)
+
+        if not client.weight or not client.height:
+            return Response({
+                "status": False,
+                "message": "Weight and height are required to calculate BMI"
+            }, status=400)
+
+        # height in meters
+        height_m = float(client.height) / 100
+        weight = float(client.weight)
+
+        bmi = round(weight / (height_m * height_m), 2)
+
+        # BMI Category
+        if bmi < 18.5:
+            category = "Underweight"
+        elif bmi < 24.9:
+            category = "Normal"
+        elif bmi < 29.9:
+            category = "Overweight"
+        else:
+            category = "Obese"
+
+        return Response({
+            "status": True,
+            "name": client.name,
+            "bmi": bmi,
+            "category": category
+        })
