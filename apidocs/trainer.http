@@ -218,7 +218,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 # razorpay
 
-### add notes on sessions by trainer
+### get order id from backend
 POST {{base_url}}create-trainer-booking-order/
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY4Njc3ODMzLCJpYXQiOjE3Njg2MzQ2MzMsImp0aSI6ImRjMzcyZmRkYmJmNDRjYTU5NTJiNjgwZjc5NDVjZGY2IiwidXNlcl9pZCI6IjI2In0.d7a3ykxBYykpjWwd_OF66xRDwFbZijV3T1gKLP1bD40
 Content-Type: application/json
