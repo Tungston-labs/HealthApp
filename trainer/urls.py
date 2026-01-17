@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import TrainerCreateView, TrainerListView, TrainerDetailView,LocalImageUploadAPIView,TrainerProfileView,TrainerProfileEditView,PendingTrainerListView,FilterTrainersView,BookTrainerView,TrainerDetailPageView,ChangeTrainerView,TrainerDetailSimpleView,AddSlotBookingNoteView,SuspendTrainerView,TrainerPendingListView,SlotBookingNoteDetailView,DeleteSlotBookingNoteView,OngoingSessionView,TrainerClientsListView,EditSlotBookingNoteView,TrainerPaymentInvoiceView,TrainerPaymentListView,TrainerPaymentUpdateView
+from .views import TrainerCreateView, TrainerListView, TrainerDetailView,LocalImageUploadAPIView,TrainerProfileView,TrainerProfileEditView,PendingTrainerListView,FilterTrainersView,BookTrainerView,TrainerDetailPageView,ChangeTrainerView,TrainerDetailSimpleView,AddSlotBookingNoteView,SuspendTrainerView,TrainerPendingListView,SlotBookingNoteDetailView,DeleteSlotBookingNoteView,OngoingSessionView,TrainerClientsListView,EditSlotBookingNoteView,TrainerPaymentInvoiceView,TrainerPaymentListView,TrainerPaymentUpdateView,CreateTrainerBookingOrderView
 
 urlpatterns = [
     path('', TrainerCreateView.as_view(), name='trainer-create'),
@@ -40,11 +40,13 @@ urlpatterns = [
     path('booking/<int:booking_id>/add-note/', AddSlotBookingNoteView.as_view(), name='add-slot-note'),
     path("booking/<int:booking_id>/note/",SlotBookingNoteDetailView.as_view(),name="get-slot-booking-note"),
     path("bookings/<int:booking_id>/notes/delete/",DeleteSlotBookingNoteView.as_view()),
-     path(
+    path(
         "bookings/<int:booking_id>/note/edit/",
         EditSlotBookingNoteView.as_view(),
         name="edit-slot-booking-note"
     ),
+    path("create-trainer-booking-order/",CreateTrainerBookingOrderView.as_view()),
+
 
 
 
