@@ -188,21 +188,23 @@ class TrainerProfileEditView(generics.UpdateAPIView):
         return Trainer.objects.get(user=self.request.user)
 
 
-
 from datetime import datetime, timedelta
 from math import radians, cos, sin, asin, sqrt
+
+from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from .models import Trainer, TrainerAvailability, SlotBooking, Plan, Client
+from .serializers import TrainerMiniSerializer
 
 
 class FilterTrainersView(APIView):
     permission_classes = [IsUser]
 
     def haversine(self, lat1, lon1, lat2, lon2):
-        """
-        Calculate distance between two lat/lng points in KM
-        """
+        """Calculate distance between two lat/lng points in KM"""
         lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
         dlon = lon2 - lon1
         dlat = lat2 - lat1
@@ -213,9 +215,9 @@ class FilterTrainersView(APIView):
 
     def post(self, request):
         plan_id = request.data.get("plan_id")
-        slot_days = request.data.get("slot_days")  # ["mon", "wed"]
-        time_slot = request.data.get("time")       # "06:00"
-        start_date = request.data.get("start_date")  # "2026-01-10"
+        slot_days = request.data.get("slot_days")      # ["mon", "wed"]
+        time_slot = request.data.get("time")           # "06:00"
+        start_date = request.data.get("start_date")    # "2026-01-10"
 
         # ---------------- VALIDATION ----------------
         if not plan_id or not slot_days or not time_slot or not start_date:
@@ -271,16 +273,17 @@ class FilterTrainersView(APIView):
         slot_days = [d.lower() for d in slot_days]
         wanted_weekdays = [weekday_map[d] for d in slot_days if d in weekday_map]
 
-        # ---------------- TRAINER FILTER ----------------
-        trainers = Trainer.objects.filter(
+        # ---------------- BASE TRAINERS ----------------
+        base_trainers = Trainer.objects.filter(
             training_field_id=plan_id,
             status__iexact="approved",
             gender__iexact=client_gender
         )
 
-        available_trainers = []
+        matched_trainers = []
 
-        for trainer in trainers:
+        # ---------------- FILTER LOGIC ----------------
+        for trainer in base_trainers:
 
             # -------- LOCATION CHECK --------
             if trainer.latitude is None or trainer.longitude is None:
@@ -329,7 +332,15 @@ class FilterTrainersView(APIView):
             if conflict:
                 continue
 
-            available_trainers.append(trainer)
+            matched_trainers.append(trainer)
+
+        # ---------------- REMAINING TRAINERS ----------------
+        matched_ids = [t.id for t in matched_trainers]
+
+        other_trainers = base_trainers.exclude(id__in=matched_ids)
+
+        # ---------------- FINAL ORDER ----------------
+        final_trainers = list(matched_trainers) + list(other_trainers)
 
         # ---------------- RESPONSE ----------------
         return Response({
@@ -343,13 +354,18 @@ class FilterTrainersView(APIView):
                 "group_price": plan.group_price,
             },
             "client_address": client.address,
-            "total_available": len(available_trainers),
-            "available_trainers": TrainerMiniSerializer(
-                available_trainers,
+            "total_available": len(matched_trainers),
+            "trainers": TrainerMiniSerializer(
+                final_trainers,
                 many=True,
-                context={"plan": plan, "request": request}
+                context={
+                    "plan": plan,
+                    "request": request,
+                    "matched_ids": matched_ids
+                }
             ).data
         }, status=status.HTTP_200_OK)
+
 
 
 # for client to view trainer details in modal includig reviews
@@ -936,3 +952,143 @@ HR Team
             "status": True,
             "message": "Invoice sent successfully"
         })
+
+
+
+
+
+import razorpay
+from django.conf import settings
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from .models import Payment
+from .utils import get_plan_amount
+
+class CreateTrainerBookingOrderView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        trainer_id = request.data.get("trainer_id")
+        plan_id = request.data.get("plan_id")
+        booking_type = request.data.get("booking_type")  # single/couple/group
+
+        if not all([trainer_id, plan_id, booking_type]):
+            return Response({"error": "Missing fields"}, 400)
+
+        client = Client.objects.get(user=request.user)
+        trainer = Trainer.objects.get(id=trainer_id, status="approved")
+        plan = Plan.objects.get(id=plan_id)
+
+        # ✅ amount from plan
+        amount = get_plan_amount(plan, booking_type)
+
+        razorpay_client = razorpay.Client(
+            auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
+        )
+
+        order = razorpay_client.order.create({
+            "amount": int(amount * 100),  # paise
+            "currency": "INR",
+            "payment_capture": 1
+        })
+
+        # ✅ Save payment
+        payment = Payment.objects.create(
+            client=client,
+            trainer=trainer,
+            plan=plan,
+            booking_type=booking_type,
+            amount=amount,
+            razorpay_order_id=order["id"],
+            status="created"
+        )
+
+        return Response({
+            "order_id": order["id"],
+            "amount": amount,
+            "currency": "INR",
+            "key": settings.RAZORPAY_KEY_ID
+        })
+
+
+from razorpay.errors import SignatureVerificationError
+
+class VerifyTrainerPaymentView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        razorpay_order_id = request.data.get("razorpay_order_id")
+        razorpay_payment_id = request.data.get("razorpay_payment_id")
+        razorpay_signature = request.data.get("razorpay_signature")
+
+        start_date = request.data.get("start_date")
+        time_slot = request.data.get("time")
+        slot_days = request.data.get("slot_days")
+
+        payment = Payment.objects.get(razorpay_order_id=razorpay_order_id)
+
+        razorpay_client = razorpay.Client(
+            auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
+        )
+
+        try:
+            razorpay_client.utility.verify_payment_signature({
+                "razorpay_order_id": razorpay_order_id,
+                "razorpay_payment_id": razorpay_payment_id,
+                "razorpay_signature": razorpay_signature
+            })
+        except SignatureVerificationError:
+            payment.status = "failed"
+            payment.save()
+            return Response({"error": "Payment verification failed"}, 400)
+
+        # ✅ Payment success
+        payment.status = "success"
+        payment.razorpay_payment_id = razorpay_payment_id
+        payment.razorpay_signature = razorpay_signature
+        payment.save()
+
+        # -----------------------------------------
+        # 🔥 NOW create SlotBooking (your existing logic)
+        # -----------------------------------------
+
+        client = payment.client
+        trainer = payment.trainer
+        plan = payment.plan
+
+        time_slot_obj = datetime.strptime(time_slot, "%H:%M").time()
+        start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
+
+        weekday_map = {"mon":0,"tue":1,"wed":2,"thu":3,"fri":4,"sat":5,"sun":6}
+        selected_weekdays = [weekday_map[d] for d in slot_days]
+
+        max_sessions = trainer.no_of_section
+        session_dates = []
+        d = start_date_obj
+        filled = 0
+
+        while filled < max_sessions:
+            if d.weekday() in selected_weekdays:
+                session_dates.append(d)
+                filled += 1
+            d += timedelta(days=1)
+
+        for date in session_dates:
+            SlotBooking.objects.create(
+                trainer=trainer,
+                client=client,
+                plan=plan,
+                booking_type=payment.booking_type,
+                amount_paid=payment.amount,
+                payment=payment,
+                date=date,
+                time=time_slot_obj,
+                payment_status="paid"
+            )
+
+        return Response({
+            "message": "Payment successful & trainer booked",
+            "total_sessions": len(session_dates)
+        })
+
