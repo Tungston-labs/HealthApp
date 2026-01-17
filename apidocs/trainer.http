@@ -111,11 +111,11 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 ### filter trainer by slot,time,date
 POST {{base_url}}available-trainers/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY4NjcwNDI1LCJpYXQiOjE3Njg2MjcyMjUsImp0aSI6IjQyOTE3MWYwMzA5MjRkOTNiZDE0Yjg5Y2E0MWFmMzgwIiwidXNlcl9pZCI6IjMifQ.AzC_bcza7RnGNQX0xSF0rL42pk81faKSYUx8RI-EMEw
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY4Njg1NTAzLCJpYXQiOjE3Njg2NDIzMDMsImp0aSI6ImM1NjE4NDVkODc4MjRhMjhiMjU5MjMxMjAwMjhmY2MwIiwidXNlcl9pZCI6IjI2In0.6-hmlzfe_I5TFeS-agoWWJJPPqcBUxuwoA_tiNr3jsI
 Content-Type: application/json
 
 {
-  "plan_id": 2,
+  "plan_id": 3,
   "slot_days": ["mon","tue","wed","thu","fri","sat"],
   "time": "09:00",
   "start_date": "2026-01-03"

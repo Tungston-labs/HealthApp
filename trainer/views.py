@@ -969,6 +969,8 @@ class CreateTrainerBookingOrderView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        print("📦 REQUEST DATA:", request.data)
+
         trainer_id = request.data.get("trainer_id")
         plan_id = request.data.get("plan_id")
         booking_type = request.data.get("booking_type")  # single/couple/group
