@@ -58,6 +58,9 @@ class Trainer(models.Model):
     password = models.CharField(max_length=128,null=True,blank=True)                          
 
     user = models.OneToOneField(User, on_delete=models.SET_NULL, blank=True, null=True)
+    single_price = models.DecimalField(max_digits=10, decimal_places=2,null=True,blank=True)
+    couple_price = models.DecimalField(max_digits=10, decimal_places=2,null=True,blank=True)
+    group_price = models.DecimalField(max_digits=10, decimal_places=2,null=True,blank=True)
     latitude = models.DecimalField(
         max_digits=9,
         decimal_places=6,
