@@ -134,7 +134,8 @@ class SlotBooking(models.Model):
             ('ongoing', 'Ongoing'),
             ('completed', 'Completed'),
             ('missed', 'Missed'),
-            ('cancelled', 'Cancelled')
+            ('cancelled', 'Cancelled'),
+            ('changed','Changed')
         ),
         default='upcoming'
     )
@@ -150,6 +151,8 @@ class SlotBooking(models.Model):
     )
 
     notes = models.TextField(blank=True, null=True)
+  
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

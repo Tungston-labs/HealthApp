@@ -3,10 +3,17 @@ from .models import Client
 from accounts.models import User
 import datetime
 from decimal import Decimal
+from rest_framework import serializers
+from decimal import Decimal
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
 class ClientSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
     profile_pic = serializers.ImageField(required=False)
-    plan_names = serializers.SerializerMethodField(read_only=True)  
+    plan_names = serializers.SerializerMethodField(read_only=True)
+
     latitude = serializers.DecimalField(
         max_digits=9,
         decimal_places=6,
@@ -22,13 +29,21 @@ class ClientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Client
-        fields = '__all__'   # plan_names will be auto included
+        fields = '__all__'
         read_only_fields = ['user']
 
+    # ---------------- VALIDATIONS ----------------
+    def validate_email(self, value):
+        if Client.objects.filter(email__iexact=value).exists():
+            raise serializers.ValidationError("Email already exists")
+        return value
+
+    def validate_phno(self, value):
+        if Client.objects.filter(phno=value).exists():
+            raise serializers.ValidationError("Phone number already exists")
+        return value
+
     def get_plan_names(self, obj):
-        """
-        Returns all distinct plan names this client belongs to
-        """
         return list(
             obj.slotbooking_set
             .select_related("plan")
@@ -41,17 +56,12 @@ class ClientSerializer(serializers.ModelSerializer):
 
         latitude = validated_data.get("latitude")
         longitude = validated_data.get("longitude")
-        print("LAT:", validated_data.get("latitude"))
-        print("LNG:", validated_data.get("longitude"))
 
         if latitude is not None:
             validated_data["latitude"] = Decimal(latitude)
 
         if longitude is not None:
             validated_data["longitude"] = Decimal(longitude)
-
-
-
 
         client = Client.objects.create(**validated_data)
 
@@ -67,6 +77,7 @@ class ClientSerializer(serializers.ModelSerializer):
         client.save()
 
         return client
+
 
 
 from rest_framework import serializers

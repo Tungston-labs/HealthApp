@@ -1,5 +1,5 @@
-    # @base_url = http://127.0.0.1:8000/api/trainer/
-    @base_url = http://178.248.112.16:9001/api/trainer/
+     @base_url = http://127.0.0.1:8000/api/trainer/
+    # @base_url = http://178.248.112.16:9001/api/trainer/
 
 ###----------------------login/get access token and refresh token
 POST http://178.248.112.16:9001/api/auth/login/
@@ -111,19 +111,19 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 ### filter trainer by slot,time,date
 POST {{base_url}}available-trainers/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY4Njg1NTAzLCJpYXQiOjE3Njg2NDIzMDMsImp0aSI6ImM1NjE4NDVkODc4MjRhMjhiMjU5MjMxMjAwMjhmY2MwIiwidXNlcl9pZCI6IjI2In0.6-hmlzfe_I5TFeS-agoWWJJPPqcBUxuwoA_tiNr3jsI
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY5MTgyNTI0LCJpYXQiOjE3NjkxMzkzMjQsImp0aSI6ImM2NzU3OTEyNmJhNzRlN2JiZGMyMTNjZDZhZTEzMmU3IiwidXNlcl9pZCI6IjMifQ.E9Ev1ylHVqMT5va5y81j_q4VE-vHlmFf7eg-C9orrQo
 Content-Type: application/json
 
 {
-  "plan_id": 3,
-  "slot_days": ["mon","tue","wed","thu","fri","sat"],
+  "plan_id": 2,
+  "slot_days": ["mon","wed","fri"],
   "time": "09:00",
-  "start_date": "2026-01-03"
+  "start_date": "2026-01-26"
 }
 
 ### trainer detail view for modal in mobile app
-GET {{base_url}}detail/66/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY4MzM5ODI2LCJpYXQiOjE3NjgyOTY2MjYsImp0aSI6IjYyZTYxZWY0NjhhNTRiNjA5MGRmMjVkZjcyOTc1ZDdkIiwidXNlcl9pZCI6IjI2In0.-B1bY31n2aYkcOS4ogTHr4gfOmw1zCcJ5dWRyKTPT1g
+GET {{base_url}}detail/2/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY4OTI1OTQ4LCJpYXQiOjE3Njg4ODI3NDgsImp0aSI6ImNkN2QxMWRmMDhlMDQ1YWFiMzU4NDg0NzU4OGUxYjljIiwidXNlcl9pZCI6IjMifQ.fgVwR3ciRIu2faYChUjSx0Of5IIxmvupf7hUjTEENqo
 
 
 
@@ -160,8 +160,8 @@ Content-Type: application/json
 
 
 ### change trainer by user
-GET {{base_url}}change/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY4ODM3NTkzLCJpYXQiOjE3Njg3OTQzOTMsImp0aSI6IjcwNDQ3NGZmY2MxMDQ2MGJhMmYxMDNjZmNlNDM4MDcxIiwidXNlcl9pZCI6IjI2In0.d-ByQ6Nu3PNFBHHcfMxBUVh9CeUTKmxbazygoE9FE_c
+GET {{base_url}}change/?trainer_id=3
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY5MDk2MDQ2LCJpYXQiOjE3NjkwNTI4NDYsImp0aSI6IjBjMTM1OTRlMzcwZTQ2ZmM5NzUyNGMxMDM0Yzk4NzViIiwidXNlcl9pZCI6IjMifQ.kbCN2QblpLbDN6v9yuTwhwLwsM-BClf8FnsDHWdfrmA
 
 
 ### get single trainer details using id
@@ -227,4 +227,28 @@ Content-Type: application/json
   "trainer_id": 66,
   "plan_id": 2,
   "booking_type": "single"
+}
+
+
+
+### Create Change Trainer Order
+POST {{base_url}}payment/change-trainer/order/
+Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY5Mjc5MzUwLCJpYXQiOjE3NjkyMzYxNTAsImp0aSI6IjIxMTU2MWExNTFjOTRjYjZiZjA1NWU5MjQ1NTViYjRhIiwidXNlcl9pZCI6IjMifQ.C0i-oiwIumu7PjSFm877Ua6ohTiEm3LfTev7U7N_Ud4
+Content-Type: application/json
+
+{
+  "new_trainer_id": 4,
+  "plan_id": 2
+}
+
+
+### Verify Change Trainer Payment
+POST {{base_url}}payment/change-trainer/verify/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY5MTgyNTI0LCJpYXQiOjE3NjkxMzkzMjQsImp0aSI6ImM2NzU3OTEyNmJhNzRlN2JiZGMyMTNjZDZhZTEzMmU3IiwidXNlcl9pZCI6IjMifQ.E9Ev1ylHVqMT5va5y81j_q4VE-vHlmFf7eg-C9orrQo
+Content-Type: application/json
+
+{
+  "razorpay_order_id": "order_S7AmIIkwDpKga2",
+  "razorpay_payment_id": "pay_S7AmQBPepYXZlA",
+  "razorpay_signature": "decddfd24a47f43e5fc6172796acd92ac312e7d0e9a50c4bfb42fe7dd736da69"
 }

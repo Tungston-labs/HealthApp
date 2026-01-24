@@ -20,14 +20,46 @@ from rest_framework import serializers
 from .models import Trainer, TrainerCertificate
 from plan.models import Plan
 
+from rest_framework import serializers
+from django.contrib.auth import get_user_model
+from decimal import Decimal
+import json
+
+from .models import Trainer, TrainerCertificate
+User = get_user_model()
+
 
 class TrainerSerializer(serializers.ModelSerializer):
+    # -------------------------
+    # WRITE-ONLY INPUTS
+    # -------------------------
     certificates = serializers.ListField(
         child=serializers.CharField(),
         write_only=True,
         required=False
     )
+
+    password = serializers.CharField(write_only=True, required=False)
+
+    # -------------------------
+    # READ-ONLY / COMPUTED
+    # -------------------------
     certificates_read = serializers.SerializerMethodField()
+
+    profile_pic = serializers.ImageField(required=False, allow_null=True)
+    profile_pic_url = serializers.SerializerMethodField()
+
+    plan_id = serializers.IntegerField(
+        source="training_field.id",
+        read_only=True
+    )
+    plan_name = serializers.CharField(
+        source="training_field.plan_name",
+        read_only=True
+    )
+
+    plan_image = serializers.SerializerMethodField()
+
     latitude = serializers.DecimalField(
         max_digits=9,
         decimal_places=6,
@@ -41,68 +73,89 @@ class TrainerSerializer(serializers.ModelSerializer):
         allow_null=True
     )
 
-    password = serializers.CharField(write_only=True, required=False)
-
-    profile_pic = serializers.ImageField(required=False, allow_null=True)
-    profile_pic_url = serializers.SerializerMethodField()
-
-    plan_id = serializers.IntegerField(
-        source='training_field.id',
-        read_only=True
-    )
-    plan_name = serializers.CharField(
-        source='training_field.plan_name',
-        read_only=True
-    )
-
-    plan_image = serializers.SerializerMethodField()
-
     class Meta:
         model = Trainer
-        fields = '__all__'
-        read_only_fields = ['user']
+        fields = "__all__"
+        read_only_fields = ["user"]
 
-    def get_profile_pic_url(self, obj):
-        request = self.context.get("request")
-        if obj.profile_pic and request:
-            return request.build_absolute_uri(obj.profile_pic.url)
-        return None
+    # =====================================================
+    # VALIDATIONS (EMAIL & PHONE)
+    # =====================================================
+    def validate_email(self, value):
+        qs = User.objects.filter(email__iexact=value)
 
+        # Ignore self on update
+        if self.instance and self.instance.user:
+            qs = qs.exclude(id=self.instance.user.id)
 
+        if qs.exists():
+            raise serializers.ValidationError("Email already exists")
 
+        return value
+
+    def validate_phno(self, value):
+        qs = User.objects.filter(phno=value)
+
+        if self.instance and self.instance.user:
+            qs = qs.exclude(id=self.instance.user.id)
+
+        if qs.exists():
+            raise serializers.ValidationError("Phone number already exists")
+
+        return value
+
+    # =====================================================
+    # CREATE
+    # =====================================================
     def create(self, validated_data):
         request = self.context.get("request")
 
-        # READ certificates[] properly
+        # Read certificates properly from multipart
         certificate_urls = request.data.getlist("certificates[]")
 
-        password = validated_data.pop('password', None)
+        password = validated_data.pop("password", None)
 
-        trainer = Trainer.objects.create(
-            **validated_data,
-            password=password
-        )
+        # Normalize lat/lng
+        if validated_data.get("latitude") is not None:
+            validated_data["latitude"] = Decimal(validated_data["latitude"])
+        if validated_data.get("longitude") is not None:
+            validated_data["longitude"] = Decimal(validated_data["longitude"])
 
+        # Create Trainer
+        trainer = Trainer.objects.create(**validated_data)
+
+        # Create linked User
+        if password:
+            user = User.objects.create_user(
+                email=trainer.email,
+                phno=trainer.phno,
+                password=password,
+                role="trainer",
+                name=trainer.name
+            )
+            trainer.user = user
+            trainer.save()
+
+        # Save certificates
         for url in certificate_urls:
             if url:
                 cert = TrainerCertificate.objects.create(image_url=url)
                 trainer.certificates.add(cert)
 
         return trainer
-    
+
+    # =====================================================
+    # UPDATE
+    # =====================================================
     def update(self, instance, validated_data):
         certificate_urls = validated_data.pop("certificates", None)
 
-        # -------------------
         # Update Trainer fields
-        # -------------------
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
 
-        # -------------------
-        # Update certificates if provided
-        # -------------------
+        # Update certificates
         if certificate_urls is not None:
             instance.certificates.clear()
 
@@ -116,23 +169,24 @@ class TrainerSerializer(serializers.ModelSerializer):
                 cert = TrainerCertificate.objects.create(image_url=url)
                 instance.certificates.add(cert)
 
-        # -------------------
-        # Update related User fields
-        # -------------------
+        # Sync User fields
         user = instance.user
         if user:
-            # Only update if the field exists in validated_data
-            user_fields = ['name', 'email', 'phno']
-            for field in user_fields:
+            for field in ["name", "email", "phno"]:
                 if field in validated_data:
                     setattr(user, field, validated_data[field])
             user.save()
 
         return instance
 
-
-
-
+    # =====================================================
+    # SERIALIZER METHODS
+    # =====================================================
+    def get_profile_pic_url(self, obj):
+        request = self.context.get("request")
+        if obj.profile_pic and request:
+            return request.build_absolute_uri(obj.profile_pic.url)
+        return None
 
     def get_certificates_read(self, obj):
         request = self.context.get("request")
@@ -141,19 +195,15 @@ class TrainerSerializer(serializers.ModelSerializer):
             else request.build_absolute_uri(c.image_url)
             for c in obj.certificates.all()
         ]
-    
+
     def get_plan_image(self, obj):
         request = self.context.get("request")
-
         if obj.training_field and obj.training_field.upload_file:
             return request.build_absolute_uri(
                 obj.training_field.upload_file.url
             )
         return None
-    
-    def validate_email(self, value):
-        print("EMAIL RECEIVED:", repr(value))
-        return value
+
 
 
 
@@ -191,27 +241,21 @@ class TrainerMiniSerializer(serializers.ModelSerializer):
 
     def get_star_rating(self, obj):
         reviews = getattr(obj, "reviews", None)
-        if not reviews:
+        if not reviews or not reviews.exists():
             return 0
-        review_list = reviews.all()  # ← convert RelatedManager to queryset
-        if not review_list.exists():
-            return 0
-        return round(sum(r.rating for r in review_list) / review_list.count(), 1)
+        return round(sum(r.rating for r in reviews.all()) / reviews.count(), 1)
 
     def get_experience(self, obj):
-        return getattr(obj, "experience", None)
+        return obj.experience
 
     def get_single_price(self, obj):
-        plan = self.context.get("plan")
-        return getattr(plan, "single_price", None)
+        return obj.single_price
 
     def get_couple_price(self, obj):
-        plan = self.context.get("plan")
-        return getattr(plan, "couple_price", None)
+        return obj.couple_price
 
     def get_group_price(self, obj):
-        plan = self.context.get("plan")
-        return getattr(plan, "group_price", None)
+        return obj.group_price
 
   
 
@@ -239,12 +283,16 @@ class TrainerDetailSerializer(serializers.ModelSerializer):
         source="training_field.id",
         read_only=True
     )
+    single_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    couple_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    group_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
 
     class Meta:
         model = Trainer
         fields = [
             "id",
             "name",
+            "phno",
             "section_timing",
             "no_of_section",
             "profile_pic",
@@ -257,6 +305,11 @@ class TrainerDetailSerializer(serializers.ModelSerializer):
             "reviews",
             "plan_name",
             "plan_id",
+            "single_price",
+            "couple_price",
+            "group_price",
+
+            
         ]
 
     # Trainer profile pic (full URL)
@@ -311,11 +364,15 @@ from trainer.models import Trainer
 class ChangeTrainerSerializer(serializers.ModelSerializer):
     profile_pic = serializers.SerializerMethodField()
     star_rating = serializers.SerializerMethodField()
-    price = serializers.DecimalField(source="expecting_salary", max_digits=10, decimal_places=2)
+    price_difference = serializers.DecimalField(
+    max_digits=10,
+    decimal_places=2,
+    read_only=True
+)
 
     class Meta:
         model = Trainer
-        fields = ["id", "name", "profile_pic", "experience", "star_rating", "price", "location"]
+        fields = ["id", "name", "profile_pic", "experience", "star_rating", "single_price","couple_price","group_price", "location","price_difference"]
 
     def get_profile_pic(self, obj):
         request = self.context.get("request")

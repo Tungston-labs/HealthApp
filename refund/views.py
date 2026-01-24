@@ -57,7 +57,7 @@ class RequestTrainingCancelView(APIView):
             trainer=slot.trainer,
             plan=slot.plan,
             slot=slot,
-            amount=slot.plan.single_price
+            amount=slot.amount_paid
         )
 
         return Response(

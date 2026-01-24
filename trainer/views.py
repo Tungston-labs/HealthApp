@@ -219,6 +219,8 @@ class FilterTrainersView(APIView):
         time_slot = request.data.get("time")           # "06:00"
         start_date = request.data.get("start_date")    # "2026-01-10"
 
+        print("request body-----",plan_id,slot_days,time_slot,start_date)
+
         # ---------------- VALIDATION ----------------
         if not plan_id or not slot_days or not time_slot or not start_date:
             return Response(
@@ -349,9 +351,7 @@ class FilterTrainersView(APIView):
                 "id": plan.id,
                 "name": plan.plan_name,
                 "plan_type": plan.plan_type,
-                "single_price": plan.single_price,
-                "couple_price": plan.couple_price,
-                "group_price": plan.group_price,
+                
             },
             "client_address": client.address,
             "total_available": len(matched_trainers),
@@ -359,7 +359,6 @@ class FilterTrainersView(APIView):
                 final_trainers,
                 many=True,
                 context={
-                    "plan": plan,
                     "request": request,
                     "matched_ids": matched_ids
                 }
@@ -503,95 +502,218 @@ class BookTrainerView(APIView):
             "start_date": str(start_date_obj),
             "end_date": str(end_date)
         })
+from math import radians, sin, cos, asin, sqrt
+from datetime import timedelta
+from django.shortcuts import get_object_or_404
+
+from trainer.models import Trainer, TrainerAvailability,SlotBooking, Payment
+from client.models import Client
+from plan.models import Plan
+from django.shortcuts import get_object_or_404
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from .serializers import ChangeTrainerSerializer
+
+
+from math import radians, sin, cos, asin, sqrt
+from datetime import timedelta
+from django.shortcuts import get_object_or_404
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
+from trainer.models import Trainer, TrainerAvailability
+from client.models import Client
+from trainer.serializers import ChangeTrainerSerializer
+from decimal import Decimal
+
 
 class ChangeTrainerView(APIView):
     permission_classes = [IsAuthenticated]
 
+    # ------------------ DISTANCE ------------------
+    def haversine(self, lat1, lon1, lat2, lon2):
+        lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
+        dlon = lon2 - lon1
+        dlat = lat2 - lat1
+        a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
+        return 6371 * (2 * asin(sqrt(a)))  # KM
+
+    # ------------------ API ------------------
     def get(self, request):
-        # 1. Get client
-        try:
-            client = Client.objects.get(user=request.user)
-        except Client.DoesNotExist:
-            return Response({"error": "Client profile not found"}, 404)
+        trainer_id = request.query_params.get("trainer_id")
+        if not trainer_id:
+            return Response(
+                {"status": False, "message": "trainer_id is required"},
+                status=400,
+            )
 
-        # 2. Find latest booking (current trainer info)
-        latest_booking = SlotBooking.objects.filter(client=client).order_by('-date').first()
-        if not latest_booking:
-            return Response({"error": "No active bookings found"}, 400)
+        # ---------- CLIENT ----------
+        client = get_object_or_404(Client, user=request.user)
 
-        current_trainer = latest_booking.trainer
-        plan = latest_booking.plan
-        time_slot_obj = latest_booking.time
-        start_date_obj = latest_booking.date
+        if not client.latitude or not client.longitude:
+            return Response(
+                {"status": False, "message": "Client location not set"},
+                status=400,
+            )
 
-        # 3. Calculate plan duration
-        duration_map = {"3_days": 3, "6_days": 6}
-        duration = duration_map.get(plan.plan_type, 30)
-        end_date = start_date_obj + timedelta(days=duration)
-
-        # 4. Extract slot days from bookings
-        weekday_map_reverse = {0:"mon",1:"tue",2:"wed",3:"thu",4:"fri",5:"sat",6:"sun"}
-
-        all_client_bookings = SlotBooking.objects.filter(
-            client=client,
-            trainer=current_trainer,
-            plan=plan
+        # ---------- CURRENT BOOKING (FOR THIS TRAINER ONLY) ----------
+        booking = (
+            SlotBooking.objects
+            .filter(client=client, trainer_id=trainer_id)
+            .order_by("-date")
+            .first()
         )
 
-        slot_days = list({weekday_map_reverse[b.date.weekday()] for b in all_client_bookings})
-        wanted_weekdays = [b.date.weekday() for b in all_client_bookings]
+        if not booking:
+            return Response(
+                {"status": False, "message": "No booking found for this trainer"},
+                status=400,
+            )
 
-        # 5. Get salary threshold
-        min_salary = current_trainer.expecting_salary
+        current_trainer = booking.trainer
 
-        # 6. Filter trainers
+        # ✅ UNIQUE PLAN COMES FROM TRAINER (NO CLIENT CONFLICT)
+        plan = current_trainer.training_field
+
+        booking_type = booking.booking_type
+        time_slot = booking.time
+        start_date = booking.date
+
+        paid_amount = booking.amount_paid or 0
+        total_sessions = current_trainer.no_of_section or 0
+
+        # ---------- PLAN DURATION ----------
+        duration_map = {"3_days": 3, "6_days": 6}
+        duration = duration_map.get(plan.plan_type, 30)
+        end_date = start_date + timedelta(days=duration)
+
+        # ---------- WEEKDAYS ----------
+        weekday_map = {
+            0: "mon", 1: "tue", 2: "wed",
+            3: "thu", 4: "fri", 5: "sat", 6: "sun"
+        }
+
+        existing_bookings = SlotBooking.objects.filter(
+            client=client,
+            trainer=current_trainer,
+        )
+
+        slot_days = list({weekday_map[b.date.weekday()] for b in existing_bookings})
+        wanted_weekdays = [b.date.weekday() for b in existing_bookings]
+
+        # ✅ SAFETY FALLBACK (CRITICAL)
+        if not wanted_weekdays:
+            wanted_weekdays = [start_date.weekday()]
+
+        # ---------- BASE TRAINERS (SAME PLAN ONLY) ----------
         trainers = Trainer.objects.filter(
-            training_field_id=plan.id,
+            training_field=plan,
             status="approved",
-            gender=client.gender.lower(),
-            expecting_salary__gte=min_salary
+            gender__iexact=client.gender,
         ).exclude(id=current_trainer.id)
 
-        available = []
+        matched = []
+        others = []
 
+        # ---------- FILTERING ----------
         for tr in trainers:
+
+            # ----- PER SESSION PRICE -----
+            if booking_type == "single":
+                per_price = tr.single_price
+            elif booking_type == "couple":
+                per_price = tr.couple_price
+            else:
+                per_price = tr.group_price
+
+            if not per_price:
+                continue
+
+            # ----- TOTAL & PRICE DIFFERENCE -----
+            new_total = per_price * total_sessions
+            price_difference = paid_amount - per_price
+            # 🔴 DO NOT FILTER NEGATIVE (CLIENT MAY PAY EXTRA)
+
+            # ----- DISTANCE -----
+            if tr.latitude and tr.longitude:
+                distance = self.haversine(
+                    client.latitude,
+                    client.longitude,
+                    tr.latitude,
+                    tr.longitude,
+                )
+                if distance > 5:
+                    tr.price_difference = price_difference
+                    others.append(tr)
+                    continue
+
+            # ----- AVAILABILITY -----
             try:
                 avl = tr.traineravailability
-            except:
+            except TrainerAvailability.DoesNotExist:
+                tr.price_difference = price_difference
+                others.append(tr)
                 continue
 
-            # check days
             if not all(getattr(avl, d) for d in slot_days):
+                tr.price_difference = price_difference
+                others.append(tr)
                 continue
 
-            # check time
-            if not (avl.start_time <= time_slot_obj <= avl.end_time):
+            if not (avl.start_time <= time_slot <= avl.end_time):
+                tr.price_difference = price_difference
+                others.append(tr)
                 continue
 
-            # build session dates
-            max_sessions = tr.no_of_section
-            d = start_date_obj
+            # ----- SESSION DATES -----
             session_dates = []
-            filled = 0
+            d = start_date
 
-            while filled < max_sessions:
+            while len(session_dates) < total_sessions and d <= end_date:
                 if d.weekday() in wanted_weekdays:
                     session_dates.append(d)
-                    filled += 1
                 d += timedelta(days=1)
 
-            # conflict check
-            if SlotBooking.objects.filter(trainer=tr, date__in=session_dates, time=time_slot_obj).exists():
+            # ----- BOOKING CONFLICT -----
+            conflict = SlotBooking.objects.filter(
+                trainer=tr,
+                date__in=session_dates,
+                time=time_slot,
+            ).exists()
+
+            if conflict:
+                tr.price_difference = price_difference
+                others.append(tr)
                 continue
 
-            available.append(tr)
+            # ✅ MATCHED
+            tr.price_difference = price_difference
+            matched.append(tr)
 
-        serializer = ChangeTrainerSerializer(available, many=True, context={"request": request})
+        # ---------- FINAL ORDER ----------
+        final_trainers = matched + others
 
+        # ---------- RESPONSE ----------
         return Response({
-            "total_available": len(available),
-            "available_trainers": serializer.data
+            "status": True,
+            "plan": {
+                "id": plan.id,
+                "name": plan.plan_name,
+                "plan_type": plan.plan_type,
+            },
+            "client_address": client.address,
+            "paid_amount": paid_amount,
+            "total_available": len(matched),
+            "trainers": ChangeTrainerSerializer(
+                final_trainers,
+                many=True,
+                context={"request": request},
+            ).data,
         })
+
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -964,6 +1086,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from .models import Payment
 from .utils import get_plan_amount
+from requests.exceptions import ConnectTimeout
 
 class CreateTrainerBookingOrderView(APIView):
     permission_classes = [IsAuthenticated]
@@ -982,20 +1105,31 @@ class CreateTrainerBookingOrderView(APIView):
         trainer = Trainer.objects.get(id=trainer_id, status="approved")
         plan = Plan.objects.get(id=plan_id)
 
-        # ✅ amount from plan
-        amount = get_plan_amount(plan, booking_type)
+        #  amount from trainer
+        amount = get_plan_amount(trainer, booking_type)
+
 
         razorpay_client = razorpay.Client(
             auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
         )
 
-        order = razorpay_client.order.create({
-            "amount": int(amount * 100),  # paise
-            "currency": "INR",
-            "payment_capture": 1
-        })
+        try:
+            order = razorpay_client.order.create(
+                {
+                    "amount": int(amount * 100),
+                    "currency": "INR",
+                    "payment_capture": 1
+                },
+                timeout=10  # ⬅️ ADD THIS
+            )
+        except ConnectTimeout:
+            return Response(
+                {"error": "Unable to connect to payment gateway. Try again later."},
+                status=503
+            )
 
-        # ✅ Save payment
+
+        #  Save payment
         payment = Payment.objects.create(
             client=client,
             trainer=trainer,
@@ -1016,6 +1150,11 @@ class CreateTrainerBookingOrderView(APIView):
 
 from razorpay.errors import SignatureVerificationError
 
+from django.db import transaction
+from razorpay.errors import SignatureVerificationError
+
+from datetime import datetime, timedelta
+
 class VerifyTrainerPaymentView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -1028,7 +1167,23 @@ class VerifyTrainerPaymentView(APIView):
         time_slot = request.data.get("time")
         slot_days = request.data.get("slot_days")
 
+        # ✅ VALIDATION (IMPORTANT)
+        if not all([razorpay_order_id, razorpay_payment_id, razorpay_signature]):
+            return Response({"error": "Missing Razorpay details"}, 400)
+
+        if not all([start_date, time_slot, slot_days]):
+            return Response({
+                "error": "start_date, time and slot_days are required"
+            }, 400)
+
         payment = Payment.objects.get(razorpay_order_id=razorpay_order_id)
+
+        # Prevent duplicate verification
+        if payment.status == "success":
+            return Response({
+                "message": "Payment already verified",
+                "total_sessions": SlotBooking.objects.filter(payment=payment).count()
+            })
 
         razorpay_client = razorpay.Client(
             auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
@@ -1045,28 +1200,32 @@ class VerifyTrainerPaymentView(APIView):
             payment.save()
             return Response({"error": "Payment verification failed"}, 400)
 
-        # ✅ Payment success
-        payment.status = "success"
-        payment.razorpay_payment_id = razorpay_payment_id
-        payment.razorpay_signature = razorpay_signature
-        payment.save()
+        # ✅ SAFE PARSING
+        try:
+            time_slot_obj = datetime.strptime(time_slot, "%H:%M").time()
+            start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
+        except ValueError:
+            return Response({"error": "Invalid date or time format"}, 400)
 
-        # -----------------------------------------
-        # 🔥 NOW create SlotBooking (your existing logic)
-        # -----------------------------------------
+        slot_days = [d.lower() for d in slot_days]
 
-        client = payment.client
+        weekday_map = {
+            "mon": 0, "tue": 1, "wed": 2,
+            "thu": 3, "fri": 4, "sat": 5, "sun": 6
+        }
+
+        try:
+            selected_weekdays = [weekday_map[d] for d in slot_days]
+        except KeyError:
+            return Response({"error": "Invalid slot_days"}, 400)
+
         trainer = payment.trainer
+        client = payment.client
         plan = payment.plan
-
-        time_slot_obj = datetime.strptime(time_slot, "%H:%M").time()
-        start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
-
-        weekday_map = {"mon":0,"tue":1,"wed":2,"thu":3,"fri":4,"sat":5,"sun":6}
-        selected_weekdays = [weekday_map[d] for d in slot_days]
 
         max_sessions = trainer.no_of_section
         session_dates = []
+
         d = start_date_obj
         filled = 0
 
@@ -1076,21 +1235,356 @@ class VerifyTrainerPaymentView(APIView):
                 filled += 1
             d += timedelta(days=1)
 
-        for date in session_dates:
-            SlotBooking.objects.create(
-                trainer=trainer,
-                client=client,
-                plan=plan,
-                booking_type=payment.booking_type,
-                amount_paid=payment.amount,
-                payment=payment,
-                date=date,
-                time=time_slot_obj,
-                payment_status="paid"
-            )
+        # 🔒 Conflict check
+        if SlotBooking.objects.filter(
+            trainer=trainer,
+            date__in=session_dates,
+            time=time_slot_obj
+        ).exists():
+            return Response({"error": "Trainer already booked"}, 400)
+
+        # ✅ ATOMIC SAVE
+        with transaction.atomic():
+            payment.status = "success"
+            payment.razorpay_payment_id = razorpay_payment_id
+            payment.razorpay_signature = razorpay_signature
+            payment.save()
+
+            for date in session_dates:
+                SlotBooking.objects.create(
+                    trainer=trainer,
+                    client=client,
+                    plan=plan,
+                    booking_type=payment.booking_type,
+                    amount_paid=payment.amount,
+                    payment=payment,
+                    date=date,
+                    time=time_slot_obj,
+                    payment_status="paid"
+                )
 
         return Response({
-            "message": "Payment successful & trainer booked",
+            "message": "Payment verified & slots booked successfully",
             "total_sessions": len(session_dates)
         })
+from django.db import transaction
+from django.conf import settings
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+import razorpay
+from django.db import transaction
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from django.conf import settings
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from django.conf import settings
+import razorpay
 
+class CreateTrainerChangeOrderView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        client = Client.objects.get(user=request.user)
+
+        new_trainer_id = request.data.get("new_trainer_id")
+        plan_id = request.data.get("plan_id")
+
+        if not new_trainer_id or not plan_id:
+            return Response({"error": "Missing fields"}, 400)
+
+        new_trainer = Trainer.objects.get(id=new_trainer_id, status="approved")
+        plan = Plan.objects.get(id=plan_id)
+
+        old_slots = SlotBooking.objects.filter(
+            client=client,
+            plan=plan,
+            status="upcoming"
+        )
+
+        if not old_slots.exists():
+            return Response({"error": "No remaining sessions"}, 400)
+
+        first_slot = old_slots.first()
+        booking_type = first_slot.booking_type
+        remaining_sessions = old_slots.count()
+
+        old_price_per_session = float(first_slot.amount_paid)
+        new_price_per_session = float(
+            get_plan_amount(new_trainer, booking_type)
+        )
+
+        diff = new_price_per_session - old_price_per_session
+
+        # 🔹 CASE 1: NO PAYMENT REQUIRED
+        if diff <= 0:
+            return Response({
+                "order_required": False,
+                "verify_required": True,
+                "remaining_sessions": remaining_sessions
+            })
+
+        # 🔹 CASE 2: PAYMENT REQUIRED
+        total_amount = diff 
+
+        razorpay_client = razorpay.Client(
+            auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
+        )
+
+        order = razorpay_client.order.create({
+            "amount": int(total_amount * 100),
+            "currency": "INR",
+            "payment_capture": 1
+        })
+
+        Payment.objects.create(
+            client=client,
+            trainer=new_trainer,
+            plan=plan,
+            booking_type=booking_type,
+            amount=total_amount,
+            razorpay_order_id=order["id"],
+            status="created"
+        )
+
+        return Response({
+            "order_required": True,
+            "order_id": order["id"],
+            "amount": total_amount,
+            "key": settings.RAZORPAY_KEY_ID
+        })
+from django.db import transaction
+from razorpay.errors import SignatureVerificationError
+
+# class VerifyTrainerChangePaymentView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def post(self, request):
+#         client = Client.objects.get(user=request.user)
+
+#         razorpay_order_id = request.data.get("razorpay_order_id")
+
+#         # 🔹 CASE 1: NO PAYMENT FLOW
+#         if not razorpay_order_id:
+#             old_trainer_id = request.data.get("old_trainer_id")
+#             new_trainer_id = request.data.get("new_trainer_id")
+#             plan_id = request.data.get("plan_id")
+
+#             plan = Plan.objects.get(id=plan_id)
+#             new_trainer = Trainer.objects.get(id=new_trainer_id)
+#             print('new traine id',new_trainer_id)
+
+
+#             old_slots = SlotBooking.objects.filter(
+#                 client=client,
+#                 plan=plan,
+#                 status="upcoming"
+#             )
+
+#             if not old_slots.exists():
+#                 return Response({"error": "No sessions"}, 400)
+
+#             with transaction.atomic():
+#                 old_slots.update(status="changed")
+
+#                 for slot in old_slots:
+#                     SlotBooking.objects.create(
+#                         trainer=new_trainer,
+#                         client=client,
+#                         plan=plan,
+#                         booking_type=slot.booking_type,
+#                         amount_paid=slot.amount_paid,
+#                         date=slot.date,
+#                         time=slot.time,
+#                         status="upcoming",
+#                         payment_status="paid"
+#                     )
+
+#             return Response({"status": True, "no_payment": True})
+
+#         # 🔹 CASE 2: PAYMENT FLOW
+#         razorpay_payment_id = request.data.get("razorpay_payment_id")
+#         razorpay_signature = request.data.get("razorpay_signature")
+#         print(razorpay_payment_id)
+#         print(razorpay_signature)
+
+#         payment = Payment.objects.filter(
+#             razorpay_order_id=razorpay_order_id,
+#             client=client,
+#             status="created"
+#         ).first()
+
+#         if not payment:
+#             return Response({"error": "Invalid order"}, 400)
+
+#         razorpay_client = razorpay.Client(
+#             auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
+#         )
+
+#         try:
+#             razorpay_client.utility.verify_payment_signature({
+#                 "razorpay_order_id": razorpay_order_id,
+#                 "razorpay_payment_id": razorpay_payment_id,
+#                 "razorpay_signature": razorpay_signature
+#             })
+#         except SignatureVerificationError:
+#             return Response({"error": "Verification failed"}, 400)
+
+#         old_slots = SlotBooking.objects.filter(
+#             client=client,
+#             plan=payment.plan,
+#             status="upcoming"
+#         )
+
+#         per_session = payment.amount / old_slots.count()
+
+#         with transaction.atomic():
+#             payment.status = "success"
+#             payment.save()
+
+#             old_slots.update(status="changed")
+
+#             for slot in old_slots:
+#                 SlotBooking.objects.create(
+#                     trainer=payment.trainer,
+#                     client=client,
+#                     plan=payment.plan,
+#                     booking_type=payment.booking_type,
+#                     amount_paid=per_session,
+#                     date=slot.date,
+#                     time=slot.time,
+#                     status="upcoming",
+#                     payment_status="paid"
+#                 )
+
+#         return Response({"status": True})
+from django.conf import settings
+from django.db import transaction
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from razorpay.errors import SignatureVerificationError
+import razorpay
+
+class VerifyTrainerChangePaymentView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        client = Client.objects.get(user=request.user)
+
+        razorpay_order_id = request.data.get("razorpay_order_id")
+        old_trainer_id = request.data.get("old_trainer_id")
+        new_trainer_id = request.data.get("new_trainer_id")
+        plan_id = request.data.get("plan_id")
+
+        # ---------------------------------------------------
+        # 🔹 CASE 1: NO PAYMENT REQUIRED
+        # ---------------------------------------------------
+        if not razorpay_order_id:
+            plan = Plan.objects.get(id=plan_id)
+            new_trainer = Trainer.objects.get(id=new_trainer_id)
+
+            old_slots_qs = SlotBooking.objects.filter(
+                client=client,
+                plan=plan,
+                status="upcoming"
+            )
+
+            if not old_slots_qs.exists():
+                return Response({"error": "No upcoming sessions"}, status=400)
+
+            old_slots = list(old_slots_qs)  # ✅ FREEZE DATA
+
+            with transaction.atomic():
+                old_slots_qs.update(status="changed")
+
+                for slot in old_slots:
+                    SlotBooking.objects.create(
+                        trainer=new_trainer,
+                        client=client,
+                        plan=plan,
+                        booking_type=slot.booking_type,
+                        amount_paid=slot.amount_paid,
+                        date=slot.date,
+                        time=slot.time,
+                        status="upcoming",
+                        payment_status="paid"
+                    )
+
+            return Response({"status": True, "no_payment": True})
+
+
+        # ---------------------------------------------------
+        # 🔹 CASE 2: PAYMENT FLOW
+        # ---------------------------------------------------
+        razorpay_payment_id = request.data.get("razorpay_payment_id")
+        razorpay_signature = request.data.get("razorpay_signature")
+
+        payment = Payment.objects.filter(
+            razorpay_order_id=razorpay_order_id,
+            client=client,
+            status="created"
+        ).first()
+
+        if not payment:
+            return Response({"error": "Invalid order"}, status=400)
+
+        razorpay_client = razorpay.Client(
+            auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
+        )
+
+        try:
+            razorpay_client.utility.verify_payment_signature({
+                "razorpay_order_id": razorpay_order_id,
+                "razorpay_payment_id": razorpay_payment_id,
+                "razorpay_signature": razorpay_signature
+            })
+        except SignatureVerificationError:
+            return Response({"error": "Signature verification failed"}, status=400)
+
+        # 🔹 Fetch old slots BEFORE update
+        old_slots_qs = SlotBooking.objects.filter(
+            client=client,
+            plan=payment.plan,
+            status="upcoming"
+        )
+
+        count = old_slots_qs.count()
+        if count == 0:
+            return Response({"error": "No upcoming sessions"}, status=400)
+
+        old_slots = list(old_slots_qs)  
+        per_session_amount = payment.amount
+
+        with transaction.atomic():
+            # ✅ SAVE PAYMENT DETAILS (FIX #1)
+            payment.status = "success"
+            payment.razorpay_payment_id = razorpay_payment_id
+            payment.razorpay_signature = razorpay_signature
+            payment.save(update_fields=[
+                "status",
+                "razorpay_payment_id",
+                "razorpay_signature"
+            ])
+
+            # ✅ MARK OLD SLOTS
+            old_slots_qs.update(status="changed")
+
+            # ✅ CREATE NEW SLOTS (FIX #2)
+            for slot in old_slots:
+                SlotBooking.objects.create(
+                    trainer=payment.trainer,  # NEW trainer already saved in payment
+                    client=client,
+                    plan=payment.plan,
+                    booking_type=payment.booking_type,
+                    amount_paid=per_session_amount,
+                    date=slot.date,
+                    time=slot.time,
+                    status="upcoming",
+                    payment_status="paid"
+                )
+
+        return Response({"status": True})
