@@ -270,3 +270,24 @@ class UnBookedPlanSerializer(serializers.ModelSerializer):
         if obj.upload_file and request:
             return request.build_absolute_uri(obj.upload_file.url)
         return None
+
+
+
+from trainer.models import Payment
+
+class ClientPaymentSerializer(serializers.ModelSerializer):
+    trainer_name = serializers.CharField(source="trainer.name", read_only=True)
+    plan_name = serializers.CharField(source="plan.plan_name", read_only=True)
+    paid_date = serializers.DateTimeField(source="created_at", read_only=True,format="%d-%m-%Y %H:%M")
+
+    class Meta:
+        model = Payment
+        fields = [
+            "id",
+            "trainer_name",
+            "plan_name",
+            "razorpay_payment_id",
+            "paid_date",
+            "amount",
+            "status",
+        ]

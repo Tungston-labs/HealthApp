@@ -1,6 +1,6 @@
 
-#  @base_url = http://127.0.0.1:8000/api/auth
-  @base_url = http://178.248.112.16:9001/api/auth
+  @base_url = http://127.0.0.1:8000/api/auth
+  #@base_url = http://178.248.112.16:9001/api/auth
 
 
 ###----------------------login/get access token and refresh token
@@ -9,7 +9,7 @@ Content-Type: application/json
 
 {
   "email_or_phno": "admin@gmail.com",
-  "password": "Password@1234"
+  "password": "Password@123"
 }
 
 ###--------------------------logout

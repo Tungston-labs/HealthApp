@@ -199,11 +199,12 @@ class ClientBookedTrainersView(APIView):
         latest_booking_ids = (
             SlotBooking.objects
             .filter(client=client)
-            .exclude(status="completed")
+            .exclude(status__in=["completed", "cancelled", "changed"])
             .values("trainer")
             .annotate(latest_id=Max("id"))
             .values_list("latest_id", flat=True)
         )
+
 
         bookings = (
             SlotBooking.objects
@@ -362,3 +363,20 @@ class ClientBMIView(APIView):
             "bmi": bmi,
             "category": category
         })
+
+from trainer.models import Payment
+from .serializers import ClientPaymentSerializer
+
+class ClientPaymentListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, client_id):
+        payments = (
+            Payment.objects
+            .filter(client_id=client_id, status="success")
+            .select_related("trainer", "plan")
+            .order_by("-created_at")
+        )
+
+        serializer = ClientPaymentSerializer(payments, many=True)
+        return Response(serializer.data)

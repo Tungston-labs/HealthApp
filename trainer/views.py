@@ -527,6 +527,7 @@ from trainer.models import Trainer, TrainerAvailability
 from client.models import Client
 from trainer.serializers import ChangeTrainerSerializer
 from decimal import Decimal
+from .utils import get_plan_amount
 
 
 class ChangeTrainerView(APIView):
@@ -580,8 +581,12 @@ class ChangeTrainerView(APIView):
         booking_type = booking.booking_type
         time_slot = booking.time
         start_date = booking.date
+        price_per_session = get_plan_amount(current_trainer, booking_type)
+        total_sessions = current_trainer.no_of_section or 0
 
-        paid_amount = booking.amount_paid or 0
+        paid_amount = price_per_session 
+
+        # paid_amount = booking.amount_paid or 0
         total_sessions = current_trainer.no_of_section or 0
 
         # ---------- PLAN DURATION ----------
@@ -1356,111 +1361,8 @@ class CreateTrainerChangeOrderView(APIView):
             "amount": total_amount,
             "key": settings.RAZORPAY_KEY_ID
         })
-from django.db import transaction
-from razorpay.errors import SignatureVerificationError
-
-# class VerifyTrainerChangePaymentView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     def post(self, request):
-#         client = Client.objects.get(user=request.user)
-
-#         razorpay_order_id = request.data.get("razorpay_order_id")
-
-#         # 🔹 CASE 1: NO PAYMENT FLOW
-#         if not razorpay_order_id:
-#             old_trainer_id = request.data.get("old_trainer_id")
-#             new_trainer_id = request.data.get("new_trainer_id")
-#             plan_id = request.data.get("plan_id")
-
-#             plan = Plan.objects.get(id=plan_id)
-#             new_trainer = Trainer.objects.get(id=new_trainer_id)
-#             print('new traine id',new_trainer_id)
 
 
-#             old_slots = SlotBooking.objects.filter(
-#                 client=client,
-#                 plan=plan,
-#                 status="upcoming"
-#             )
-
-#             if not old_slots.exists():
-#                 return Response({"error": "No sessions"}, 400)
-
-#             with transaction.atomic():
-#                 old_slots.update(status="changed")
-
-#                 for slot in old_slots:
-#                     SlotBooking.objects.create(
-#                         trainer=new_trainer,
-#                         client=client,
-#                         plan=plan,
-#                         booking_type=slot.booking_type,
-#                         amount_paid=slot.amount_paid,
-#                         date=slot.date,
-#                         time=slot.time,
-#                         status="upcoming",
-#                         payment_status="paid"
-#                     )
-
-#             return Response({"status": True, "no_payment": True})
-
-#         # 🔹 CASE 2: PAYMENT FLOW
-#         razorpay_payment_id = request.data.get("razorpay_payment_id")
-#         razorpay_signature = request.data.get("razorpay_signature")
-#         print(razorpay_payment_id)
-#         print(razorpay_signature)
-
-#         payment = Payment.objects.filter(
-#             razorpay_order_id=razorpay_order_id,
-#             client=client,
-#             status="created"
-#         ).first()
-
-#         if not payment:
-#             return Response({"error": "Invalid order"}, 400)
-
-#         razorpay_client = razorpay.Client(
-#             auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
-#         )
-
-#         try:
-#             razorpay_client.utility.verify_payment_signature({
-#                 "razorpay_order_id": razorpay_order_id,
-#                 "razorpay_payment_id": razorpay_payment_id,
-#                 "razorpay_signature": razorpay_signature
-#             })
-#         except SignatureVerificationError:
-#             return Response({"error": "Verification failed"}, 400)
-
-#         old_slots = SlotBooking.objects.filter(
-#             client=client,
-#             plan=payment.plan,
-#             status="upcoming"
-#         )
-
-#         per_session = payment.amount / old_slots.count()
-
-#         with transaction.atomic():
-#             payment.status = "success"
-#             payment.save()
-
-#             old_slots.update(status="changed")
-
-#             for slot in old_slots:
-#                 SlotBooking.objects.create(
-#                     trainer=payment.trainer,
-#                     client=client,
-#                     plan=payment.plan,
-#                     booking_type=payment.booking_type,
-#                     amount_paid=per_session,
-#                     date=slot.date,
-#                     time=slot.time,
-#                     status="upcoming",
-#                     payment_status="paid"
-#                 )
-
-#         return Response({"status": True})
 from django.conf import settings
 from django.db import transaction
 from rest_framework.views import APIView
