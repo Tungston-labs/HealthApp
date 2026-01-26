@@ -16,15 +16,36 @@ def send_trainer_invoice_email(trainer_email, subject, message):
 
 #  to get plan amount from trainer model
 
+# def get_plan_amount(trainer, booking_type):
+#     if booking_type == "single":
+#         return trainer.single_price
+#     elif booking_type == "couple":
+#         return trainer.couple_price
+#     elif booking_type == "group":
+#         return trainer.group_price
+#     else:
+#         raise ValueError("Invalid booking type")
 def get_plan_amount(trainer, booking_type):
-    if booking_type == "single":
-        return trainer.single_price
-    elif booking_type == "couple":
-        return trainer.couple_price
-    elif booking_type == "group":
-        return trainer.group_price
-    else:
-        raise ValueError("Invalid booking type")
+    if not booking_type:
+        raise ValueError("Booking type is missing")
+
+    booking_type = booking_type.lower().strip()
+
+    price_map = {
+        "single": trainer.single_price,
+        "couple": trainer.couple_price,
+        "group": trainer.group_price,
+    }
+
+    if booking_type not in price_map:
+        raise ValueError(
+            f"Invalid booking type: {booking_type}. "
+            f"Expected one of {list(price_map.keys())}"
+        )
+
+    return price_map[booking_type]
+   
+    
 
 # to create booking internally
 
