@@ -1,6 +1,6 @@
 
-  #  @base_url = http://178.248.112.16:9001/api/client/
-  @base_url = http://localhost:8000/api/client/
+   @base_url = http://178.248.112.16:9001/api/client/
+  # @base_url = http://localhost:8000/api/client/
 POST http://localhost:8000/api/auth/login/
 Content-Type: application/json
 
@@ -91,5 +91,5 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 ### client payment list 
 
-GET {{base_url}}payments/client/2/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY5NDUyNDM4LCJpYXQiOjE3Njk0MDkyMzgsImp0aSI6IjZiNWJhMDkxNjE0MDRmM2NiYTU1NDc0NDU0YjIyNTI0IiwidXNlcl9pZCI6IjEifQ.i6qNBkR812NZ6PA8v2pO2J4YSQ3QaTw88xnZgLyEbBY
+GET {{base_url}}payments/client/63/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY5NDU3NTcxLCJpYXQiOjE3Njk0MTQzNzEsImp0aSI6IjA4NGI5YThiOTRjNTRjOTI5ZTlkM2FmODNjN2U1NzllIiwidXNlcl9pZCI6IjEifQ.exD1glcRHVmtJXzpBqPK_ZUV8RQG6JQChXtWpmsNd5U

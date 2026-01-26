@@ -278,7 +278,7 @@ from trainer.models import Payment
 class ClientPaymentSerializer(serializers.ModelSerializer):
     trainer_name = serializers.CharField(source="trainer.name", read_only=True)
     plan_name = serializers.CharField(source="plan.plan_name", read_only=True)
-    paid_date = serializers.DateTimeField(source="created_at", read_only=True,format="%d-%m-%Y %H:%M")
+    paid_date = serializers.DateTimeField(source="created_at", read_only=True,format="%d-%m-%Y")
 
     class Meta:
         model = Payment
