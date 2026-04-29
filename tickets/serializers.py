@@ -47,7 +47,9 @@ class TicketListSerializer(serializers.ModelSerializer):
             "plan",        # plan id
             "plan_name",   # 👈 plan name
             "date",
-            "status"
+            "status",
+            "complaint"
+
         ]
 
 class TrainerDetailSerializer(serializers.ModelSerializer):
@@ -59,7 +61,7 @@ class TicketDetailSerializer(serializers.ModelSerializer):
     client = ClientDetailSerializer(read_only=True)
     trainer = TrainerDetailSerializer(read_only=True)
     plan_name = serializers.CharField(source="plan.plan_name", read_only=True)
-
+    plan_image = serializers.ImageField(source="plan.upload_file", read_only=True)
 
     class Meta:
         model = Ticket
@@ -72,7 +74,9 @@ class TicketDetailSerializer(serializers.ModelSerializer):
             "status",
             "date",
             "plan_name",
+            "plan_image",
         ]
+
 
 class TicketStatusUpdateSerializer(serializers.ModelSerializer):
     class Meta:

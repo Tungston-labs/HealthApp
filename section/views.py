@@ -2,8 +2,11 @@ from django.shortcuts import render
 from client.models import Client
 from .serializers import TodaySessionSerializer,ClientDetailSerializer,HistoryBookingSerializer,AllBookingSerializer
 from rest_framework.views import APIView
+from rest_framework.generics import GenericAPIView
+
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import get_object_or_404
 import datetime
 from datetime import datetime, date
 from trainer.models import Trainer, SlotBooking
@@ -17,11 +20,13 @@ from trainer.models import SlotBooking
 from trainer.serializers import TrainerMiniSerializer
 from rest_framework import generics, permissions
 from trainer.models import SlotBooking
-from .serializers import ClientSessionHistorySerializer
+from .serializers import ClientSessionHistorySerializer,AdminTrainerSessionSerializer
 
 from django.db.models import Min, Max
 from rest_framework import generics
 from rest_framework.response import Response
+from accounts.permissions import IsAdmin
+from accounts.paginations import CustomPagination
 
 class ClientPlanSummaryAPIView(generics.GenericAPIView):
     def get(self, request, client_id):
@@ -66,22 +71,35 @@ class ClientPlanSummaryAPIView(generics.GenericAPIView):
 
         return Response(output)
 
-class TrainerTodaySessionsView(APIView):
+from rest_framework.generics import GenericAPIView
+from rest_framework.permissions import IsAuthenticated
+from datetime import date
+
+class TrainerTodaySessionsView(GenericAPIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = TodaySessionSerializer
 
     def get(self, request):
         trainer = Trainer.objects.get(user=request.user)
         today = date.today()
 
-        sessions = SlotBooking.objects.filter(
+        queryset = SlotBooking.objects.filter(
             trainer=trainer,
             date=today
         ).order_by("time")
 
-        serializer = TodaySessionSerializer(
-            sessions, many=True, context={"request": request}
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(
+                page, many=True, context={"request": request}
+            )
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(
+            queryset, many=True, context={"request": request}
         )
-        return Response({"total_sessions": len(sessions), "sessions": serializer.data})
+        return Response(serializer.data)
+
 class ClientDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -96,72 +114,133 @@ class ClientDetailView(APIView):
 
 
 
-class TrainerAllBookingsView(APIView):
+from rest_framework.generics import GenericAPIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from datetime import date, datetime
+from django.db.models import Q
+
+from datetime import date, datetime
+from rest_framework.generics import GenericAPIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
+class TrainerAllBookingsView(GenericAPIView):
     permission_classes = [IsAuthenticated]
+    pagination_class = CustomPagination
+    serializer_class = AllBookingSerializer
 
     def get(self, request):
         trainer = Trainer.objects.get(user=request.user)
-
         filter_date = request.query_params.get("date")
+
+        # 🔹 If specific date is provided
         if filter_date:
             try:
                 filter_date = datetime.strptime(filter_date, "%Y-%m-%d").date()
-            except:
-                return Response({"error": "Invalid date format"}, status=400)
+            except ValueError:
+                return Response(
+                    {"error": "Invalid date format. Use YYYY-MM-DD"},
+                    status=400
+                )
 
-            bookings = SlotBooking.objects.filter(
+            queryset = SlotBooking.objects.filter(
                 trainer=trainer,
-                date=filter_date
+                date=filter_date,
+                status="upcoming"  # 
             ).order_by("time")
+
         else:
-            bookings = SlotBooking.objects.filter(
+            today = date.today()
+
+            # 🔹 TODAY → upcoming only, nearest time first
+            today_sessions = SlotBooking.objects.filter(
                 trainer=trainer,
-                date__gte=date.today()
+                date=today,
+                status="upcoming"
+            ).order_by("time")
+
+            # 🔹 FUTURE → upcoming only
+            upcoming_sessions = SlotBooking.objects.filter(
+                trainer=trainer,
+                date__gt=today,
+                status="upcoming"
             ).order_by("date", "time")
 
-        serializer = AllBookingSerializer(bookings, many=True, context={"request": request})
-        return Response({
-            "total": len(bookings),
-            "bookings": serializer.data
-        })
+            queryset = today_sessions | upcoming_sessions
 
-class TrainerHistorySessionsView(APIView):
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(
+                page, many=True, context={"request": request}
+            )
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(
+            queryset, many=True, context={"request": request}
+        )
+        return Response(serializer.data)
+
+
+    
+class TrainerHistorySessionsView(GenericAPIView):
     permission_classes = [IsAuthenticated]
+    pagination_class = CustomPagination
+    serializer_class = AllBookingSerializer
 
     def get(self, request):
         trainer = Trainer.objects.get(user=request.user)
 
-        filter_date = request.query_params.get("date")
-
-        history_qs = SlotBooking.objects.filter(
+        queryset = SlotBooking.objects.filter(
             trainer=trainer,
             status="completed"
         ).order_by("-session_end_date", "-session_end_time")
 
+        filter_date = request.query_params.get("date")
         if filter_date:
             try:
                 filter_date = datetime.strptime(filter_date, "%Y-%m-%d").date()
-            except:
-                return Response({"error": "Invalid date format"}, 400)
+            except ValueError:
+                return Response({"error": "Invalid date format"}, status=400)
 
-            history_qs = history_qs.filter(session_end_date=filter_date)
+            queryset = queryset.filter(session_end_date=filter_date)
 
-        serializer = AllBookingSerializer(history_qs, many=True, context={"request": request})
-        return Response({
-            "total_completed": len(history_qs),
-            "sessions": serializer.data
-        })
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(
+                page, many=True, context={"request": request}
+            )
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(
+            queryset, many=True, context={"request": request}
+        )
+        return Response(serializer.data)
 
 
 
+
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from django.utils.timezone import now
+
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from django.utils.timezone import now
+from datetime import timedelta
 
 class StartTrainingView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        trainer = Trainer.objects.get(user=request.user)
-        booking_id = request.data.get("booking_id")
+        try:
+            trainer = Trainer.objects.get(user=request.user)
+        except Trainer.DoesNotExist:
+            return Response({"error": "Trainer not found"}, status=404)
 
+        booking_id = request.data.get("booking_id")
         if not booking_id:
             return Response({"error": "Booking ID is required"}, status=400)
 
@@ -171,16 +250,40 @@ class StartTrainingView(APIView):
             return Response({"error": "Booking not found"}, status=404)
 
         if booking.status != "upcoming":
-            return Response({"error": f"Cannot start session with status {booking.status}"}, status=400)
+            return Response(
+                {"error": f"Cannot start session with status {booking.status}"},
+                status=400
+            )
+
+        #  START SESSION
+        start_time = now()
+        duration_minutes = int(trainer.section_timing)
+        expected_end_time = start_time + timedelta(minutes=duration_minutes)
 
         booking.status = "ongoing"
-        booking.save()
+        booking.session_start_apihit_time = start_time
+        booking.save(update_fields=["status", "session_start_apihit_time"])
 
         return Response({
+            "status": True,
             "message": "Training started",
+
             "booking_id": booking.id,
-            "status": booking.status
-        })
+            "booking_status": booking.status,
+
+            "session_start_time": start_time,
+            "expected_end_time": expected_end_time,
+
+            # TOTAL SESSION TIME (FROM TRAINER)
+            "total_session_time": {
+                "value": duration_minutes,
+                "label": trainer.get_section_timing_display()
+            },
+
+            #  VERY USEFUL FOR MOBILE TIMER
+            "remaining_seconds": duration_minutes * 60
+        }, status=200)
+
     
 from django.utils import timezone
 from zoneinfo import ZoneInfo    
@@ -223,30 +326,54 @@ class EndTrainingView(APIView):
 
 
 
-class ClientCompletedSessionsView(APIView):
+from rest_framework.generics import GenericAPIView
+from rest_framework.permissions import IsAuthenticated
+
+
+class ClientCompletedSessionsView(GenericAPIView):
     permission_classes = [IsAuthenticated]
+    pagination_class = CustomPagination
 
     def get(self, request):
-        client = request.user.client  # assuming OneToOne
-        sessions = SlotBooking.objects.filter(
-            client=client,
-            status='completed'
-        ).order_by('-date', '-time')
+        client = request.user.client  # OneToOne assumed
 
-        response_data = [
+        queryset = SlotBooking.objects.select_related(
+            "trainer", "plan"
+        ).filter(
+            client=client,
+            status="completed"
+        ).order_by("-date", "-time")
+
+        page = self.paginate_queryset(queryset)
+
+        sessions_data = [
             {
-                "section_id": s.id,
+                "session_id": s.id,
                 "date": s.date,
                 "time": s.time,
-                "trainer": TrainerMiniSerializer(s.trainer, context={"request": request}).data,
-                "notes": s.notes if hasattr(s, "notes") else None
+
+                # ✅ PLAN DETAILS
+                "plan": {
+                    "id": s.plan.id,
+                    "name": s.plan.plan_name
+                },
+
+                # ✅ TRAINER DETAILS (PLAN PASSED FOR PRICING)
+                "trainer": TrainerMiniSerializer(
+                    s.trainer,
+                    context={
+                        "request": request,
+                        "plan": s.plan
+                    }
+                ).data,
+
+                "notes": s.notes or ""
             }
-            for s in sessions
+            for s in page
         ]
 
-        return Response({
-            "total_completed_sessions": len(sessions),
-            "sessions": response_data
+        return self.get_paginated_response({
+            "sessions": sessions_data
         })
 
 # for getting details about single sessions
@@ -272,6 +399,67 @@ class ClientSessionDetailView(APIView):
         }
 
         return Response(data)
+    
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from django.utils.timezone import localdate
+
+
+class ClientTodaySessionView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        client = request.user.client
+        today = localdate()
+
+        try:
+            session = SlotBooking.objects.select_related(
+                "trainer", "plan"
+            ).get(
+                client=client,
+                date=today
+            )
+        except SlotBooking.DoesNotExist:
+            return Response(
+                {
+                    "status": False,
+                    "message": "No session scheduled for today"
+                },
+                status=404
+            )
+
+        data = {
+            "session_id": session.id,
+            "date": session.date,
+            "time": session.time,
+            "status": session.status,
+            "session_end_date": session.session_end_date,
+            "session_end_time": session.session_end_time,
+            "notes": session.notes or "",
+
+            # ✅ PLAN DETAILS
+            "plan": {
+                "id": session.plan.id,
+                "name": session.plan.plan_name,
+            },
+
+            # ✅ TRAINER DETAILS (PLAN PASSED TO CONTEXT)
+            "trainer": TrainerMiniSerializer(
+                session.trainer,
+                context={
+                    "request": request,
+                    "plan": session.plan  
+                }
+            ).data
+        }
+
+        return Response({
+            "status": True,
+            "data": data
+        })
+
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -341,3 +529,147 @@ class ClientWeeklyHoursAPIView(APIView):
             "weeks": weekly_hours
         })
 
+from django.shortcuts import get_object_or_404
+from django.db.models import Min, Max
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from datetime import date
+from math import ceil
+
+
+# view trainers session by admin
+from django.db.models import Min, Max
+from math import ceil
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
+
+class AdminTrainerSessionsView(APIView):
+    permission_classes = [IsAdmin]
+
+    def get(self, request, trainer_id):
+        trainer = get_object_or_404(Trainer, id=trainer_id)
+
+        bookings = (
+            SlotBooking.objects
+            .filter(trainer=trainer)
+            .values(
+                "client",
+                "client__name",
+                "client__profile_pic",
+            )
+            .annotate(
+                start_date=Min("date"),
+                end_date=Max("date"),
+            )
+            .order_by("-end_date")
+        )
+
+        sessions = []
+        for item in bookings:
+            start = item["start_date"]
+            end = item["end_date"]
+
+            total_days = (end - start).days + 1
+            weeks = ceil(total_days / 7)
+
+            sessions.append({
+                "trainer_name": trainer.name,
+                "trainer_profile": (
+                    request.build_absolute_uri(trainer.profile_pic.url)
+                    if trainer.profile_pic else None
+                ),
+
+                # ✅ CLIENT DETAILS
+                "client_id": item["client"],
+                "client_name": item["client__name"],
+                "client_profile": (
+                    request.build_absolute_uri(item["client__profile_pic"])
+                    if item["client__profile_pic"] else None
+                ),
+
+                "start_date": start,
+                "end_date": end,
+                "session_period": f"{weeks} weeks",
+            })
+
+        return Response({
+            "trainer_id": trainer.id,
+            "trainer_name": trainer.name,
+            "total_clients": len(sessions),
+            "sessions": sessions
+        })
+
+
+
+from rest_framework.generics import RetrieveAPIView
+from rest_framework.permissions import IsAuthenticated
+from .serializers import SlotBookingDetailSerializer
+
+class TrainerSlotBookingDetailView(RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = SlotBookingDetailSerializer
+
+    def get_queryset(self):
+        trainer = Trainer.objects.get(user=self.request.user)
+        return SlotBooking.objects.select_related(
+            "client", "plan", "trainer"
+        ).filter(trainer=trainer)
+
+
+from datetime import timedelta
+from django.utils.timezone import localdate
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from django.utils.timezone import localdate
+
+class ClientUpcomingSessionsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        client = request.user.client
+        LIMIT = 5  # 🔹 change to 3 if needed
+
+        sessions = (
+            SlotBooking.objects
+            .select_related("trainer")
+            .filter(
+                client=client,
+                status="upcoming",
+                date__gte=localdate()
+            )
+            .order_by("date", "time")[:LIMIT]
+        )
+
+        if not sessions:
+            return Response(
+                {
+                    "status": False,
+                    "message": "No upcoming sessions"
+                },
+                status=404
+            )
+
+        data = []
+        for session in sessions:
+            data.append({
+                "trainer_name": session.trainer.name,
+                "trainer_profile_pic": request.build_absolute_uri(
+                    session.trainer.profile_pic.url
+                ) if session.trainer.profile_pic else None,
+
+                "date": session.date,
+                "day": session.date.strftime("%A"),
+                "time": session.time.strftime("%I:%M %p"),
+            })
+
+        return Response({
+            "status": True,
+            "count": len(data),
+            "data": data
+        })

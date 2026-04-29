@@ -42,6 +42,10 @@ class Trainer(models.Model):
     section_timing = models.CharField(max_length=5, choices=SECTION_CHOICES)
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
     location = models.CharField(max_length=200)
+    address = models.CharField(max_length=255, blank=True,null=True)
+    landmark = models.CharField(max_length=255, blank=True,null=True)
+    city = models.CharField(max_length=100, blank=True,null=True)
+    pincode = models.CharField(max_length=10, blank=True,null=True)
     expecting_salary = models.DecimalField(max_digits=10, decimal_places=2)
     no_of_section = models.PositiveIntegerField()
 
@@ -51,9 +55,24 @@ class Trainer(models.Model):
     profile_pic = models.ImageField(upload_to='trainer_profile/', null=True, blank=True)
     experience = models.IntegerField(null=True,blank=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
-    password = models.CharField(max_length=128,null=True,blank=True)  # store trainer-set password temporarily
+    password = models.CharField(max_length=128,null=True,blank=True)                          
 
     user = models.OneToOneField(User, on_delete=models.SET_NULL, blank=True, null=True)
+    single_price = models.DecimalField(max_digits=10, decimal_places=2,null=True,blank=True)
+    couple_price = models.DecimalField(max_digits=10, decimal_places=2,null=True,blank=True)
+    group_price = models.DecimalField(max_digits=10, decimal_places=2,null=True,blank=True)
+    latitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        blank=True
+    )
+    longitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        blank=True
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -76,14 +95,38 @@ class TrainerAvailability(models.Model):
         return f"{self.trainer.name} availability"
 
 
+
+
+
 class SlotBooking(models.Model):
+    BOOKING_TYPE_CHOICES = (
+        ('single', 'Single'),
+        ('couple', 'Couple'),
+        ('group', 'Group'),
+    )
+
     trainer = models.ForeignKey("trainer.Trainer", on_delete=models.CASCADE)
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
     plan = models.ForeignKey(Plan, on_delete=models.CASCADE)
+
+    booking_type = models.CharField(max_length=10, choices=BOOKING_TYPE_CHOICES,null=True,blank=True)
+    amount_paid = models.DecimalField(max_digits=10, decimal_places=2,null=True,blank=True)
+
+    payment = models.ForeignKey(
+        "Payment",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="slot_bookings"
+    )
+
     date = models.DateField()
     time = models.TimeField()
-    session_end_date = models.DateField(null=True, blank=True)  # when timer finishes
+
+    session_end_date = models.DateField(null=True, blank=True)
     session_end_time = models.TimeField(null=True, blank=True)
+    session_start_apihit_time = models.DateTimeField(null=True, blank=True)
+
     status = models.CharField(
         max_length=20,
         choices=(
@@ -91,13 +134,133 @@ class SlotBooking(models.Model):
             ('ongoing', 'Ongoing'),
             ('completed', 'Completed'),
             ('missed', 'Missed'),
-            ('cancelled', 'Cancelled')
+            ('cancelled', 'Cancelled'),
+            ('changed','Changed')
         ),
         default='upcoming'
     )
-    notes = models.TextField(null=True, blank=True)
+
+    payment_status = models.CharField(
+        max_length=20,
+        choices=(
+            ('pending', 'Pending'),
+            ('paid', 'Paid'),
+            ('failed', 'Failed')
+        ),
+        default='paid'
+    )
+
+    notes = models.TextField(blank=True, null=True)
+  
 
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.trainer.name} - {self.date} {self.time}"
+
+class Payment(models.Model):
+    STATUS_CHOICES = (
+        ('created', 'Created'),
+        ('success', 'Success'),
+        ('failed', 'Failed'),
+    )
+
+    client = models.ForeignKey(Client, on_delete=models.CASCADE)
+    trainer = models.ForeignKey("trainer.Trainer", on_delete=models.CASCADE)
+    plan = models.ForeignKey(Plan, on_delete=models.CASCADE)
+
+    booking_type = models.CharField(max_length=10)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+
+    razorpay_order_id = models.CharField(max_length=200)
+    razorpay_payment_id = models.CharField(max_length=200, null=True, blank=True)
+    razorpay_signature = models.CharField(max_length=500, null=True, blank=True)
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='created'
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+from django.utils import timezone
+
+class TrainerPayment(models.Model):
+
+    STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('paid', 'Paid'),
+        ('hold', 'Hold'),
+    )
+
+    MONTH_CHOICES = (
+        (1, 'January'),
+        (2, 'February'),
+        (3, 'March'),
+        (4, 'April'),
+        (5, 'May'),
+        (6, 'June'),
+        (7, 'July'),
+        (8, 'August'),
+        (9, 'September'),
+        (10, 'October'),
+        (11, 'November'),
+        (12, 'December'),
+    )
+
+    trainer = models.ForeignKey(
+        "trainer.Trainer",
+        on_delete=models.CASCADE,
+        related_name="payments"
+    )
+
+    year = models.PositiveIntegerField()
+    month = models.PositiveIntegerField(choices=MONTH_CHOICES)
+
+    salary = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        help_text="Editable salary (auto-filled from trainer)"
+    )
+
+    status = models.CharField(
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default='pending'
+    )
+
+    paid_date = models.DateField(null=True, blank=True)
+
+    approved_date = models.DateField(null=True, blank=True)
+
+    remarks = models.TextField(blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('trainer', 'year', 'month')
+        ordering = ['-year', '-month']
+
+    def save(self, *args, **kwargs):
+        # 🔹 Auto-fill salary from Trainer if not set
+        if not self.salary:
+            self.salary = self.trainer.expecting_salary
+
+        # 🔹 Auto set paid_date when status changes to PAID
+        if self.status == 'paid' and not self.paid_date:
+            self.paid_date = timezone.now().date()
+
+        # 🔹 Clear paid_date if reverted back
+        if self.status != 'paid':
+            self.paid_date = None
+
+        super().save(*args, **kwargs)
+
+
+
+
+    def __str__(self):
+        return f"{self.trainer.name} - {self.month}/{self.year} - {self.status}"

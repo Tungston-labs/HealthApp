@@ -18,7 +18,26 @@ from accounts.paginations import CustomPagination
 class ClientCreateView(generics.CreateAPIView):
     queryset = Client.objects.all()
     serializer_class = ClientSerializer
-    permission_classes = [permissions.AllowAny]  # anyone can register
+    permission_classes = [permissions.AllowAny]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        if not serializer.is_valid():
+            return Response({
+                "status": False,
+                "message": "Validation failed",
+                "errors": serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        self.perform_create(serializer)
+
+        return Response({
+            "status": True,
+            "message": "Client registered successfully",
+            "data": serializer.data
+        }, status=status.HTTP_201_CREATED)
+
 
 
 # List clients (authenticated only)
@@ -32,27 +51,32 @@ class ClientListView(generics.ListAPIView):
     def get_queryset(self):
         queryset = Client.objects.all()
 
-        search = self.request.query_params.get("search")  # 🔍 name search
-        plan = self.request.query_params.get("plan")      # plan name
-        plan_id = self.request.query_params.get("plan_id")  # plan id
+        search = self.request.query_params.get("search")
+        plan = self.request.query_params.get("plan")
+        plan_id = self.request.query_params.get("plan_id")
 
-        # 🔍 SEARCH BY NAME
         if search:
             queryset = queryset.filter(name__icontains=search)
 
-        # 🔥 FILTER BY PLAN NAME
         if plan:
             queryset = queryset.filter(
                 slotbooking__plan__plan_name__icontains=plan
             ).distinct()
 
-        # 🔥 FILTER BY PLAN ID
         if plan_id:
             queryset = queryset.filter(
                 slotbooking__plan__id=plan_id
             ).distinct()
 
         return queryset
+
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        return Response({
+            "status": True,
+            "data": response.data
+        }, status=status.HTTP_200_OK)
+
 
 
 
@@ -64,6 +88,48 @@ class ClientRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ClientSerializer
     permission_classes = [permissions.IsAuthenticated]
     lookup_field = "pk"
+
+    def retrieve(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            serializer = self.get_serializer(instance)
+            return Response({
+                "status": True,
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
+        except Exception:
+            return Response({
+                "status": False,
+                "message": "Client not found"
+            }, status=status.HTTP_404_NOT_FOUND)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+
+        if not serializer.is_valid():
+            return Response({
+                "status": False,
+                "message": "Validation failed",
+                "errors": serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer.save()
+        return Response({
+            "status": True,
+            "message": "Client updated successfully",
+            "data": serializer.data
+        }, status=status.HTTP_200_OK)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.delete()
+        return Response({
+            "status": True,
+            "message": "Client deleted successfully"
+        }, status=status.HTTP_200_OK)
+
 
 
 
@@ -81,13 +147,18 @@ class DashboardCountView(APIView):
                 "open_refund_requests": TrainingCancelRequest.objects.filter(status="open").count(),
             }
 
-            return Response(data, status=status.HTTP_200_OK)
+            return Response({
+                "status": True,
+                "data": data
+            }, status=status.HTTP_200_OK)
 
         except Exception as e:
-            return Response(
-                {"error": "Something went wrong", "details": str(e)},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+            return Response({
+                "status": False,
+                "message": "Something went wrong",
+                "error": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 
@@ -97,6 +168,215 @@ class ClientProfileView(generics.RetrieveAPIView):
     serializer_class = ClientProfileSerializer
     permission_classes = [IsUser]
 
-    def get_object(self):
-        return get_object_or_404(Client, user=self.request.user)
+    def retrieve(self, request, *args, **kwargs):
+        try:
+            client = get_object_or_404(Client, user=request.user)
+            serializer = self.get_serializer(client)
+            return Response({
+                "status": True,
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
+        except Exception:
+            return Response({
+                "status": False,
+                "message": "Client profile not found"
+            }, status=status.HTTP_404_NOT_FOUND)
 
+
+from trainer.models import SlotBooking
+from .serializers import ClientBookedTrainerSerializer
+from django.db.models import Max
+
+
+
+class ClientBookedTrainersView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        client = request.user.client
+
+        # 🔹 Get latest booking date per trainer
+        latest_booking_ids = (
+            SlotBooking.objects
+            .filter(client=client)
+            .exclude(status__in=["completed", "cancelled", "changed"])
+            .values("trainer")
+            .annotate(latest_id=Max("id"))
+            .values_list("latest_id", flat=True)
+        )
+
+
+        bookings = (
+            SlotBooking.objects
+            .filter(id__in=latest_booking_ids)
+            .select_related("trainer", "plan")
+            .order_by("-date")
+        )
+
+        serializer = ClientBookedTrainerSerializer(
+            bookings,
+            many=True,
+            context={"request": request}
+        )
+
+        return Response({
+            "status": True,
+            "count": bookings.count(),
+            "data": serializer.data
+        })
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
+from .models import Client
+from .serializers import ClientProfileSerializer1
+
+
+class ClientPhoneProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            client = request.user.client
+        except Client.DoesNotExist:
+            return Response(
+                {"status": False, "message": "Client profile not found"},
+                status=404
+            )
+
+        serializer = ClientProfileSerializer1(
+            client,
+            context={"request": request}
+        )
+
+        return Response({
+            "status": True,
+            "data": serializer.data
+        })
+class ClientProfileUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request):
+        try:
+            client = request.user.client
+        except Client.DoesNotExist:
+            return Response(
+                {"status": False, "message": "Client not found"},
+                status=404
+            )
+
+        serializer = ClientProfileSerializer1(
+            client,
+            data=request.data,
+            partial=True,
+            context={"request": request}
+        )
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                "status": True,
+                "message": "Profile updated successfully",
+                "data": serializer.data
+            })
+
+        return Response({
+            "status": False,
+            "errors": serializer.errors
+        }, status=400)
+
+
+
+
+
+
+from .serializers import UnBookedPlanSerializer
+
+
+class UnBookedPlanListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        client = request.user.client
+
+        # Get plan IDs already booked by this client
+        booked_plan_ids = (
+            SlotBooking.objects
+            .filter(client=client)
+            .values_list("plan_id", flat=True)
+        )
+
+        # Exclude booked plans
+        plans = Plan.objects.exclude(id__in=booked_plan_ids)
+
+        serializer = UnBookedPlanSerializer(
+            plans,
+            many=True,
+            context={"request": request}
+        )
+
+        return Response({
+            "status": True,
+            "data": serializer.data
+        })
+
+
+
+
+class ClientBMIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            client = request.user.client
+        except Client.DoesNotExist:
+            return Response({
+                "status": False,
+                "message": "Client profile not found"
+            }, status=404)
+
+        if not client.weight or not client.height:
+            return Response({
+                "status": False,
+                "message": "Weight and height are required to calculate BMI"
+            }, status=400)
+
+        # height in meters
+        height_m = float(client.height) / 100
+        weight = float(client.weight)
+
+        bmi = round(weight / (height_m * height_m), 2)
+
+        # BMI Category
+        if bmi < 18.5:
+            category = "Underweight"
+        elif bmi < 24.9:
+            category = "Normal"
+        elif bmi < 29.9:
+            category = "Overweight"
+        else:
+            category = "Obese"
+
+        return Response({
+            "status": True,
+            "name": client.name,
+            "bmi": bmi,
+            "category": category
+        })
+
+from trainer.models import Payment
+from .serializers import ClientPaymentSerializer
+
+class ClientPaymentListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, client_id):
+        payments = (
+            Payment.objects
+            .filter(client_id=client_id, status="success")
+            .select_related("trainer", "plan")
+            .order_by("-created_at")
+        )
+
+        serializer = ClientPaymentSerializer(payments, many=True)
+        return Response(serializer.data)

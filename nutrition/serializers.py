@@ -32,11 +32,17 @@ class NutritionRequestCreateSerializer(serializers.ModelSerializer):
         validated_data["status"] = "pending"
         return super().create(validated_data)
 
+from rest_framework import serializers
+from trainer.models import SlotBooking   # adjust import path
+
 class NutritionRequestListSerializer(serializers.ModelSerializer):
-    client_name = serializers.CharField(source="client.full_name", read_only=True)
+    client_name = serializers.CharField(source="client.name", read_only=True)
     client_email = serializers.EmailField(source="client.email", read_only=True)
-    client_phone = serializers.CharField(source="client.phone", read_only=True)
+    client_phone = serializers.CharField(source="client.phno", read_only=True)
     client_profile_pic = serializers.SerializerMethodField()
+
+    # ✅ PLAN NAME
+    plan_name = serializers.SerializerMethodField()
 
     class Meta:
         model = NutritionRequest
@@ -46,9 +52,10 @@ class NutritionRequestListSerializer(serializers.ModelSerializer):
             "client_email",
             "client_phone",
             "client_profile_pic",
+            "plan_name",
             "consultation_type",
             "date",
-            "status"
+            "status",
         ]
 
     def get_client_profile_pic(self, obj):
@@ -57,14 +64,29 @@ class NutritionRequestListSerializer(serializers.ModelSerializer):
             return request.build_absolute_uri(obj.client.profile_pic.url)
         return None
 
+    def get_plan_name(self, obj):
+        booking = (
+            SlotBooking.objects
+            .filter(client=obj.client)
+            .select_related("plan")
+            .order_by("-created_at")
+            .first()
+        )
+        return booking.plan.plan_name if booking else None
+
+
 class NutritionRequestDetailSerializer(serializers.ModelSerializer):
-    client = SerializerMethodField()
+    client = serializers.SerializerMethodField()
+    plan_name = serializers.SerializerMethodField()
+    plan_image = serializers.SerializerMethodField()
 
     class Meta:
         model = NutritionRequest
         fields = [
             "id",
             "client",
+            "plan_name",
+            "plan_image",
             "consultation_type",
             "note",
             "date",
@@ -72,4 +94,30 @@ class NutritionRequestDetailSerializer(serializers.ModelSerializer):
         ]
 
     def get_client(self, obj):
-        return ClientDetailSerializer(obj.client, context=self.context).data
+        return ClientDetailSerializer(
+            obj.client,
+            context=self.context
+        ).data
+
+    def get_latest_booking(self, obj):
+        return (
+            SlotBooking.objects
+            .filter(client=obj.client)
+            .select_related("plan")
+            .order_by("-created_at")
+            .first()
+        )
+
+    def get_plan_name(self, obj):
+        booking = self.get_latest_booking(obj)
+        return booking.plan.plan_name if booking and booking.plan else None
+
+    def get_plan_image(self, obj):
+        booking = self.get_latest_booking(obj)
+
+        if booking and booking.plan and booking.plan.upload_file:
+            request = self.context.get("request")
+            return request.build_absolute_uri(
+                booking.plan.upload_file.url
+            )
+        return None

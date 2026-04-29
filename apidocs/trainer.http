@@ -1,12 +1,12 @@
-#  @base_url = http://127.0.0.1:8000/api/trainer/
- @base_url = http://178.248.112.16:9001/api/trainer/
+     @base_url = http://127.0.0.1:8000/api/trainer/
+    # @base_url = http://178.248.112.16:9001/api/trainer/
 
 ###----------------------login/get access token and refresh token
 POST http://178.248.112.16:9001/api/auth/login/
 Content-Type: application/json
 
 {
-  "email_or_phno": "7900000837",
+  "email_or_phno": "bruno@gmail.com ",
   "password": "Password@1234"
 }
 
@@ -15,9 +15,9 @@ POST {{base_url}}
 Content-Type: application/json
 
 {
-  "name": "dummy",
-  "phno": "9330278037",
-  "email": "dummmy@gmail.com",
+  "name": "dummyyy",
+  "phno": "4475656807",
+  "email": "jesna@gmail.com",
   "dob": "2001-05-16",
   "training_field": 2,
   "section_timing": "30",
@@ -37,23 +37,23 @@ Content-Type: application/json
 
 ### Trainer List (Admin Only)
 GET {{base_url}}list/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1NTYyMjA2LCJpYXQiOjE3NjU1MTkwMDYsImp0aSI6ImQ1NTM1YmQ0MDQ0MDRkMzFiOTc4YTBjOWY1M2RiMDYzIiwidXNlcl9pZCI6IjEifQ.2PEg1HBz1x3Ddq4waALkIp2r6uGXk2aV-VWfllbjUkQ
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY2NTA0NDYzLCJpYXQiOjE3NjY0NjEyNjMsImp0aSI6IjA4NjlkMWRjYWM1MTQ3Zjk5ODk2YmIzZjZhZjE4MWQ1IiwidXNlcl9pZCI6IjEifQ.pq_Sv-ZSoI7BE6iu5rPhUFTXM9FRYZ6CQGT823xUCus
 
 
 ### Trainer Detail (Retrieve)
-GET {{base_url}}24/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1OTk3MTA3LCJpYXQiOjE3NjU5NTM5MDcsImp0aSI6IjQ5M2E1YjBmNjE0MTRmMWViNDVmNmMwMmQ2ZDNkNzNlIiwidXNlcl9pZCI6IjEifQ.MyA2NICwvAOC0AyjP8ENjRO1uIRhxgrXCHTJoM3VrUI
+GET {{base_url}}66/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3OTc1NTY5LCJpYXQiOjE3Njc5MzIzNjksImp0aSI6ImNhZTUxMTVhMjM1NDQ2Y2VhMDE4MzBjYzJhNzViN2Q1IiwidXNlcl9pZCI6IjI2In0.zOtI6_OgCuBiJWlAJm3pXZG11n8soJTgfs1KtLZRMl4
 
 
 
 
 ### Trainer Partial Update (PATCH)
-PATCH {{base_url}}24/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1OTk3MTA3LCJpYXQiOjE3NjU5NTM5MDcsImp0aSI6IjQ5M2E1YjBmNjE0MTRmMWViNDVmNmMwMmQ2ZDNkNzNlIiwidXNlcl9pZCI6IjEifQ.MyA2NICwvAOC0AyjP8ENjRO1uIRhxgrXCHTJoM3VrUI
+PATCH {{base_url}}47/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY4MjQzMjQ5LCJpYXQiOjE3NjgyMDAwNDksImp0aSI6ImZjYTBlOTRhNTA4ZDQ3Nzk5NzkxZWUzMTQwNmEyN2U3IiwidXNlcl9pZCI6IjEifQ.HM4P98CnwD1WuX_1Q_FfukApWVT1Voa0XIY2BxQKSkw
 Content-Type: application/json
 
 {
-  "status": "pending"
+  "status": "approved"
 }
 
 
@@ -63,20 +63,45 @@ Content-Type: application/json
 DELETE {{base_url}}1/
 Authorization: Bearer <access_token>
 
+
+###get trainer payment details by trainer id
+GET {{base_url}}payments/?trainer_id=47
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY4MjQzMjQ5LCJpYXQiOjE3NjgyMDAwNDksImp0aSI6ImZjYTBlOTRhNTA4ZDQ3Nzk5NzkxZWUzMTQwNmEyN2U3IiwidXNlcl9pZCI6IjEifQ.HM4P98CnwD1WuX_1Q_FfukApWVT1Voa0XIY2BxQKSkw
+
+
+
+###update trainer payment ststus,salary,date
+PATCH {{base_url}}payments/213/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY4MjQzMjQ5LCJpYXQiOjE3NjgyMDAwNDksImp0aSI6ImZjYTBlOTRhNTA4ZDQ3Nzk5NzkxZWUzMTQwNmEyN2U3IiwidXNlcl9pZCI6IjEifQ.HM4P98CnwD1WuX_1Q_FfukApWVT1Voa0XIY2BxQKSkw
+Content-Type: application/json
+
+{
+  "salary": "30000",
+  "status": "paid",
+  "paid_date": "2026-01-10",
+  "remarks": "Paid via bank transfer"
+}
+
+###sed invoice to trainer mail
+POST {{base_url}}payments/213/send-invoice/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY4MjQzMjQ5LCJpYXQiOjE3NjgyMDAwNDksImp0aSI6ImZjYTBlOTRhNTA4ZDQ3Nzk5NzkxZWUzMTQwNmEyN2U3IiwidXNlcl9pZCI6IjEifQ.HM4P98CnwD1WuX_1Q_FfukApWVT1Voa0XIY2BxQKSkw
+
+
+
 # =================================================MOBILE APP==================================================
 
 ### Get Trainer Profile
 GET {{base_url}}profile/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MDg5ODA0LCJpYXQiOjE3NjQwNDY2MDQsImp0aSI6ImU3YTcwY2MyMDQ4NzQxYzA4NGMwYzQ3ODg5NWI1NDE3IiwidXNlcl9pZCI6IjUifQ.kGN2O8J-CCUwhk1jLNcqKHgnX59dhUGyltgrgO2jflo
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3OTc1OTg0LCJpYXQiOjE3Njc5MzI3ODQsImp0aSI6IjQyMTRjMzM0N2JiNDQ1YTliNjI0YzFiMjMyNmU5MmE1IiwidXNlcl9pZCI6Ijc0In0.71_j01w55z0_3sX2O6OWSUpMATXzJfAHBy22WDmyZqM
 Content-Type: application/json
 
 ### Edit Trainer Profile
 PATCH {{base_url}}profile/edit/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzNDA4NDYwLCJpYXQiOjE3NjMzNjUyNjAsImp0aSI6Ijk3NjkyMDM4YjU5NTQ4NjliMjFiYmZkODE4ZWM5MTgyIiwidXNlcl9pZCI6IjQifQ.koPBJ1LU560FFaPOMZAUE7p1HJr7uQBUd8oR6NN8yI4
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3NzE0NjQ0LCJpYXQiOjE3Njc2NzE0NDQsImp0aSI6IjdjYzk2MWJhNzkyZjQzNjhiMjRkOTIyNjQ2MGQ0YTdlIiwidXNlcl9pZCI6Ijc0In0.acy29LXOYruqwVh0RCof7wRnv9QBT986K0lc9M24dII
 Content-Type: application/json
 
 {
-  "name": "jesna jamal"
+  "name": "bruno james"
 
 }
 
@@ -86,51 +111,144 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 ### filter trainer by slot,time,date
 POST {{base_url}}available-trainers/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1OTIzNDYyLCJpYXQiOjE3NjU4ODAyNjIsImp0aSI6ImQ2YjNlMTUzZGU4MDQzZjU5OTNkNmIzNzY5ZGI4YTJkIiwidXNlcl9pZCI6IjE0In0.CMq1X9DYaYPwIeOZzdWXWJa3jZGptdy-AB9ujzcPiUA
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY5MTgyNTI0LCJpYXQiOjE3NjkxMzkzMjQsImp0aSI6ImM2NzU3OTEyNmJhNzRlN2JiZGMyMTNjZDZhZTEzMmU3IiwidXNlcl9pZCI6IjMifQ.E9Ev1ylHVqMT5va5y81j_q4VE-vHlmFf7eg-C9orrQo
 Content-Type: application/json
 
 {
-  "plan_id": 1,
-  "slot_days": ["mon", "wed", "fri"],
-  "time": "11:00",
-  "start_date": "2025-11-26"
+  "plan_id": 2,
+  "slot_days": ["mon","wed","fri"],
+  "time": "09:00",
+  "start_date": "2026-01-26"
 }
 
 ### trainer detail view for modal in mobile app
-GET {{base_url}}detail/4/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MDg1OTAyLCJpYXQiOjE3NjQwNDI3MDIsImp0aSI6IjYxYTZhMThlN2MxNDQ3NjE5N2E5ZGMyYjJlNzFkNTc3IiwidXNlcl9pZCI6IjMifQ.hb6GFjue_iPMinaQFs9EsaVsAI8sZRtYlwDbvJAL0p8
+GET {{base_url}}detail/2/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY4OTI1OTQ4LCJpYXQiOjE3Njg4ODI3NDgsImp0aSI6ImNkN2QxMWRmMDhlMDQ1YWFiMzU4NDg0NzU4OGUxYjljIiwidXNlcl9pZCI6IjMifQ.fgVwR3ciRIu2faYChUjSx0Of5IIxmvupf7hUjTEENqo
 
 
 
 
 
-### book filtered trainer
+### Create booking payment (Razorpay order)
 POST {{base_url}}book-trainer/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1OTIzNDYyLCJpYXQiOjE3NjU4ODAyNjIsImp0aSI6ImQ2YjNlMTUzZGU4MDQzZjU5OTNkNmIzNzY5ZGI4YTJkIiwidXNlcl9pZCI6IjE0In0.CMq1X9DYaYPwIeOZzdWXWJa3jZGptdy-AB9ujzcPiUA
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3NzM3NzUxLCJpYXQiOjE3Njc2OTQ1NTEsImp0aSI6IjM2OGU4MTUzZDQyZDRlNDBhMDJhNGIzOGRjN2Y2NzU3IiwidXNlcl9pZCI6IjgwIn0.kqVy-O5K6T9iV8IIlsVoK3D8oXXh_P1EQmYP8UfIDDY
 Content-Type: application/json
 
 {
-  "trainer_id": 21,
-  "plan_id": 1,
-  "start_date": "2026-01-12",
-  "time": "10:00",
-  "slot_days": ["mon", "wed", "fri"]  
+  "trainer_id": 66,
+  "plan_id": 2,
+  "start_date": "2026-02-19",
+  "time": "18:00",
+  "slot_days": ["mon", "wed", "fri"],
+  "booking_type": "single"
 }
 
+
+### Verify Razorpay payment and confirm booking
+POST {{base_url}}verify-payment/
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "razorpay_payment_id": "pay_OjR9abcd123",
+  "razorpay_order_id": "order_OjR8z6xYabc123",
+  "razorpay_signature": "5cbeae0f7a6e9c8d...",
+  "start_date": "2026-01-15",
+  "time": "14:00",
+  "slot_days": ["mon", "wed", "fri"]
+}
+
+
 ### change trainer by user
-GET {{base_url}}change/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MDg1OTAyLCJpYXQiOjE3NjQwNDI3MDIsImp0aSI6IjYxYTZhMThlN2MxNDQ3NjE5N2E5ZGMyYjJlNzFkNTc3IiwidXNlcl9pZCI6IjMifQ.hb6GFjue_iPMinaQFs9EsaVsAI8sZRtYlwDbvJAL0p8
+GET {{base_url}}change/?trainer_id=3
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY5MDk2MDQ2LCJpYXQiOjE3NjkwNTI4NDYsImp0aSI6IjBjMTM1OTRlMzcwZTQ2ZmM5NzUyNGMxMDM0Yzk4NzViIiwidXNlcl9pZCI6IjMifQ.kbCN2QblpLbDN6v9yuTwhwLwsM-BClf8FnsDHWdfrmA
 
 
 ### get single trainer details using id
-GET {{base_url}}info/4/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MDg1OTAyLCJpYXQiOjE3NjQwNDI3MDIsImp0aSI6IjYxYTZhMThlN2MxNDQ3NjE5N2E5ZGMyYjJlNzFkNTc3IiwidXNlcl9pZCI6IjMifQ.hb6GFjue_iPMinaQFs9EsaVsAI8sZRtYlwDbvJAL0p8
+GET {{base_url}}info/66/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3OTExNzcxLCJpYXQiOjE3Njc4Njg1NzEsImp0aSI6ImI5MjUzOWEyNjAwYzRmZmRiNTA0YmU1OThjY2YwZWFjIiwidXNlcl9pZCI6IjI2In0.nnKYT35YiqY9KYEHufqE6nnV8AyS6uJhBina0aoLNdc
 
 ### add notes on sessions by trainer
-POST {{base_url}}booking/1/add-note/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MTAxMTc2LCJpYXQiOjE3NjQwNTc5NzYsImp0aSI6IjM4YzFiYjVlZTA3NjQxZGJhZjM5Mzg3NDg2MmRiNmJlIiwidXNlcl9pZCI6IjQifQ.3O8V_ekbc7fHlGF4MVRpemyK0L46Qp7hAJTgbY1Om4U
+POST {{base_url}}booking/44/add-note/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3ODI5OTUwLCJpYXQiOjE3Njc3ODY3NTAsImp0aSI6IjcxNzI4ODQ0ZTQ5NjQ0MGY5Y2U0YzdmNmM3MmI2NzZjIiwidXNlcl9pZCI6Ijc0In0.LQi7QtSO7ZP40pJ7X5EVz8sNaPcjrJtCjc4lzvBcnFI
 Content-Type: application/json
 
 {
     "note": "Client did well in today’s session."
+}
+
+### get notes on sessions by trainer
+GET {{base_url}}booking/43/note/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3ODI5OTUwLCJpYXQiOjE3Njc3ODY3NTAsImp0aSI6IjcxNzI4ODQ0ZTQ5NjQ0MGY5Y2U0YzdmNmM3MmI2NzZjIiwidXNlcl9pZCI6Ijc0In0.LQi7QtSO7ZP40pJ7X5EVz8sNaPcjrJtCjc4lzvBcnFI
+
+### delete notes on sessions by trainer
+DELETE {{base_url}}bookings/43/notes/delete/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3MjA0ODY5LCJpYXQiOjE3NjcxNjE2NjksImp0aSI6ImZhNjQ3YjU0ODM5ODRjOGM5ZDQxZWIxNmU3YmEzODE2IiwidXNlcl9pZCI6Ijc0In0.us-g5CFzB4mvXRJYEgGEaxkiJS-fS06UpRYxhpBd0Cg
+
+
+### edit notes on sessions by trainer
+PUT  {{base_url}}bookings/43/note/edit/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3ODI5OTUwLCJpYXQiOjE3Njc3ODY3NTAsImp0aSI6IjcxNzI4ODQ0ZTQ5NjQ0MGY5Y2U0YzdmNmM3MmI2NzZjIiwidXNlcl9pZCI6Ijc0In0.LQi7QtSO7ZP40pJ7X5EVz8sNaPcjrJtCjc4lzvBcnFI
+Content-Type: application/json
+
+{
+    "note": "arrange mat"
+}
+### suspend trainer
+
+POST {{base_url}}8/suspend/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY2NTA0NDYzLCJpYXQiOjE3NjY0NjEyNjMsImp0aSI6IjA4NjlkMWRjYWM1MTQ3Zjk5ODk2YmIzZjZhZjE4MWQ1IiwidXNlcl9pZCI6IjEifQ.pq_Sv-ZSoI7BE6iu5rPhUFTXM9FRYZ6CQGT823xUCus
+
+
+
+### pending trainer
+
+GET {{base_url}}pending-request/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY2NTA0NDYzLCJpYXQiOjE3NjY0NjEyNjMsImp0aSI6IjA4NjlkMWRjYWM1MTQ3Zjk5ODk2YmIzZjZhZjE4MWQ1IiwidXNlcl9pZCI6IjEifQ.pq_Sv-ZSoI7BE6iu5rPhUFTXM9FRYZ6CQGT823xUCus
+
+
+### ongoing trainer sessions
+GET {{base_url}}ongoing-sessions/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3NDU1MTgzLCJpYXQiOjE3Njc0MTE5ODMsImp0aSI6ImE3ZjYzMjg0YzVkNDRhMzY5ZjdhOTE2OGMzZGZjYjM0IiwidXNlcl9pZCI6Ijc0In0.IC3rw6sDdhU-R0QozqaSwyr0VQUp2rnqugfewfeYSGo
+
+
+### list clients under trainer
+GET {{base_url}}assigned-clients/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3NzM4ODYyLCJpYXQiOjE3Njc2OTU2NjIsImp0aSI6IjRhNTcxOGI3MWRmNDQ2YmNiNzI2NzZiMjkwZTEzZWViIiwidXNlcl9pZCI6Ijc0In0.vInm4vYHXbO20FJkKOLsIjPbdt3N27P4zxxeZ7Y7Gjs
+
+# razorpay
+
+### get order id from backend
+POST {{base_url}}create-trainer-booking-order/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY4Njc3ODMzLCJpYXQiOjE3Njg2MzQ2MzMsImp0aSI6ImRjMzcyZmRkYmJmNDRjYTU5NTJiNjgwZjc5NDVjZGY2IiwidXNlcl9pZCI6IjI2In0.d7a3ykxBYykpjWwd_OF66xRDwFbZijV3T1gKLP1bD40
+Content-Type: application/json
+
+{
+  "trainer_id": 66,
+  "plan_id": 2,
+  "booking_type": "single"
+}
+
+
+
+### Create Change Trainer Order
+POST {{base_url}}payment/change-trainer/order/
+Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY5Mjc5MzUwLCJpYXQiOjE3NjkyMzYxNTAsImp0aSI6IjIxMTU2MWExNTFjOTRjYjZiZjA1NWU5MjQ1NTViYjRhIiwidXNlcl9pZCI6IjMifQ.C0i-oiwIumu7PjSFm877Ua6ohTiEm3LfTev7U7N_Ud4
+Content-Type: application/json
+
+{
+  "new_trainer_id": 4,
+  "plan_id": 2
+}
+
+
+### Verify Change Trainer Payment
+POST {{base_url}}payment/change-trainer/verify/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY5MTgyNTI0LCJpYXQiOjE3NjkxMzkzMjQsImp0aSI6ImM2NzU3OTEyNmJhNzRlN2JiZGMyMTNjZDZhZTEzMmU3IiwidXNlcl9pZCI6IjMifQ.E9Ev1ylHVqMT5va5y81j_q4VE-vHlmFf7eg-C9orrQo
+Content-Type: application/json
+
+{
+  "razorpay_order_id": "order_S7AmIIkwDpKga2",
+  "razorpay_payment_id": "pay_S7AmQBPepYXZlA",
+  "razorpay_signature": "decddfd24a47f43e5fc6172796acd92ac312e7d0e9a50c4bfb42fe7dd736da69"
 }

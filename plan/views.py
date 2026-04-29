@@ -1,41 +1,153 @@
 # plans/views.py
-from rest_framework import generics
 from .models import Plan
 from .serializers import PlanSerializer,PlanMiniSerializer
 from accounts.permissions import IsAdmin,IsUser
 from django.shortcuts import get_object_or_404
 from accounts.paginations import CustomPagination
 from django.db.models import Count, Q
+from rest_framework import generics, status
+from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
+from .models import Plan
+from trainer.models import Trainer
+from client.models import Client
+from .serializers import PlanSerializer
 
 class PlanListCreateView(generics.ListCreateAPIView):
-    queryset = Plan.objects.annotate(
-        approved_trainers_count=Count(
-            "trainers",
-            filter=Q(trainers__status="approved")
-        )
-    ).order_by("-created_at")
-
     serializer_class = PlanSerializer
     permission_classes = [IsAdmin]
     pagination_class = CustomPagination
 
-    
+    def get_queryset(self):
+        return Plan.objects.annotate(
+            approved_trainers_count=Count(
+                "trainers",
+                filter=Q(trainers__status="approved")
+            )
+        ).order_by("-created_at")
+
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        return Response({
+            "status": True,
+            "data": response.data
+        }, status=status.HTTP_200_OK)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        if not serializer.is_valid():
+            return Response({
+                "status": False,
+                "message": "Validation failed",
+                "errors": serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer.save()
+        return Response({
+            "status": True,
+            "message": "Plan created successfully",
+            "data": serializer.data
+        }, status=status.HTTP_201_CREATED)
+
+
 class PlanRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = PlanSerializer
     permission_classes = [IsAdmin]
 
     def get_object(self):
         return get_object_or_404(Plan, id=self.kwargs["pk"])
-    
+
+    def retrieve(self, request, *args, **kwargs):
+        plan = self.get_object()
+        serializer = self.get_serializer(plan)
+
+        return Response({
+            "status": True,
+            "data": serializer.data
+        }, status=status.HTTP_200_OK)
+
+    def update(self, request, *args, **kwargs):
+        plan = self.get_object()
+        serializer = self.get_serializer(plan, data=request.data, partial=True)
+
+        if not serializer.is_valid():
+            return Response({
+                "status": False,
+                "message": "Validation failed",
+                "errors": serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer.save()
+        return Response({
+            "status": True,
+            "message": "Plan updated successfully",
+            "data": serializer.data
+        }, status=status.HTTP_200_OK)
+
+    def destroy(self, request, *args, **kwargs):
+        plan = self.get_object()
+
+        trainer_exists = Trainer.objects.filter(training_field=plan).exists()
+
+        if trainer_exists:
+            return Response({
+                "status": False,
+                "message": "This plan cannot be deleted because trainers are assigned to it."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        plan.delete()
+        return Response({
+            "status": True,
+            "message": "Plan deleted successfully"
+        }, status=status.HTTP_200_OK)
+
 class PlanMiniListView(generics.ListAPIView):
     queryset = Plan.objects.all()
     serializer_class = PlanMiniSerializer
     permission_classes = [IsAdmin]
 
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        return Response({
+            "status": True,
+            "data": response.data
+        }, status=status.HTTP_200_OK)
+
+
+from rest_framework.permissions import IsAuthenticated
+from django.db.models import Q, Count
+from plan.models import Plan
+from trainer.models import SlotBooking
+from .serializers import PlanSerializer
+
 class PlanListView(generics.ListAPIView):
-    queryset = Plan.objects.all()
     serializer_class = PlanSerializer
-    permission_classes = [IsUser]
+    permission_classes = [IsAuthenticated]  # Or your IsUser
+
+    def get_queryset(self):
+        client = self.request.user.client
+
+        # 1️⃣ Get plan IDs where client has bookings that are NOT completed
+        booked_incomplete_plan_ids = SlotBooking.objects.filter(
+            client=client,
+        ).exclude(status="completed").values_list("plan_id", flat=True)
+
+        # 2️⃣ Include plans where all sessions booked by client are completed
+        # This logic automatically allows those plans because we exclude only incomplete bookings
+        queryset = Plan.objects.exclude(id__in=booked_incomplete_plan_ids)
+
+        return queryset
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True, context={"request": request})
+        return Response({
+            "status": True,
+            "data": serializer.data
+        }, status=status.HTTP_200_OK)
+
+
 
 class PlanDetailView(generics.RetrieveAPIView):
     serializer_class = PlanSerializer
@@ -44,10 +156,16 @@ class PlanDetailView(generics.RetrieveAPIView):
     def get_object(self):
         return get_object_or_404(Plan, id=self.kwargs["pk"])
 
+    def retrieve(self, request, *args, **kwargs):
+        plan = self.get_object()
+        serializer = self.get_serializer(plan)
+
+        return Response({
+            "status": True,
+            "data": serializer.data
+        }, status=status.HTTP_200_OK)
 
 
-# getting plan list with pending trainer counts
-# views.py
 from rest_framework import generics
 from django.db.models import Count, Q
 from plan.models import Plan
@@ -59,7 +177,15 @@ class PlanPendingCountListView(generics.ListAPIView):
     def get_queryset(self):
         return Plan.objects.annotate(
             pending_count=Count(
-                'trainers',
-                filter=Q(trainers__status='pending')
+                "trainers",
+                filter=Q(trainers__status="pending")
             )
-        ).values('id', 'plan_name', 'pending_count')
+        )
+
+    def list(self, request, *args, **kwargs):
+        serializer = self.get_serializer(self.get_queryset(), many=True)
+
+        return Response({
+            "status": True,
+            "data": serializer.data
+        }, status=status.HTTP_200_OK)

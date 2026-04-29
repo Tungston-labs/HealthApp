@@ -2,7 +2,7 @@ from django.urls import path
 from .views import (
     LoginAPIView, LogoutAPIView,
     ForgotPasswordStep1APIView, VerifyOTPAPIView,
-    ResetPasswordAPIView, ChangePasswordAPIView
+    ResetPasswordAPIView, ChangePasswordAPIView,RefreshAccessTokenAPIView
 )
 
 urlpatterns = [
@@ -12,4 +12,5 @@ urlpatterns = [
     path("forgot-password/verify-otp/", VerifyOTPAPIView.as_view(), name="verify-otp"),
     path("forgot-password/reset/", ResetPasswordAPIView.as_view(), name="reset-password"),
     path("change-password/", ChangePasswordAPIView.as_view(), name="change-password"),
+    path("token/refresh/",RefreshAccessTokenAPIView.as_view(),name="refresh"),
 ]

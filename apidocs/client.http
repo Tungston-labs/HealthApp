@@ -1,11 +1,11 @@
 
- @base_url = http://178.248.112.16:9001/api/client/
-# @base_url = http://localhost:8000/api/client/
-POST http://178.248.112.16:9001/api/auth/login/
+   @base_url = http://178.248.112.16:9001/api/client/
+  # @base_url = http://localhost:8000/api/client/
+POST http://localhost:8000/api/auth/login/
 Content-Type: application/json
 
 {
-  "email_or_phno": "9976543210",
+  "email_or_phno":"jesna@gmail.com",
   "password": "Password@123"
 }
 ### Client Registration
@@ -13,25 +13,25 @@ POST {{base_url}}register/
 Content-Type: application/json
 
 {
-  "name": "Jesna",
-  "phno": "9176543210",
-  "email": "jeznajamal@example.com",
+  "name": "user0001",
+  "phno": "4440043210",
+  "email": "user044001@example.com",
   "dob": "2003-01-15",
   "gender": "female",
   "blood_group": "O+",
   "weight": "50.5",
   "height": "140.0",
-  "wellness_goal": "weight loss",
   "address": "123 Street, City",
-  "health_issues": "no",
-  "password":"Password@123"
+  "password":"Password@123",
+  "health_issues": ["pcod", "backpain"],
+  "wellness_goal": ["weight_loss", "improve_fitness"]
 }
 ### List Clients
-GET {{base_url}}?plan_id=1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1NDgxMjA5LCJpYXQiOjE3NjU0MzgwMDksImp0aSI6IjcxY2M5MjE5ZTNlMzQ2YTk4YjM4YTY2OTYyZmI4NzBmIiwidXNlcl9pZCI6IjEifQ.AHCrKYu0iPJADB1tjdhA_AkZN7GjsYUV2ARtISk0Wl4
+GET {{base_url}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY2NTIwMTYyLCJpYXQiOjE3NjY0NzY5NjIsImp0aSI6IjRlZGU5MWNiZjNlNjRmZmI4ZjdmNTAwYzg5MjFkYjNlIiwidXNlcl9pZCI6IjEifQ.wF9FD1wik9FGAqqSa_Zx8DATUsGN_U0vfcRQKe6b-O4
 ### Retrieve Client Profile
-GET {{base_url}}1/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1NDg5ODY4LCJpYXQiOjE3NjU0NDY2NjgsImp0aSI6ImMwNDMyYzAzODE1OTRmNzY5YmUxOWNlMWE5NGQ1MWExIiwidXNlcl9pZCI6IjEifQ.FlJe7yr_BFi_haGdDSFig047SGIo0IAQtaop_PN3pH0
+GET {{base_url}}4/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY2MTU5MzQwLCJpYXQiOjE3NjYxMTYxNDAsImp0aSI6Ijk5ZmEyODIyYjA0MTQ4NGZiM2I5NDczZDU1OWQwYWQyIiwidXNlcl9pZCI6IjEifQ.yEGtMZpZoDCl7cYNYHlfvKNBZcFRTnr8rY_Y2UEPhyQ
 ### Update Client Profile
 PATCH {{base_url}}client/1/
 Authorization: Bearer <access_token>
@@ -48,12 +48,48 @@ Authorization: Bearer <access_token>
 
 ###profile for mobile 
 GET {{base_url}}profile/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY0MDI3MDUwLCJpYXQiOjE3NjM5ODM4NTAsImp0aSI6IjIzMWU4Y2U5ZTM4MDRmOTlhOWYyN2E2NDAzNmVkNjU4IiwidXNlcl9pZCI6IjMifQ.TJax_-AIY0NJyG_FPL43A5xzsxXsCqmjvnM9RBtF_5s
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3OTk3NDYxLCJpYXQiOjE3Njc5NTQyNjEsImp0aSI6IjgyNmUyMzdiMDc2ZjRkYzZhYTliYjc4Y2MzMmRlNDFlIiwidXNlcl9pZCI6IjI2In0.HWZms4m5oFQW8KclMmY0H6jIEj-Ra_3rwC3dVlydHpY
 
 
 ###dashboard for web
 GET {{base_url}}dashboard/counts/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1NDc5NDQ2LCJpYXQiOjE3NjU0MzYyNDYsImp0aSI6ImRkZTJkYTJlMmNmOTQ1YTlhNzZjMTEzYTc3ODI1MDg1IiwidXNlcl9pZCI6IjEifQ.-ZmKSMd-XvTQ3X00IvqFpS4sJz_2VYfNrLHk1sZY74w
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY2NTA0NDYzLCJpYXQiOjE3NjY0NjEyNjMsImp0aSI6IjA4NjlkMWRjYWM1MTQ3Zjk5ODk2YmIzZjZhZjE4MWQ1IiwidXNlcl9pZCI6IjEifQ.pq_Sv-ZSoI7BE6iu5rPhUFTXM9FRYZ6CQGT823xUCus
+
+###list booked trainers by client
+GET {{base_url}}booked-trainers/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY5Mjg1OTc0LCJpYXQiOjE3NjkyNDI3NzQsImp0aSI6IjljMDQ1OTA2Yjc4NDRiMjFiOWRiY2QxNTBiMmJhZGQyIiwidXNlcl9pZCI6IjMifQ.p94eS8uJbomFOk0W2HORxVg7xc79lGws_K43683kfRQ
+
+###get client profile in mobile app
+0Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3OTk3NDYxLCJpYXQiOjE3Njc5NTQyNjEsImp0aSI6IjgyNmUyMzdiMDc2ZjRkYzZhYTliYjc4Y2MzMmRlNDFlIiwidXNlcl9pZCI6IjI2In0.HWZms4m5oFQW8KclMmY0H6jIEj-Ra_3rwC3dVlydHpY
 
 
+###edit client profile in mobile app 
+PATCH {{base_url}}profile/edit/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY4MjYxNzk0LCJpYXQiOjE3NjgyMTg1OTQsImp0aSI6IjcwMzIwOTE0MzhkMzQ5MDc4MjhhYzQyNWM0NjcwMTVhIiwidXNlcl9pZCI6IjI5In0.2ueoLj4DQAs2ulMGvEvxKI7E506OInE_GVbIHWtJ9F0
+Content-Type: application/json
 
+{
+  "name": "Test User Updated",
+  "dob": "1990-05-12",
+  "blood_group": "O+",
+  "weight": 70.5,
+  "height": 175,
+  "address": "123, New Street, City",
+  "health_issues": ["Diabetes"],
+  "wellness_goal": ["Lose Weight"]
+}
+
+
+###ubooked plan list
+GET {{base_url}}plans/unbooked/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY4NDkxMzM4LCJpYXQiOjE3Njg0NDgxMzgsImp0aSI6Ijc3OGY4NTFkNzE3MzQ0YjE4MjAwMWMzYWY2MmVhMTJiIiwidXNlcl9pZCI6IjI2In0.bxKTW3AcSWxsaZ25kcmSbT-ELGgzyc9xhI4DClu08Pg
+
+###client bmi value
+GET {{base_url}}client/bmi/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY4NTg1MTA2LCJpYXQiOjE3Njg1NDE5MDYsImp0aSI6IjQ4NDhjYTYyOGJjNzRjMWE5MmI1MWI4YzFmYjE2MDYxIiwidXNlcl9pZCI6IjI2In0.IK2PgOEs201XHbpRAlOnasdx9rWfSP96B5VxIpgKxjE
+
+
+### client payment list 
+
+GET {{base_url}}payments/client/63./
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY5NDU3NTcxLCJpYXQiOjE3Njk0MTQzNzEsImp0aSI6IjA4NGI5YThiOTRjNTRjOTI5ZTlkM2FmODNjN2U1NzllIiwidXNlcl9pZCI6IjEifQ.exD1glcRHVmtJXzpBqPK_ZUV8RQG6JQChXtWpmsNd5U

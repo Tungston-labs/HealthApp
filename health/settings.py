@@ -36,7 +36,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -74,8 +73,11 @@ MIDDLEWARE = [
 ]
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
+    "http://178.248.112.16:91",
+    "http://192.168.0.241:5174",
+
 ]
-# CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = [
@@ -180,6 +182,9 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = config('EMAIL_HOST_USER')  # from .env
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')  # from .env
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')  
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+RAZORPAY_KEY_ID = config('RAZORPAY_KEY_ID')  
+RAZORPAY_KEY_SECRET = config('RAZORPAY_KEY_SECRET')  
+
