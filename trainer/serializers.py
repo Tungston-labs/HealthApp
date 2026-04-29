@@ -47,7 +47,7 @@ class TrainerSerializer(serializers.ModelSerializer):
     # -------------------------
     certificates_read = serializers.SerializerMethodField()
 
-    profile_pic = serializers.ImageField(required=False, allow_null=True)
+    profile_pic = ImageUploadField(required=False, allow_null=True)
     profile_pic_url = serializers.SerializerMethodField()
 
     plan_id = serializers.IntegerField(
