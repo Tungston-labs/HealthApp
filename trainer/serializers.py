@@ -108,11 +108,28 @@ class TrainerSerializer(serializers.ModelSerializer):
     # =====================================================
     # CREATE
     # =====================================================
-    def create(self, validated_data):
+    def _pop_certificate_urls(self, validated_data):
+        certificate_urls = validated_data.pop("certificates", None)
         request = self.context.get("request")
 
-        # Read certificates properly from multipart
-        certificate_urls = request.data.getlist("certificates[]")
+        if request is not None and hasattr(request.data, "getlist"):
+            multipart_urls = request.data.getlist("certificates[]")
+            if multipart_urls:
+                certificate_urls = multipart_urls
+
+        if certificate_urls is None:
+            return []
+
+        if isinstance(certificate_urls, str):
+            try:
+                certificate_urls = json.loads(certificate_urls)
+            except Exception:
+                certificate_urls = [certificate_urls]
+
+        return certificate_urls
+
+    def create(self, validated_data):
+        certificate_urls = self._pop_certificate_urls(validated_data)
 
         password = validated_data.pop("password", None)
 
