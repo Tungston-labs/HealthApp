@@ -1,8 +1,10 @@
 from rest_framework import serializers
 from .models import Plan
+from health.upload_fields import ImageUploadField
 
 class PlanSerializer(serializers.ModelSerializer):
     approved_trainers_count = serializers.IntegerField(read_only=True)
+    upload_file = ImageUploadField(required=False, allow_null=True)
 
     class Meta:
         model = Plan

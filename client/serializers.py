@@ -1,11 +1,12 @@
 from rest_framework import serializers
 from .models import Client
 from accounts.models import User
+from health.upload_fields import ImageUploadField
 import datetime
 
 class ClientSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
-    profile_pic = serializers.ImageField(required=False)
+    profile_pic = ImageUploadField(required=False, allow_null=True)
 
     class Meta:
         model = Client

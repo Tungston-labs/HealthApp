@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import Trainer, TrainerCertificate,TrainerAvailability,SlotBooking
 from rest_framework import serializers
 from client.models import Client
+from health.upload_fields import ImageUploadField
 from review.models import TrainerReview
 
 class TrainerAvailabilitySerializer(serializers.ModelSerializer):
@@ -26,7 +27,7 @@ class TrainerSerializer(serializers.ModelSerializer):
     )
     certificates_read = serializers.SerializerMethodField()
     password = serializers.CharField(write_only=True, required=False)
-    profile_pic = serializers.SerializerMethodField()
+    profile_pic = ImageUploadField(required=False, allow_null=True)
     plan_id = serializers.IntegerField(source='training_field.id', read_only=True)
     plan_name = serializers.CharField(source='training_field.plan_name', read_only=True)
 
@@ -53,13 +54,6 @@ class TrainerSerializer(serializers.ModelSerializer):
             )
 
         return trainer
-
-    
-    def get_profile_pic(self, obj):
-        request = self.context.get("request")
-        if obj.profile_pic:
-            return request.build_absolute_uri(obj.profile_pic.url)
-        return None
 
     def get_certificates_read(self, obj):
         request = self.context.get("request")

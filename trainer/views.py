@@ -5,9 +5,11 @@ from django.core.files.storage import default_storage
 from django.conf import settings
 import os
 from .serializers import TrainerSerializer,TrainerMiniSerializer,ChangeTrainerSerializer,SlotBookingNoteSerializer
+from health.upload_fields import validate_image_extension
 from accounts.models import User  # your custom User model
 from accounts.permissions import IsAdmin,IsTrainer,IsAdminOrTrainer,IsUser
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
 from datetime import datetime, timedelta
 from django.db.models import Q
 
@@ -24,6 +26,11 @@ class LocalImageUploadAPIView(APIView):
         file = request.FILES.get("file")
         if not file:
             return Response({"error": "No file provided"}, status=400)
+
+        try:
+            validate_image_extension(file)
+        except ValidationError as exc:
+            return Response({"error": exc.detail}, status=400)
 
         path = default_storage.save(f"certificates/{file.name}", file)
 
