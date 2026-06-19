@@ -1,4 +1,5 @@
 from rest_framework import generics, permissions,status
+from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import get_object_or_404
 from .models import Client
 from .serializers import ClientSerializer,ClientProfileSerializer
@@ -31,11 +32,23 @@ class ClientCreateView(generics.CreateAPIView):
             }, status=status.HTTP_400_BAD_REQUEST)
 
         self.perform_create(serializer)
+        client = serializer.instance
+        user = getattr(client, 'user', None)
+
+        access_token = None
+        refresh_token = None
+
+        if user:
+            refresh = RefreshToken.for_user(user)
+            access_token = str(refresh.access_token)
+            refresh_token = str(refresh)
 
         return Response({
             "status": True,
             "message": "Client registered successfully",
-            "data": serializer.data
+            "data": serializer.data,
+            "access": access_token,
+            "refresh": refresh_token,
         }, status=status.HTTP_201_CREATED)
 
 
