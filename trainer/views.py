@@ -3,6 +3,7 @@ from rest_framework import generics, permissions,status
 from rest_framework.views import APIView
 from django.core.files.storage import default_storage
 from django.conf import settings
+import logging
 import os
 from .serializers import TrainerSerializer,TrainerMiniSerializer,ChangeTrainerSerializer,SlotBookingNoteSerializer
 from health.upload_fields import validate_image_extension
@@ -18,6 +19,7 @@ from plan.models import Plan
 from client.models import Client
 from accounts.paginations import CustomPagination
 
+logger = logging.getLogger(__name__)
 
 class LocalImageUploadAPIView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -52,7 +54,7 @@ class TrainerCreateView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if not serializer.is_valid():
-            print("❌ SERIALIZER ERRORS:", serializer.errors)
+            logger.warning("Trainer serializer errors: %s", serializer.errors)
             return Response(serializer.errors, status=400)
 
         return super().create(request, *args, **kwargs)
@@ -226,7 +228,13 @@ class FilterTrainersView(APIView):
         time_slot = request.data.get("time")           # "06:00"
         start_date = request.data.get("start_date")    # "2026-01-10"
 
-        print("request body-----",plan_id,slot_days,time_slot,start_date)
+        logger.debug(
+            "FilterTrainersView request body: plan_id=%s slot_days=%s time=%s start_date=%s",
+            plan_id,
+            slot_days,
+            time_slot,
+            start_date,
+        )
 
         # ---------------- VALIDATION ----------------
         if not plan_id or not slot_days or not time_slot or not start_date:
@@ -1104,7 +1112,7 @@ class CreateTrainerBookingOrderView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        print("📦 REQUEST DATA:", request.data)
+        logger.debug("CreateTrainerBookingOrderView request data: %s", request.data)
 
         trainer_id = request.data.get("trainer_id")
         plan_id = request.data.get("plan_id")

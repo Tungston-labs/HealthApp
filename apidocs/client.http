@@ -13,9 +13,9 @@ POST {{base_url}}register/
 Content-Type: application/json
 
 {
-  "name": "user0001",
-  "phno": "4440043210",
-  "email": "user044001@example.com",
+  "name": "user10001",
+  "phno": "8456533089",
+  "email": "user11011@example.com",
   "dob": "2003-01-15",
   "gender": "female",
   "blood_group": "O+",
