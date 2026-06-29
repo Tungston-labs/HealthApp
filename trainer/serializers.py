@@ -245,6 +245,7 @@ class TrainerMiniSerializer(serializers.ModelSerializer):
             "profile_pic",
             "location",
             "experience",
+            "expecting_salary",
             "star_rating",
             "single_price",
             "couple_price",
