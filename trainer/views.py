@@ -1477,7 +1477,6 @@ class VerifyTrainerChangePaymentView(APIView):
         per_session_amount = payment.amount
 
         with transaction.atomic():
-            # ✅ SAVE PAYMENT DETAILS (FIX #1)
             payment.status = "success"
             payment.razorpay_payment_id = razorpay_payment_id
             payment.razorpay_signature = razorpay_signature

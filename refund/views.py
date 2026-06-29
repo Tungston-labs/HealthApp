@@ -103,8 +103,28 @@ class TrainingCancelListView(generics.ListAPIView):
     serializer_class = TrainingCancelListSerializer
     pagination_class = CustomPagination
 
+    def get_queryset(self):
+        return (
+            TrainingCancelRequest.objects
+            .select_related("client", "trainer", "plan", "slot")
+            .order_by("-request_date")
+        )
+
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
+
+        limit = request.query_params.get("limit")
+        if limit:
+            queryset = queryset[:int(limit)]
+            serializer = self.get_serializer(queryset, many=True)
+            return Response({
+                "success": True,
+                "status_code": status.HTTP_200_OK,
+                "message": "Latest cancellation requests",
+                "count": len(serializer.data),
+                "data": serializer.data
+            })
+
         page = self.paginate_queryset(queryset)
         serializer = self.get_serializer(page, many=True)
 
@@ -114,13 +134,6 @@ class TrainingCancelListView(generics.ListAPIView):
             "message": "Cancellation requests list",
             "data": serializer.data
         })
-
-    def get_queryset(self):
-        return TrainingCancelRequest.objects.select_related(
-            "client", "trainer", "plan", "slot"
-        ).order_by("-request_date")
-
-
 class TrainingCancelDetailView(APIView):
     permission_classes = [IsAdminUser]
 
