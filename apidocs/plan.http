@@ -1,5 +1,5 @@
- @base_url = http://178.248.112.16:9001/api/plan/
-# @base_url = http://127.0.0.1:8000/api/plan/
+#  @base_url = http://178.248.112.16:9001/api/plan/
+@base_url = http://127.0.0.1:8000/api/plan/
 
 
 ### Create plan
@@ -67,3 +67,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 ### detail plan view for client
 GET {{base_url}}clientview/1/
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY4NjY0ODUyLCJpYXQiOjE3Njg2MjE2NTIsImp0aSI6IjRjNGRlMjNkODNmMTQ2MzRiMWU3MTljNWJiY2JlMmI5IiwidXNlcl9pZCI6IjI2In0.oivrXMjoGz2p2EzNGNxxL9x4DTjcIpWrINoOhpuJao8
+
+###Get all plans
+
+GET {{base_url}}public/

@@ -1,5 +1,5 @@
-     @base_url = http://127.0.0.1:8000/api/trainer/
-    # @base_url = http://178.248.112.16:9001/api/trainer/
+    #  @base_url = http://127.0.0.1:8000/api/trainer/
+    @base_url = http://178.248.112.16:9001/api/trainer/
 
 ###----------------------login/get access token and refresh token
 POST http://178.248.112.16:9001/api/auth/login/
@@ -111,12 +111,12 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 ### filter trainer by slot,time,date
 POST {{base_url}}available-trainers/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY5MTgyNTI0LCJpYXQiOjE3NjkxMzkzMjQsImp0aSI6ImM2NzU3OTEyNmJhNzRlN2JiZGMyMTNjZDZhZTEzMmU3IiwidXNlcl9pZCI6IjMifQ.E9Ev1ylHVqMT5va5y81j_q4VE-vHlmFf7eg-C9orrQo
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzgyMzI0NzQ1LCJpYXQiOjE3ODIyODE1NDUsImp0aSI6IjIzOTkzZmY2MTFkZTRmNGRiNjk0YTYxNjEwYTVjY2E2IiwidXNlcl9pZCI6IjI3MiJ9.Q6QMBMSqk-ilxkfMR98p9EChcvT8U5jDSi3m_Wg8Wv0
 Content-Type: application/json
 
 {
   "plan_id": 2,
-  "slot_days": ["mon","wed","fri"],
+  "slot_days": ["Tue","Thu","Sat"],
   "time": "09:00",
   "start_date": "2026-01-26"
 }

@@ -189,3 +189,23 @@ class PlanPendingCountListView(generics.ListAPIView):
             "status": True,
             "data": serializer.data
         }, status=status.HTTP_200_OK)
+        
+from rest_framework import generics
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework import status
+
+from .models import Plan
+from .serializers import PlanMiniSerializer  # or PlanSerializer
+
+class PublicPlanListView(generics.ListAPIView):
+    queryset = Plan.objects.all()
+    serializer_class = PlanMiniSerializer   # Use PlanSerializer if you need all fields
+    permission_classes = [AllowAny]
+
+    def list(self, request, *args, **kwargs):
+        serializer = self.get_serializer(self.get_queryset(), many=True)
+        return Response({
+            "status": True,
+            "data": serializer.data
+        }, status=status.HTTP_200_OK)
