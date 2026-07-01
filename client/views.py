@@ -312,14 +312,19 @@ class UnBookedPlanListView(APIView):
     def get(self, request):
         client = request.user.client
 
-        # Get plan IDs already booked by this client
+        # Get plan IDs for active bookings only.
+        # Cancelled or completed trainings should be available again.
         booked_plan_ids = (
             SlotBooking.objects
-            .filter(client=client)
+            .filter(
+                client=client,
+                status__in=["upcoming", "ongoing", "changed"]
+            )
             .values_list("plan_id", flat=True)
+            .distinct()
         )
 
-        # Exclude booked plans
+        # Exclude currently active plans only
         plans = Plan.objects.exclude(id__in=booked_plan_ids)
 
         serializer = UnBookedPlanSerializer(

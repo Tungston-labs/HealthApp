@@ -20,15 +20,17 @@ class RequestTrainingCancelView(APIView):
 
     def post(self, request):
         client = request.user.client
+        slot_id = request.data.get("slot_id")
 
-        slot = (
-            SlotBooking.objects.filter(
-                client=client,
-                status__in=["upcoming", "ongoing"]
-            )
-            .order_by("date", "time")
-            .first()
+        slot_qs = SlotBooking.objects.filter(
+            client=client,
+            status__in=["upcoming", "ongoing"]
         )
+
+        if slot_id:
+            slot_qs = slot_qs.filter(id=slot_id)
+
+        slot = slot_qs.order_by("date", "time").first()
 
         if not slot:
             return Response(

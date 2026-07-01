@@ -1,5 +1,8 @@
 from rest_framework import serializers
+from django.db import transaction
 from .models import TrainingCancelRequest
+from trainer.models import SlotBooking
+
 
 class TrainingCancelRequestSerializer(serializers.ModelSerializer):
     trainer_name = serializers.CharField(source="trainer.name", read_only=True)
@@ -18,10 +21,7 @@ class TrainingCancelRequestSerializer(serializers.ModelSerializer):
             "request_date",
             "reason",
         ]
-# serializers.py
 
-from rest_framework import serializers
-from .models import TrainingCancelRequest
 
 class TrainingCancelListSerializer(serializers.ModelSerializer):
     client_name = serializers.CharField(source="client.name")
@@ -41,6 +41,8 @@ class TrainingCancelListSerializer(serializers.ModelSerializer):
             "request_date",
             "status",
         ]
+
+
 class TrainingCancelDetailSerializer(serializers.ModelSerializer):
     # Client
     client_name = serializers.CharField(source="client.name")
@@ -87,11 +89,6 @@ class TrainingCancelDetailSerializer(serializers.ModelSerializer):
         ]
 
 
-from django.db import transaction
-from rest_framework import serializers
-from trainer.models import SlotBooking
-from .models import TrainingCancelRequest
-
 class TrainingCancelStatusUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -99,19 +96,26 @@ class TrainingCancelStatusUpdateSerializer(serializers.ModelSerializer):
         fields = ["status"]
 
     def update(self, instance, validated_data):
-
         with transaction.atomic():
-
             old_status = instance.status
             new_status = validated_data.get("status")
 
+            # Update status first
             instance.status = new_status
             instance.save()
 
+            # If transitioning to approved or closed, cancel the slot
             if new_status in ["approved", "closed"] and old_status != new_status:
-                SlotBooking.objects.filter(
-                    id=instance.slot_id,
-                    status__in=["upcoming", "ongoing"]
-                ).update(status="cancelled")
+                slot_id = instance.slot_id
+                if slot_id:
+                    # Try to update slots with upcoming or ongoing status
+                    update_count = SlotBooking.objects.filter(
+                        id=slot_id,
+                        status__in=["upcoming", "ongoing"]
+                    ).update(status="cancelled")
+                    
+                    # If no rows updated, force cancel regardless of status
+                    if update_count == 0:
+                        SlotBooking.objects.filter(id=slot_id).update(status="cancelled")
 
         return instance
