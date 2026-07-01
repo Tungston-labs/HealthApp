@@ -1504,3 +1504,76 @@ class VerifyTrainerChangePaymentView(APIView):
                 )
 
         return Response({"status": True})
+
+
+
+from django.db.models import Count
+from django.db.models.functions import ExtractMonth
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+
+from .models import Trainer
+from client.models import Client
+
+
+class MonthlyTrainerClientCountAPIView(APIView):
+    """
+    Returns month-wise Trainer and Client count for a given year.
+
+    Example:
+    GET /api/dashboard/monthly-count/?year=2026
+    """
+
+    def get(self, request):
+        year = request.query_params.get("year")
+
+        if not year:
+            return Response(
+                {"error": "Year parameter is required."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            year = int(year)
+        except ValueError:
+            return Response(
+                {"error": "Invalid year."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        trainer_data = (
+            Trainer.objects.filter(created_at__year=year)
+            .annotate(month=ExtractMonth("created_at"))
+            .values("month")
+            .annotate(count=Count("id"))
+        )
+
+        client_data = (
+            Client.objects.filter(created_at__year=year)
+            .annotate(month=ExtractMonth("created_at"))
+            .values("month")
+            .annotate(count=Count("id"))
+        )
+
+        trainer_dict = {item["month"]: item["count"] for item in trainer_data}
+        client_dict = {item["month"]: item["count"] for item in client_data}
+
+        months = [
+            "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+        ]
+
+        response = []
+
+        for month in range(1, 13):
+            response.append({
+                "month": months[month - 1],
+                "trainer_count": trainer_dict.get(month, 0),
+                "client_count": client_dict.get(month, 0),
+            })
+
+        return Response({
+            "year": year,
+            "data": response
+        })

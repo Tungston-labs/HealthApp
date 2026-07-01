@@ -7,8 +7,8 @@ POST http://178.248.112.16:9001/api/auth/login/
 Content-Type: application/json
 
 {
-  "email_or_phno": "sachu@gmail.com",
-  "password": "Sachu@123"
+  "email_or_phno": "pranav@gmail.com",
+  "password": "Pranav@123"
 }
 
 
@@ -85,4 +85,4 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 ### list client weekly sessions
 GET {{base_url}}client/weeklysessions/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY4NTgwODc3LCJpYXQiOjE3Njg1Mzc2NzcsImp0aSI6IjcxMTE4OTVkMGY5YjQ2NWE4YTczNGMxMTFhODU1ZDIwIiwidXNlcl9pZCI6IjI5In0.V2dl15vRn1iWtzFV2HdKZrdFu876tAAgOCkiT7n11ag
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzcxMjYxODU2LCJpYXQiOjE3NzEyMTg2NTYsImp0aSI6IjQ5MDAxMjdhMTIzNzRiZDk5OThjOTg0NTMwMDU0ZGIyIiwidXNlcl9pZCI6IjI2In0.TTso01AU7GKGX-dSAac_Y4WQs0a3AHgx70vLOZrP6OY

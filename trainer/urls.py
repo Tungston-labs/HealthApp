@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import TrainerCreateView, TrainerListView, TrainerDetailView,LocalImageUploadAPIView,TrainerProfileView,TrainerProfileEditView,PendingTrainerListView,FilterTrainersView,BookTrainerView,TrainerDetailPageView,ChangeTrainerView,TrainerDetailSimpleView,AddSlotBookingNoteView,SuspendTrainerView,TrainerPendingListView,SlotBookingNoteDetailView,DeleteSlotBookingNoteView,OngoingSessionView,TrainerClientsListView,EditSlotBookingNoteView,TrainerPaymentInvoiceView,TrainerPaymentListView,TrainerPaymentUpdateView,CreateTrainerBookingOrderView,VerifyTrainerPaymentView,CreateTrainerChangeOrderView,VerifyTrainerChangePaymentView
+from .views import TrainerCreateView, TrainerListView, TrainerDetailView,LocalImageUploadAPIView,TrainerProfileView,TrainerProfileEditView,PendingTrainerListView,FilterTrainersView,BookTrainerView,TrainerDetailPageView,ChangeTrainerView,TrainerDetailSimpleView,AddSlotBookingNoteView,SuspendTrainerView,TrainerPendingListView,SlotBookingNoteDetailView,DeleteSlotBookingNoteView,OngoingSessionView,TrainerClientsListView,EditSlotBookingNoteView,TrainerPaymentInvoiceView,TrainerPaymentListView,TrainerPaymentUpdateView,CreateTrainerBookingOrderView,VerifyTrainerPaymentView,CreateTrainerChangeOrderView,VerifyTrainerChangePaymentView,MonthlyTrainerClientCountAPIView
 
 urlpatterns = [
     path('', TrainerCreateView.as_view(), name='trainer-create'),
@@ -49,6 +49,11 @@ urlpatterns = [
     path("verify-trainer-payment/",VerifyTrainerPaymentView.as_view()),
     path("payment/change-trainer/order/",CreateTrainerChangeOrderView.as_view()),
     path("payment/change-trainer/verify/",VerifyTrainerChangePaymentView.as_view()),
+    path(
+        "dashboard/monthly-count/",
+        MonthlyTrainerClientCountAPIView.as_view(),
+        name="monthly-trainer-client-count"
+    ),
 
 
 
