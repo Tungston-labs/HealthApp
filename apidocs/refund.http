@@ -1,11 +1,11 @@
 
-@base_url = http://127.0.0.1:8000/api/refund/
-# @base_url = http://178.248.112.16:9001/api/refund/
+# @base_url = http://127.0.0.1:8000/api/refund/
+@base_url = http://178.248.112.16:9001/api/refund/
 
 ### 1.5) List client's active bookings (to get slot_id)
 # Get the slot IDs of active trainings. Use one of these IDs in step 2.
 GET http://localhost:8000/api/client/booked-trainers/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzgyOTMzMjkyLCJpYXQiOjE3ODI4OTAwOTIsImp0aSI6IjFkYTY4OTdmZTYwNDRkZWVhNGZkMjdiZjBjZDVkMmQzIiwidXNlcl9pZCI6IjMwNSJ9.ZMRdSx8jIMo4j5VOhaVe4g76uRj3C-Z2RtofxorlSqc
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzgyOTM2NjcyLCJpYXQiOjE3ODI4OTM0NzIsImp0aSI6IjhmYTIwOWUxYTg0NTQyMGFiNjQ1ZmNkOWRjODViMzNmIiwidXNlcl9pZCI6IjMwNSJ9.VRgsTM-nopzZM_pS5JVkv5K54yd4TR-3enDyAhHA7pY
 
 ### 2) Client requests cancellation of an active training
 # Use either slot_id (for one specific booking) or trainer_id (to remove that trainer's active bookings from the booked-trainers list).
@@ -13,7 +13,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 POST {{base_url}}training/cancel/
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzgyOTM1Mzg2LCJpYXQiOjE3ODI4OTIxODYsImp0aSI6ImMyOTMwNmQ5MGI5YzQxMGZhMzZjOTQ1NTU0OGMzMDEyIiwidXNlcl9pZCI6IjMwNSJ9.EYqEDDQwoZWBcUWv-_vhlaNn8lIFuSeA2eEK2sfZsU0
 Content-Type: application/json
-
+ 
 {
   "trainer_id": 142
 }
@@ -31,7 +31,7 @@ GET {{base_url}}cancel-requests/56
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzgyOTMzNTY4LCJpYXQiOjE3ODI4OTAzNjgsImp0aSI6Ijc3NDMyY2VmODE4YTRhNmNhYzNiNGU5MGZiYjU5MmZiIiwidXNlcl9pZCI6IjEifQ.4XAsIiVxbF3BGrVKiJpjnDGRZLCLtZkgqIe1MAo1NSE
 
 ### 6) Admin closes the request to cancel the training
-PATCH {{base_url}}cancel-requests/62/status/
+PATCH {{base_url}}cancel-requests/64/status/
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzgyOTMzNTY4LCJpYXQiOjE3ODI4OTAzNjgsImp0aSI6Ijc3NDMyY2VmODE4YTRhNmNhYzNiNGU5MGZiYjU5MmZiIiwidXNlcl9pZCI6IjEifQ.4XAsIiVxbF3BGrVKiJpjnDGRZLCLtZkgqIe1MAo1NSE
 

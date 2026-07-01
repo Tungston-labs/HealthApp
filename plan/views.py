@@ -128,16 +128,17 @@ class PlanListView(generics.ListAPIView):
     def get_queryset(self):
         client = self.request.user.client
 
-        # 1️⃣ Get plan IDs where client has bookings that are NOT completed
-        booked_incomplete_plan_ids = SlotBooking.objects.filter(
-            client=client,
-        ).exclude(status="completed").values_list("plan_id", flat=True)
+        booked_plan_ids = (
+            SlotBooking.objects.filter(
+                client=client,
+                status__in=["upcoming", "ongoing"]
+            )
+            .values_list("plan_id", flat=True)
+            .distinct()
+        )
 
-        # 2️⃣ Include plans where all sessions booked by client are completed
-        # This logic automatically allows those plans because we exclude only incomplete bookings
-        queryset = Plan.objects.exclude(id__in=booked_incomplete_plan_ids)
+        return Plan.objects.exclude(id__in=booked_plan_ids)
 
-        return queryset
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()

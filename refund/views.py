@@ -153,6 +153,7 @@ class TrainingCancelDetailView(APIView):
 
         serializer = TrainingCancelDetailSerializer(cancel_request)
         return Response(serializer.data, status=200)
+
 class TrainingCancelStatusUpdateView(APIView):
     permission_classes = [IsAdminUser]
 
@@ -160,27 +161,44 @@ class TrainingCancelStatusUpdateView(APIView):
         try:
             cancel_request = TrainingCancelRequest.objects.get(id=pk)
         except TrainingCancelRequest.DoesNotExist:
-            return Response({"error": "Not found"}, status=404)
+            return Response(
+                {"error": "Not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        old_status = cancel_request.status
 
         serializer = TrainingCancelStatusUpdateSerializer(
-            cancel_request, data=request.data, partial=True
+            cancel_request,
+            data=request.data,
+            partial=True
         )
 
-        if serializer.is_valid():
-            old_status = cancel_request.status
-            new_status = request.data.get("status")
-            serializer.save()
+        if not serializer.is_valid():
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-            if new_status in ["approved", "closed"] and old_status != new_status:
-                filters = {
-                    "client": cancel_request.client,
-                    "trainer": cancel_request.trainer,
-                    "status__in": ["upcoming", "ongoing", "changed"],
-                }
-                if cancel_request.plan_id is not None:
-                    filters["plan_id"] = cancel_request.plan_id
-                SlotBooking.objects.filter(**filters).update(status="cancelled")
+        serializer.save()
 
-            return Response({"message": "Status updated successfully"}, status=200)
+        new_status = serializer.instance.status
 
-        return Response(serializer.errors, status=400)
+        # When the cancellation request is closed,
+        # cancel all remaining active sessions for this trainer & plan.
+        if old_status != "closed" and new_status == "closed":
+
+            SlotBooking.objects.filter(
+                client=cancel_request.client,
+                trainer=cancel_request.trainer,
+                plan=cancel_request.plan,
+                status__in=["upcoming", "ongoing"]
+            ).update(status="cancelled")
+
+        return Response(
+            {
+                "success": True,
+                "message": "Status updated successfully"
+            },
+            status=status.HTTP_200_OK
+        )
