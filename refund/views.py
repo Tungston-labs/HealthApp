@@ -184,8 +184,7 @@ class TrainingCancelStatusUpdateView(APIView):
 
         new_status = serializer.instance.status
 
-        # When the cancellation request is closed,
-        # cancel all remaining active sessions for this trainer & plan.
+        
         if old_status != "closed" and new_status == "closed":
 
             SlotBooking.objects.filter(

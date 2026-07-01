@@ -25,7 +25,7 @@ class TrainingCancelRequestSerializer(serializers.ModelSerializer):
 
 class TrainingCancelListSerializer(serializers.ModelSerializer):
     client_name = serializers.CharField(source="client.name")
-    client_id = serializers.CharField(source="client.id")
+    client_id = serializers.IntegerField(source="client.id", read_only=True)
     trainer_name = serializers.CharField(source="trainer.name")
     training_field = serializers.CharField(source="trainer.training_field")
     plan_name = serializers.CharField(source="plan.name", default=None)
