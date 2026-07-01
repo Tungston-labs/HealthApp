@@ -100,22 +100,17 @@ class TrainingCancelStatusUpdateSerializer(serializers.ModelSerializer):
             old_status = instance.status
             new_status = validated_data.get("status")
 
-            # Update status first
             instance.status = new_status
             instance.save()
 
-            # If transitioning to approved or closed, cancel the slot
             if new_status in ["approved", "closed"] and old_status != new_status:
-                slot_id = instance.slot_id
-                if slot_id:
-                    # Try to update slots with upcoming or ongoing status
-                    update_count = SlotBooking.objects.filter(
-                        id=slot_id,
-                        status__in=["upcoming", "ongoing"]
-                    ).update(status="cancelled")
-                    
-                    # If no rows updated, force cancel regardless of status
-                    if update_count == 0:
+                slot = getattr(instance, "slot", None)
+                if slot is not None:
+                    slot.status = "cancelled"
+                    slot.save(update_fields=["status"])
+                else:
+                    slot_id = instance.slot_id
+                    if slot_id:
                         SlotBooking.objects.filter(id=slot_id).update(status="cancelled")
 
         return instance

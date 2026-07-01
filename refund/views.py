@@ -163,7 +163,16 @@ class TrainingCancelStatusUpdateView(APIView):
         )
 
         if serializer.is_valid():
+            old_status = cancel_request.status
+            new_status = request.data.get("status")
             serializer.save()
+
+            if new_status in ["approved", "closed"] and old_status != new_status:
+                slot = getattr(cancel_request, "slot", None)
+                if slot is not None:
+                    slot.status = "cancelled"
+                    slot.save(update_fields=["status"])
+
             return Response({"message": "Status updated successfully"}, status=200)
 
         return Response(serializer.errors, status=400)
