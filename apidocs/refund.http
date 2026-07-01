@@ -1,21 +1,21 @@
 
-# @base_url = http://127.0.0.1:8000/api/refund/
-@base_url = http://178.248.112.16:9001/api/refund/
+@base_url = http://127.0.0.1:8000/api/refund/
+# @base_url = http://178.248.112.16:9001/api/refund/
 
 ### 1.5) List client's active bookings (to get slot_id)
 # Get the slot IDs of active trainings. Use one of these IDs in step 2.
-GET http://127.0.0.1:8000/api/client/booked-trainers/
+GET http://localhost:8000/api/client/booked-trainers/
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzgyOTMzMjkyLCJpYXQiOjE3ODI4OTAwOTIsImp0aSI6IjFkYTY4OTdmZTYwNDRkZWVhNGZkMjdiZjBjZDVkMmQzIiwidXNlcl9pZCI6IjMwNSJ9.ZMRdSx8jIMo4j5VOhaVe4g76uRj3C-Z2RtofxorlSqc
 
 ### 2) Client requests cancellation of an active training
+# Use either slot_id (for one specific booking) or trainer_id (to remove that trainer's active bookings from the booked-trainers list).
 # The "id" field from step 1.5 is the slot_id to pass here.
-# slot_id uniquely identifies the booking (trainer, plan, date, time already included).
 POST {{base_url}}training/cancel/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzgyOTMzMjkyLCJpYXQiOjE3ODI4OTAwOTIsImp0aSI6IjFkYTY4OTdmZTYwNDRkZWVhNGZkMjdiZjBjZDVkMmQzIiwidXNlcl9pZCI6IjMwNSJ9.ZMRdSx8jIMo4j5VOhaVe4g76uRj3C-Z2RtofxorlSqc
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzgyOTM1Mzg2LCJpYXQiOjE3ODI4OTIxODYsImp0aSI6ImMyOTMwNmQ5MGI5YzQxMGZhMzZjOTQ1NTU0OGMzMDEyIiwidXNlcl9pZCI6IjMwNSJ9.EYqEDDQwoZWBcUWv-_vhlaNn8lIFuSeA2eEK2sfZsU0
 Content-Type: application/json
 
 {
-  "slot_id": 1102
+  "trainer_id": 142
 }
 
 ### 3) Client checks their cancellation history
@@ -31,7 +31,7 @@ GET {{base_url}}cancel-requests/56
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzgyOTMzNTY4LCJpYXQiOjE3ODI4OTAzNjgsImp0aSI6Ijc3NDMyY2VmODE4YTRhNmNhYzNiNGU5MGZiYjU5MmZiIiwidXNlcl9pZCI6IjEifQ.4XAsIiVxbF3BGrVKiJpjnDGRZLCLtZkgqIe1MAo1NSE
 
 ### 6) Admin closes the request to cancel the training
-PATCH {{base_url}}cancel-requests/56/status/
+PATCH {{base_url}}cancel-requests/62/status/
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzgyOTMzNTY4LCJpYXQiOjE3ODI4OTAzNjgsImp0aSI6Ijc3NDMyY2VmODE4YTRhNmNhYzNiNGU5MGZiYjU5MmZiIiwidXNlcl9pZCI6IjEifQ.4XAsIiVxbF3BGrVKiJpjnDGRZLCLtZkgqIe1MAo1NSE
 
@@ -42,10 +42,10 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 ### 7) Verify the booking is cancelled
 # After step 6, the backend should update all active bookings for that client+trainer to status = cancelled.
 # You can verify this by checking the client booked trainers or session APIs.
-GET http://127.0.0.1:8000/api/client/booked-trainers/
+GET {{base_url}}/api/client/booked-trainers/
 Authorization: Bearer <client_access_token>
 
 ### 8) Verify the plan becomes available again for selection
-GET http://127.0.0.1:8000/api/client/plans/unbooked/
+GET {{base_url}}/api/client/plans/unbooked/
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzgyOTMyMDc1LCJpYXQiOjE3ODI4ODg4NzUsImp0aSI6ImM1MTFlYmIwNzNlYTRiZTk4NDJhOGU5ODBiMzNlZDA2IiwidXNlcl9pZCI6IjE0In0.4nx73oP2N2l6yDFU2dZNH08g7eGDI5TAqLzfEIZfKaM
 

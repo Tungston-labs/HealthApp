@@ -106,13 +106,14 @@ class TrainingCancelStatusUpdateSerializer(serializers.ModelSerializer):
             instance.save()
 
             if new_status in ["approved", "closed"] and old_status != new_status:
-                slot = getattr(instance, "slot", None)
-                if slot is not None:
-                    slot.status = "cancelled"
-                    slot.save(update_fields=["status"])
-                else:
-                    slot_id = instance.slot_id
-                    if slot_id:
-                        SlotBooking.objects.filter(id=slot_id).update(status="cancelled")
+                filters = {
+                    "client": instance.client,
+                    "trainer": instance.trainer,
+                    "status__in": ["upcoming", "ongoing", "changed"],
+                }
+                if instance.plan_id is not None:
+                    filters["plan_id"] = instance.plan_id
+
+                SlotBooking.objects.filter(**filters).update(status="cancelled")
 
         return instance

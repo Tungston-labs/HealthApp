@@ -141,7 +141,7 @@ class TrainingCancelStatusUpdateSerializerTests(TestCase):
         self.other_slot.refresh_from_db()
 
         self.assertEqual(self.slot.status, "cancelled")
-        self.assertEqual(self.slot2.status, "ongoing")
+        self.assertEqual(self.slot2.status, "cancelled")
         self.assertEqual(self.other_slot.status, "upcoming")
 
 
@@ -265,6 +265,33 @@ class TrainerDisappearsAfterCancellationTests(APITestCase):
         self.assertEqual(self.slot.status, "cancelled")
         
         # 5. Verify trainer is no longer in booked trainers list
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.client_token}")
+        response = self.client.get("/api/client/booked-trainers/")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["count"], 0)
+
+    def test_trainer_id_request_cancels_all_active_bookings_for_that_trainer(self):
+        """Verify that trainer_id-based cancellation removes the trainer from the booked list."""
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.client_token}")
+        response = self.client.post(
+            "/api/refund/training/cancel/",
+            {"trainer_id": self.trainer.id},
+            format="json"
+        )
+        self.assertEqual(response.status_code, 201)
+        cancel_request_id = response.data["data"]["request_id"]
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.admin_token}")
+        response = self.client.patch(
+            f"/api/refund/cancel-requests/{cancel_request_id}/status/",
+            {"status": "closed"},
+            format="json"
+        )
+        self.assertEqual(response.status_code, 200)
+
+        self.slot.refresh_from_db()
+        self.assertEqual(self.slot.status, "cancelled")
+
         self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.client_token}")
         response = self.client.get("/api/client/booked-trainers/")
         self.assertEqual(response.status_code, 200)
