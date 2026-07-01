@@ -43,7 +43,8 @@ class ClientDetailSerializer(serializers.ModelSerializer):
         from trainer.models import SlotBooking
         upcoming = SlotBooking.objects.filter(
             client=obj,
-            date__gte=date.today()
+            date__gte=date.today(),
+            status="upcoming"
         ).order_by("date", "time")
 
         return [

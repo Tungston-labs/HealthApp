@@ -30,7 +30,9 @@ from accounts.paginations import CustomPagination
 
 class ClientPlanSummaryAPIView(generics.GenericAPIView):
     def get(self, request, client_id):
-        bookings = SlotBooking.objects.filter(client_id=client_id)
+        bookings = SlotBooking.objects.filter(
+            client_id=client_id
+        ).exclude(status="cancelled")
 
         if not bookings.exists():
             return Response([])
@@ -85,8 +87,9 @@ class TrainerTodaySessionsView(GenericAPIView):
 
         queryset = SlotBooking.objects.filter(
             trainer=trainer,
-            date=today
-        ).order_by("time")
+            date=today,
+            status__in=["upcoming", "ongoing"]
+        )
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -415,10 +418,12 @@ class ClientTodaySessionView(APIView):
 
         try:
             session = SlotBooking.objects.select_related(
-                "trainer", "plan"
+                "trainer",
+                "plan"
             ).get(
                 client=client,
-                date=today
+                date=today,
+                status__in=["upcoming", "ongoing"]
             )
         except SlotBooking.DoesNotExist:
             return Response(

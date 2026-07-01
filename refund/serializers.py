@@ -87,7 +87,33 @@ class TrainingCancelDetailSerializer(serializers.ModelSerializer):
         ]
 
 
+from django.db import transaction
+from rest_framework import serializers
+from trainer.models import SlotBooking
+from .models import TrainingCancelRequest
+
 class TrainingCancelStatusUpdateSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = TrainingCancelRequest
         fields = ["status"]
+
+    def update(self, instance, validated_data):
+
+        with transaction.atomic():
+
+            old_status = instance.status
+            new_status = validated_data.get("status")
+
+            instance.status = new_status
+            instance.save()
+
+            if old_status != "approved" and new_status == "approved":
+
+                SlotBooking.objects.filter(
+                    client=instance.client,
+                    trainer=instance.trainer,
+                    status__in=["upcoming", "ongoing"]
+                ).update(status="cancelled")
+
+        return instance
