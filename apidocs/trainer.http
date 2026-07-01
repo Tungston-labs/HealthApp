@@ -252,3 +252,9 @@ Content-Type: application/json
   "razorpay_payment_id": "pay_S7AmQBPepYXZlA",
   "razorpay_signature": "decddfd24a47f43e5fc6172796acd92ac312e7d0e9a50c4bfb42fe7dd736da69"
 }
+
+
+#### get monthly trainer client count for dashboard
+GET {{base_url}}dashboard/monthly-count/?year=2026
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzgyOTMxOTkzLCJpYXQiOjE3ODI4ODg3OTMsImp0aSI6ImEwZTNlODJmYjBmNDQ5OGJhNDZmYjg0MjE1M2Y2YWQ0IiwidXNlcl9pZCI6Ijc0In0.UCuF-pYU91W8QQ_zosGd_1dnAAGMDUhm8dvlr6oA5lc
+

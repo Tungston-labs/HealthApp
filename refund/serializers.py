@@ -25,6 +25,7 @@ from .models import TrainingCancelRequest
 
 class TrainingCancelListSerializer(serializers.ModelSerializer):
     client_name = serializers.CharField(source="client.name")
+    client_id = serializers.CharField(source="client.id")
     trainer_name = serializers.CharField(source="trainer.name")
     training_field = serializers.CharField(source="trainer.training_field")
     plan_name = serializers.CharField(source="plan.name", default=None)
@@ -40,6 +41,7 @@ class TrainingCancelListSerializer(serializers.ModelSerializer):
             "amount",
             "request_date",
             "status",
+            "client_id",
         ]
 class TrainingCancelDetailSerializer(serializers.ModelSerializer):
     # Client
