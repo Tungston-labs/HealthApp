@@ -318,7 +318,8 @@ class UnBookedPlanListView(APIView):
             SlotBooking.objects
             .filter(
                 client=client,
-                status__in=["upcoming", "ongoing", "changed"]
+                status__in=["upcoming", "ongoing", "changed"],
+                trainer__status="approved",
             )
             .values_list("plan_id", flat=True)
             .distinct()

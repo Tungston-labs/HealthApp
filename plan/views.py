@@ -128,16 +128,17 @@ class PlanListView(generics.ListAPIView):
     def get_queryset(self):
         client = self.request.user.client
 
-        booked_plan_ids = (
+        active_booked_plan_ids = (
             SlotBooking.objects.filter(
                 client=client,
-                status__in=["upcoming", "ongoing"]
+                status__in=["upcoming", "ongoing", "changed"],
+                trainer__status="approved",
             )
             .values_list("plan_id", flat=True)
             .distinct()
         )
 
-        return Plan.objects.exclude(id__in=booked_plan_ids)
+        return Plan.objects.exclude(id__in=active_booked_plan_ids)
 
 
     def list(self, request, *args, **kwargs):
