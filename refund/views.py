@@ -20,15 +20,17 @@ class RequestTrainingCancelView(APIView):
 
     def post(self, request):
         client = request.user.client
+        slot_id = request.data.get("slot_id")
 
-        slot = (
-            SlotBooking.objects.filter(
-                client=client,
-                status__in=["upcoming", "ongoing"]
-            )
-            .order_by("date", "time")
-            .first()
+        slot_qs = SlotBooking.objects.filter(
+            client=client,
+            status__in=["upcoming", "ongoing"]
         )
+
+        if slot_id:
+            slot_qs = slot_qs.filter(id=slot_id)
+
+        slot = slot_qs.order_by("date", "time").first()
 
         if not slot:
             return Response(
@@ -161,7 +163,16 @@ class TrainingCancelStatusUpdateView(APIView):
         )
 
         if serializer.is_valid():
+            old_status = cancel_request.status
+            new_status = request.data.get("status")
             serializer.save()
+
+            if new_status in ["approved", "closed"] and old_status != new_status:
+                slot = getattr(cancel_request, "slot", None)
+                if slot is not None:
+                    slot.status = "cancelled"
+                    slot.save(update_fields=["status"])
+
             return Response({"message": "Status updated successfully"}, status=200)
 
         return Response(serializer.errors, status=400)

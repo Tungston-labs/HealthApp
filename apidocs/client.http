@@ -5,8 +5,8 @@ POST http://178.248.112.16:9001/api/auth/login/
 Content-Type: application/json
 
 {
-  "email_or_phno":"buji@gmail.com",
-  "password": "Buji@123"
+  "email_or_phno":"aish@gmail.com",
+  "password": "Aish@123"
 }
 ### Client Registration
 POST {{base_url}}register/
@@ -57,7 +57,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 ###list booked trainers by client
 GET {{base_url}}booked-trainers/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY5Mjg1OTc0LCJpYXQiOjE3NjkyNDI3NzQsImp0aSI6IjljMDQ1OTA2Yjc4NDRiMjFiOWRiY2QxNTBiMmJhZGQyIiwidXNlcl9pZCI6IjMifQ.p94eS8uJbomFOk0W2HORxVg7xc79lGws_K43683kfRQ
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzgyOTMyOTg2LCJpYXQiOjE3ODI4ODk3ODYsImp0aSI6IjJjNTE1YzBiMmY4ZjQ1NmU5ZjZhOTgwMjdjMTQ2ZjQyIiwidXNlcl9pZCI6IjMwNSJ9.0N4viV_eBlJE45flPp6766wyqZeHlf4LGCPnRXnrrmI
 
 ###get client profile in mobile app
 0Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3OTk3NDYxLCJpYXQiOjE3Njc5NTQyNjEsImp0aSI6IjgyNmUyMzdiMDc2ZjRkYzZhYTliYjc4Y2MzMmRlNDFlIiwidXNlcl9pZCI6IjI2In0.HWZms4m5oFQW8KclMmY0H6jIEj-Ra_3rwC3dVlydHpY

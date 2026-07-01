@@ -1,5 +1,8 @@
 from rest_framework import serializers
+from django.db import transaction
 from .models import TrainingCancelRequest
+from trainer.models import SlotBooking
+
 
 class TrainingCancelRequestSerializer(serializers.ModelSerializer):
     trainer_name = serializers.CharField(source="trainer.name", read_only=True)
@@ -18,10 +21,7 @@ class TrainingCancelRequestSerializer(serializers.ModelSerializer):
             "request_date",
             "reason",
         ]
-# serializers.py
 
-from rest_framework import serializers
-from .models import TrainingCancelRequest
 
 class TrainingCancelListSerializer(serializers.ModelSerializer):
     client_name = serializers.CharField(source="client.name")
@@ -43,6 +43,8 @@ class TrainingCancelListSerializer(serializers.ModelSerializer):
             "status",
             "client_id",
         ]
+
+
 class TrainingCancelDetailSerializer(serializers.ModelSerializer):
     # Client
     client_name = serializers.CharField(source="client.name")
@@ -89,11 +91,6 @@ class TrainingCancelDetailSerializer(serializers.ModelSerializer):
         ]
 
 
-from django.db import transaction
-from rest_framework import serializers
-from trainer.models import SlotBooking
-from .models import TrainingCancelRequest
-
 class TrainingCancelStatusUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -101,21 +98,21 @@ class TrainingCancelStatusUpdateSerializer(serializers.ModelSerializer):
         fields = ["status"]
 
     def update(self, instance, validated_data):
-
         with transaction.atomic():
-
             old_status = instance.status
             new_status = validated_data.get("status")
 
             instance.status = new_status
             instance.save()
 
-            if old_status != "approved" and new_status == "approved":
-
-                SlotBooking.objects.filter(
-                    client=instance.client,
-                    trainer=instance.trainer,
-                    status__in=["upcoming", "ongoing"]
-                ).update(status="cancelled")
+            if new_status in ["approved", "closed"] and old_status != new_status:
+                slot = getattr(instance, "slot", None)
+                if slot is not None:
+                    slot.status = "cancelled"
+                    slot.save(update_fields=["status"])
+                else:
+                    slot_id = instance.slot_id
+                    if slot_id:
+                        SlotBooking.objects.filter(id=slot_id).update(status="cancelled")
 
         return instance
