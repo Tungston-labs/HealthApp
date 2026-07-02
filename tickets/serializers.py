@@ -5,27 +5,43 @@ from nutrition.serializers import ClientDetailSerializer
 from trainer.models import Trainer,SlotBooking
 
 
+from rest_framework import serializers
+from .models import Ticket
+from trainer.models import Trainer, SlotBooking
+
 class TicketCreateSerializer(serializers.ModelSerializer):
+    trainer_id = serializers.IntegerField(write_only=True)
+
     class Meta:
         model = Ticket
-        fields = ["id", "complaint"]  # Only frontend sends complaint
-        read_only_fields = ["id", "status"]
+        fields = ["id", "trainer_id", "complaint"]
+        read_only_fields = ["id"]
 
     def create(self, validated_data):
         request = self.context["request"]
         client = request.user.client
 
-        # Get latest active booking for this client
-        booking = SlotBooking.objects.filter(client=client, status="upcoming").last()
+        trainer_id = validated_data.pop("trainer_id")
+
+        # Verify that this trainer has an active booking with the client
+        booking = SlotBooking.objects.filter(
+            client=client,
+            trainer_id=trainer_id,
+            status="upcoming"
+        ).last()
+
         if not booking:
-            raise serializers.ValidationError("No active booking found for this client.")
+            raise serializers.ValidationError(
+                "No active booking found for this trainer."
+            )
 
-        validated_data["client"] = client
-        validated_data["trainer"] = booking.trainer
-        validated_data["plan"] = booking.plan
-        validated_data["status"] = "open"
-
-        return super().create(validated_data)
+        return Ticket.objects.create(
+            client=client,
+            trainer=booking.trainer,
+            plan=booking.plan,
+            complaint=validated_data["complaint"],
+            status="open",
+        )
 
 
 class TicketListSerializer(serializers.ModelSerializer):

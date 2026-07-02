@@ -1,12 +1,12 @@
 
    @base_url = http://178.248.112.16:9001/api/client/
   # @base_url = http://localhost:8000/api/client/
-POST http://localhost:8000/api/auth/login/
+POST http://178.248.112.16:9001/api/auth/login/
 Content-Type: application/json
 
 {
-  "email_or_phno":"aish@gmail.com",
-  "password": "Aish@123"
+  "email_or_phno":"muneerausma@gmail.com",
+  "password": "Muneera@123"
 }
 ### Client Registration
 POST {{base_url}}register/

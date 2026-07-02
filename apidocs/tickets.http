@@ -1,10 +1,11 @@
 ### CLIENT: Create Ticket (Complaint)
 POST http://178.248.112.16:9001/api/tickets/create/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1OTIzNDYyLCJpYXQiOjE3NjU4ODAyNjIsImp0aSI6ImQ2YjNlMTUzZGU4MDQzZjU5OTNkNmIzNzY5ZGI4YTJkIiwidXNlcl9pZCI6IjE0In0.CMq1X9DYaYPwIeOZzdWXWJa3jZGptdy-AB9ujzcPiUA
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzgzMDI2OTY1LCJpYXQiOjE3ODI5ODM3NjUsImp0aSI6IjFkYzc0NWE5ZjczZjQ0MDhhMTFjZjlmM2U5NjFhNWRjIiwidXNlcl9pZCI6IjMwOCJ9.3OFtpXkUM4h_jLek1w3o93E3McwxTGtTMr-6bfh26FU
 Content-Type: application/json
 
 {
-  "complaint": "Trainer is not responding properly during sessions."
+    "trainer_id": 7,
+    "complaint": "Trainer did not attend today's session."
 }
 ### ADMIN: List Tickets
 GET http://127.0.0.1:8000/api/tickets/admin/
