@@ -138,6 +138,7 @@ class ClientBookedTrainerSerializer(serializers.ModelSerializer):
     trainer_id = serializers.CharField(source="trainer.id", read_only=True)
     trainer_profile_pic = serializers.SerializerMethodField()
     plan_name = serializers.CharField(source="plan.plan_name", read_only=True)
+    plan_type = serializers.CharField(source="plan.plan_type", read_only=True)
     day = serializers.SerializerMethodField()
 
     class Meta:
@@ -148,6 +149,7 @@ class ClientBookedTrainerSerializer(serializers.ModelSerializer):
             "trainer_id",
             "trainer_profile_pic",
             "plan_name",
+            "plan_type",
             "date",
             "day",
             "time",

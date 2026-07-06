@@ -1,5 +1,5 @@
-#  @base_url = http://178.248.112.16:9001/api/plan/
-@base_url = http://127.0.0.1:8000/api/plan/
+ @base_url = http://178.248.112.16:9001/api/plan/
+# @base_url = http://127.0.0.1:8000/api/plan/
 
 
 ### Create plan
@@ -60,7 +60,7 @@ Content-Type: application/json
 
 ### List plans by clients
 GET {{base_url}}clientlist/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzgyOTQ4MTk5LCJpYXQiOjE3ODI5MDQ5OTksImp0aSI6ImUwMDFlOTFlYzE4NTRiZTdhZWNhNDFiMDkyYTlmNzdhIiwidXNlcl9pZCI6IjMwNSJ9.6Fm0T_QbA394mRmZKdQ2DpdUyziA_j_mrm8FNCwPgdM
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzgyOTQ5OTQ1LCJpYXQiOjE3ODI5MDY3NDUsImp0aSI6IjA4ZjdiOWE4NjAwZDRmM2ZhMWE2N2ExNzYzZjVjZjExIiwidXNlcl9pZCI6IjMwNSJ9.D97uvCPSCvAwBzM50eHd99XBM8EO4G7dT4X57Sc8UP4
 #### List single plan by clients
 
 GET {{base_url}}clientview/1/
