@@ -891,11 +891,20 @@ class EditSlotBookingNoteView(APIView):
 
 
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+
 class SuspendTrainerView(APIView):
     permission_classes = [IsAdmin]
 
     def post(self, request, trainer_id):
-        trainer = get_object_or_404(Trainer, id=trainer_id)
+        trainer = get_object_or_404(
+            Trainer,
+            id=trainer_id,
+            is_deleted=False
+        )
 
         if not trainer.user:
             return Response(
@@ -903,15 +912,22 @@ class SuspendTrainerView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
+        # Disable login
         trainer.user.is_active = False
         trainer.user.save(update_fields=["is_active"])
+
+        # Soft delete / archive trainer
+        trainer.is_deleted = True
+        trainer.deleted_at = timezone.now()
+        trainer.save(update_fields=["is_deleted", "deleted_at"])
 
         return Response(
             {
                 "message": "Trainer suspended successfully",
                 "trainer_id": trainer.id,
                 "user_id": trainer.user.id,
-                "is_active": trainer.user.is_active
+                "is_active": trainer.user.is_active,
+                "is_deleted": trainer.is_deleted,
             },
             status=status.HTTP_200_OK
         )

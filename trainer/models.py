@@ -76,6 +76,8 @@ class Trainer(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False)
+    deleted_at = models.DateTimeField(null=True, blank=True)
 
 class TrainerAvailability(models.Model):
     trainer = models.OneToOneField("trainer.Trainer", on_delete=models.CASCADE)
