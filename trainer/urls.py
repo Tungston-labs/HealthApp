@@ -20,6 +20,11 @@ urlpatterns = [
         "payments/<int:pk>/send-invoice/",
         TrainerPaymentInvoiceView.as_view()
     ),
+    path(
+        "dashboard/monthly-count/",
+        MonthlyTrainerClientCountAPIView.as_view(),
+        name="monthly-trainer-client-count"
+    ),
 
 
 # ------MOBILE APP-trainer
@@ -49,11 +54,7 @@ urlpatterns = [
     path("verify-trainer-payment/",VerifyTrainerPaymentView.as_view()),
     path("payment/change-trainer/order/",CreateTrainerChangeOrderView.as_view()),
     path("payment/change-trainer/verify/",VerifyTrainerChangePaymentView.as_view()),
-    path(
-        "dashboard/monthly-count/",
-        MonthlyTrainerClientCountAPIView.as_view(),
-        name="monthly-trainer-client-count"
-    ),
+    
 
 
 
