@@ -72,14 +72,18 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://178.248.112.16:91",
-    "http://192.168.0.241:5174",
     "https://admin.fitsapio.com",
-
+    "https://fitsapio.com",
+    "https://www.fitsapio.com",
+    "http://localhost:5173",
+    "http://192.168.0.241:5174",
 ]
-CORS_ALLOW_ALL_ORIGINS = True
-
+CORS_ALLOW_ALL_ORIGINS = False
+CSRF_TRUSTED_ORIGINS = [
+    "https://admin.fitsapio.com",
+    "https://api.fitsapio.com",
+    "https://fitsapio.com",
+]
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = [
     "content-type",
