@@ -75,6 +75,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://178.248.112.16:91",
     "http://192.168.0.241:5174",
+    "https://admin.fitsapio.com",
 
 ]
 CORS_ALLOW_ALL_ORIGINS = True
