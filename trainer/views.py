@@ -1115,14 +1115,18 @@ HR Team
 
 
 
-import razorpay
-from django.conf import settings
+from datetime import datetime, timedelta
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from .models import Payment
-from .utils import get_plan_amount
 from requests.exceptions import ConnectTimeout
+import razorpay
+from razorpay.errors import SignatureVerificationError
+from django.conf import settings
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 class CreateTrainerBookingOrderView(APIView):
     permission_classes = [IsAuthenticated]
@@ -1133,18 +1137,72 @@ class CreateTrainerBookingOrderView(APIView):
         trainer_id = request.data.get("trainer_id")
         plan_id = request.data.get("plan_id")
         booking_type = request.data.get("booking_type")  # single/couple/group
+        start_date = request.data.get("start_date")
+        time_slot = request.data.get("time")
+        slot_days = request.data.get("slot_days")
 
+        # ✅ 1. VALIDATION
         if not all([trainer_id, plan_id, booking_type]):
-            return Response({"error": "Missing fields"}, 400)
+            return Response({"error": "Missing required fields: trainer_id, plan_id, and booking_type"}, 400)
 
-        client = Client.objects.get(user=request.user)
-        trainer = Trainer.objects.get(id=trainer_id, status="approved")
-        plan = Plan.objects.get(id=plan_id)
+        try:
+            client = Client.objects.get(user=request.user)
+            trainer = Trainer.objects.get(id=trainer_id, status="approved")
+            plan = Plan.objects.get(id=plan_id)
+        except Client.DoesNotExist:
+            return Response({"error": "Client profile not found"}, 400)
+        except Trainer.DoesNotExist:
+            return Response({"error": "Trainer not found or not approved"}, 400)
+        except Plan.DoesNotExist:
+            return Response({"error": "Workout plan not found"}, 400)
 
-        #  amount from trainer
+        # 🔒 2. PRE-PAYMENT CONFLICT CHECK (EXCLUDES CHANGED/CANCELLED BOOKINGS)
+        if start_date and time_slot and slot_days:
+            try:
+                time_slot_obj = datetime.strptime(time_slot, "%H:%M").time()
+                start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
+            except ValueError:
+                return Response({"error": "Invalid start_date (YYYY-MM-DD) or time (%H:%M) format"}, 400)
+
+            # Standardize slot_days to 3-letter codes ("mon", "tue", etc.)
+            if isinstance(slot_days, str):
+                slot_days = [s.strip().lower()[:3] for s in slot_days.split(",")]
+            else:
+                slot_days = [str(d).lower()[:3] for d in slot_days]
+
+            weekday_map = {
+                "mon": 0, "tue": 1, "wed": 2,
+                "thu": 3, "fri": 4, "sat": 5, "sun": 6
+            }
+
+            try:
+                selected_weekdays = [weekday_map[d] for d in slot_days]
+            except KeyError:
+                return Response({"error": "Invalid slot_days. Must be mon, tue, wed, thu, fri, sat, sun"}, 400)
+
+            max_sessions = getattr(trainer, 'no_of_section', 12) or 12
+            session_dates = []
+            d = start_date_obj
+            filled = 0
+
+            while filled < max_sessions:
+                if d.weekday() in selected_weekdays:
+                    session_dates.append(d)
+                    filled += 1
+                d += timedelta(days=1)
+
+            # 🛑 CRITICAL: Check ACTIVE bookings only (exclude changed and cancelled)
+            if SlotBooking.objects.filter(
+                trainer=trainer,
+                date__in=session_dates,
+                time=time_slot_obj
+            ).exclude(status__in=["changed", "cancelled"]).exists():
+                return Response({"error": "Trainer is already booked for this session time slot"}, 400)
+
+        # 💰 3. GET AMOUNT
         amount = get_plan_amount(trainer, booking_type)
 
-
+        # 💳 4. CREATE RAZORPAY ORDER
         razorpay_client = razorpay.Client(
             auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
         )
@@ -1156,16 +1214,18 @@ class CreateTrainerBookingOrderView(APIView):
                     "currency": "INR",
                     "payment_capture": 1
                 },
-                timeout=10  # ⬅️ ADD THIS
+                timeout=10
             )
         except ConnectTimeout:
             return Response(
                 {"error": "Unable to connect to payment gateway. Try again later."},
                 status=503
             )
+        except Exception as e:
+            logger.error("Razorpay order creation error: %s", str(e))
+            return Response({"error": f"Payment order creation failed: {str(e)}"}, 400)
 
-
-        #  Save payment
+        # 💾 5. SAVE PAYMENT
         payment = Payment.objects.create(
             client=client,
             trainer=trainer,
@@ -1272,11 +1332,12 @@ class VerifyTrainerPaymentView(APIView):
             d += timedelta(days=1)
 
         # 🔒 Conflict check
+                # 🔒 Conflict check (Exclude changed & cancelled)
         if SlotBooking.objects.filter(
             trainer=trainer,
             date__in=session_dates,
             time=time_slot_obj
-        ).exists():
+        ).exclude(status__in=["changed", "cancelled"]).exists():
             return Response({"error": "Trainer already booked"}, 400)
 
         # ✅ ATOMIC SAVE
